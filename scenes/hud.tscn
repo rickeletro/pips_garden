@@ -1,103 +1,60 @@
 [gd_scene format=3 uid="uid://b1m7q9v4c3x8e"]
 
 [ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+[ext_resource type="Theme" path="res://ui/theme/jardim.tres" id="2_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/action_slot.tscn" id="3_slot_scn"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_flower.svg" id="4_ic_flower"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_grass.svg" id="5_ic_grass"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_tower.svg" id="6_ic_tower"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_needle.svg" id="7_ic_needle"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_poison.svg" id="8_ic_poison"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_dash.svg" id="9_ic_dash"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_repair.svg" id="10_ic_repair"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_twig.svg" id="11_ic_twig"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_gear.svg" id="12_ic_gear"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_seed.svg" id="13_ic_seed"]
+[ext_resource type="FontFile" path="res://ui/fonts/Fondamento-Regular.ttf" id="14_font_title"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.12, 0.16, 0.12, 0.88)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pip_hp"]
-bg_color = Color(0.25, 0.75, 0.35, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_flower_hp"]
-bg_color = Color(0.92, 0.25, 0.45, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xp"]
-bg_color = Color(0.95, 0.8, 0.2, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_flower_fill"]
+bg_color = Color(0.709804, 0.278431, 0.121569, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_countdown"]
-bg_color = Color(0.95, 0.65, 0.15, 1)
+bg_color = Color(0.909804, 0.72549, 0.290196, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pip_hp"]
+bg_color = Color(0.560784, 0.690196, 0.352941, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
-bg_color = Color(0.22, 0.55, 0.32, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
-bg_color = Color(0.3, 0.68, 0.4, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
-bg_color = Color(0.16, 0.22, 0.16, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.35, 0.5, 0.3, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_hover"]
-bg_color = Color(0.22, 0.32, 0.22, 0.98)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.9, 0.8, 0.35, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_disabled"]
-bg_color = Color(0.12, 0.14, 0.12, 0.6)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.25, 0.25, 0.25, 0.5)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pip_xp"]
+bg_color = Color(0.788235, 0.584314, 0.235294, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 
 [sub_resource type="LabelSettings" id="LabelSettings_banner"]
-font_size = 22
-outline_size = 6
-outline_color = Color(0, 0, 0, 0.85)
+font_size = 20
+font_color = Color(0.952941, 0.901961, 0.768627, 1)
+outline_size = 5
+outline_color = Color(0.12, 0.08, 0.05, 0.9)
 
-[sub_resource type="LabelSettings" id="LabelSettings_big"]
-font_size = 32
-outline_size = 8
-outline_color = Color(0, 0, 0, 0.9)
+[sub_resource type="LabelSettings" id="LabelSettings_overlay"]
+font = ExtResource("14_font_title")
+font_size = 28
+font_color = Color(0.952941, 0.901961, 0.768627, 1)
+outline_size = 6
+outline_color = Color(0.12, 0.08, 0.05, 0.9)
 
 [node name="GameHUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -108,10 +65,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme = ExtResource("2_theme")
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
 
 [node name="TopLeft" type="Control" parent="Margin"]
 layout_mode = 2
@@ -119,123 +77,12 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 
 [node name="Panel" type="Panel" parent="Margin/TopLeft"]
+custom_minimum_size = Vector2(280, 78)
 layout_mode = 0
-offset_right = 240.0
-offset_bottom = 110.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+offset_right = 280.0
+offset_bottom = 78.0
 
-[node name="VBox" type="VBoxContainer" parent="Margin/TopLeft"]
-layout_mode = 0
-offset_left = 12.0
-offset_top = 8.0
-offset_right = 228.0
-offset_bottom = 100.0
-
-[node name="NameLabel" type="Label" parent="Margin/TopLeft/VBox"]
-layout_mode = 2
-text = "🗡️ Pip (A Pequena Coletora)"
-
-[node name="HPLabel" type="Label" parent="Margin/TopLeft/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "Pip HP: 100 / 100"
-
-[node name="HPBar" type="ProgressBar" parent="Margin/TopLeft/VBox"]
-custom_minimum_size = Vector2(0, 12)
-layout_mode = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_pip_hp")
-value = 100.0
-show_percentage = false
-
-[node name="LevelLabel" type="Label" parent="Margin/TopLeft/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "Nível 1 (XP: 0 / 50)"
-
-[node name="XPBar" type="ProgressBar" parent="Margin/TopLeft/VBox"]
-custom_minimum_size = Vector2(0, 8)
-layout_mode = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_xp")
-value = 0.0
-show_percentage = false
-
-[node name="TopCenter" type="Control" parent="Margin"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 0
-
-[node name="VBox" type="VBoxContainer" parent="Margin/TopCenter"]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -210.0
-offset_right = 210.0
-offset_bottom = 145.0
-grow_horizontal = 2
-theme_override_constants/separation = 4
-
-[node name="WaveLabel" type="Label" parent="Margin/TopCenter/VBox"]
-layout_mode = 2
-text = "Onda 1 / 7 - Preparação"
-horizontal_alignment = 1
-
-[node name="FlowerLabel" type="Label" parent="Margin/TopCenter/VBox"]
-layout_mode = 2
-text = "🌸 Flor do Jardim: 120 / 120"
-horizontal_alignment = 1
-
-[node name="FlowerHPBar" type="ProgressBar" parent="Margin/TopCenter/VBox"]
-custom_minimum_size = Vector2(400, 16)
-layout_mode = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_flower_hp")
-value = 100.0
-show_percentage = false
-
-[node name="CountdownContainer" type="HBoxContainer" parent="Margin/TopCenter/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="CountdownLabel" type="Label" parent="Margin/TopCenter/VBox/CountdownContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
-theme_override_font_sizes/font_size = 13
-text = "⏳ Início automático em: 15s"
-
-[node name="CountdownBar" type="ProgressBar" parent="Margin/TopCenter/VBox/CountdownContainer"]
-custom_minimum_size = Vector2(140, 10)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_styles/fill = SubResource("StyleBoxFlat_countdown")
-max_value = 15.0
-value = 15.0
-show_percentage = false
-
-[node name="SkipWaitButton" type="Button" parent="Margin/TopCenter/VBox"]
-custom_minimum_size = Vector2(230, 32)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
-text = "⏩ Iniciar Agora (Enter/F)"
-
-[node name="TopRight" type="Control" parent="Margin"]
-layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 0
-
-[node name="Panel" type="Panel" parent="Margin/TopRight"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -220.0
-offset_bottom = 120.0
-grow_horizontal = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
-
-[node name="VBox" type="VBoxContainer" parent="Margin/TopRight/Panel"]
+[node name="VBox" type="VBoxContainer" parent="Margin/TopLeft/Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -246,100 +93,350 @@ offset_right = -12.0
 offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 4
 
-[node name="Title" type="Label" parent="Margin/TopRight/Panel/VBox"]
+[node name="FlowerHBox" type="HBoxContainer" parent="Margin/TopLeft/Panel/VBox"]
 layout_mode = 2
-text = "🎒 Bolsa de Couro"
+theme_override_constants/separation = 8
 
-[node name="TwigsLabel" type="Label" parent="Margin/TopRight/Panel/VBox"]
+[node name="FlowerIcon" type="TextureRect" parent="Margin/TopLeft/Panel/VBox/FlowerHBox"]
+custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
-text = "🌿 Gravetos: 10"
+texture = ExtResource("4_ic_flower")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="GearsLabel" type="Label" parent="Margin/TopRight/Panel/VBox"]
+[node name="FlowerBar" type="ProgressBar" parent="Margin/TopLeft/Panel/VBox/FlowerHBox"]
+custom_minimum_size = Vector2(150, 10)
 layout_mode = 2
-text = "⚙️ Engrenagens: 4"
+size_flags_vertical = 4
+theme_override_styles/fill = SubResource("StyleBoxFlat_flower_fill")
+value = 100.0
+show_percentage = false
 
-[node name="SeedsLabel" type="Label" parent="Margin/TopRight/Panel/VBox"]
-layout_mode = 2
-text = "🌱 Sementes: 8"
-
-[node name="CapacityLabel" type="Label" parent="Margin/TopRight/Panel/VBox"]
+[node name="FlowerHPLabel" type="Label" parent="Margin/TopLeft/Panel/VBox/FlowerHBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
-text = "Bolsa: 22 / 30"
+text = "120 / 120"
 
-[node name="BottomBar" type="Control" parent="Margin"]
+[node name="WaveHBox" type="HBoxContainer" parent="Margin/TopLeft/Panel/VBox"]
 layout_mode = 2
-size_flags_vertical = 8
+theme_override_constants/separation = 8
 
-[node name="HotbarContainer" type="HBoxContainer" parent="Margin/BottomBar"]
+[node name="WaveLabel" type="Label" parent="Margin/TopLeft/Panel/VBox/WaveHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Onda 1 / 7"
+
+[node name="CountdownLabel" type="Label" parent="Margin/TopLeft/Panel/VBox/WaveHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.91, 0.73, 0.29, 1)
+theme_override_font_sizes/font_size = 11
+text = "15s"
+
+[node name="SkipButton" type="Button" parent="Margin/TopLeft/Panel/VBox/WaveHBox"]
+custom_minimum_size = Vector2(65, 20)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "⏩ Pular"
+
+[node name="CountdownBar" type="ProgressBar" parent="Margin/TopLeft/Panel/VBox"]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_countdown")
+max_value = 15.0
+value = 15.0
+show_percentage = false
+
+[node name="TopRight" type="Control" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+
+[node name="HBox" type="HBoxContainer" parent="Margin/TopRight"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -140.0
+offset_bottom = 60.0
+grow_horizontal = 0
+theme_override_constants/separation = 8
+
+[node name="MinimapPanel" type="Panel" parent="Margin/TopRight/HBox"]
+custom_minimum_size = Vector2(68, 60)
+layout_mode = 2
+
+[node name="RadarCenter" type="ColorRect" parent="Margin/TopRight/HBox/MinimapPanel"]
+custom_minimum_size = Vector2(8, 8)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -4.0
+offset_top = -4.0
+offset_right = 4.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.709804, 0.278431, 0.121569, 1)
+
+[node name="MinimapLabel" type="Label" parent="Margin/TopRight/HBox/MinimapPanel"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -460.0
-offset_top = -68.0
-offset_right = 460.0
+offset_left = -26.0
+offset_top = -14.0
+offset_right = 26.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_constants/separation = 12
+theme_override_font_sizes/font_size = 9
+text = "JARDIM"
+horizontal_alignment = 1
+
+[node name="PauseButton" type="Button" parent="Margin/TopRight/HBox"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 14
+text = "⏸"
+
+[node name="BottomLeft" type="Control" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+
+[node name="Panel" type="Panel" parent="Margin/BottomLeft"]
+custom_minimum_size = Vector2(210, 72)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -72.0
+offset_right = 210.0
+grow_vertical = 0
+
+[node name="VBox" type="VBoxContainer" parent="Margin/BottomLeft/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 4
+
+[node name="NameHBox" type="HBoxContainer" parent="Margin/BottomLeft/Panel/VBox"]
+layout_mode = 2
+
+[node name="PipTitle" type="Label" parent="Margin/BottomLeft/Panel/VBox/NameHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.952941, 0.901961, 0.768627, 1)
+theme_override_font_sizes/font_size = 12
+text = "🗡️ Pip (Coletora)"
+
+[node name="LevelLabel" type="Label" parent="Margin/BottomLeft/Panel/VBox/NameHBox"]
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_colors/font_color = Color(0.909804, 0.72549, 0.290196, 1)
+theme_override_font_sizes/font_size = 11
+text = "Nível 1"
+
+[node name="HPHBox" type="HBoxContainer" parent="Margin/BottomLeft/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HPBar" type="ProgressBar" parent="Margin/BottomLeft/Panel/VBox/HPHBox"]
+custom_minimum_size = Vector2(125, 8)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/fill = SubResource("StyleBoxFlat_pip_hp")
+value = 100.0
+show_percentage = false
+
+[node name="HPLabel" type="Label" parent="Margin/BottomLeft/Panel/VBox/HPHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "100/100"
+
+[node name="XPBar" type="ProgressBar" parent="Margin/BottomLeft/Panel/VBox"]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_pip_xp")
+value = 0.0
+show_percentage = false
+
+[node name="BottomCenter" type="Control" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+
+[node name="HotbarPanel" type="Panel" parent="Margin/BottomCenter"]
+custom_minimum_size = Vector2(360, 78)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = -78.0
+offset_right = 180.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="HBox" type="HBoxContainer" parent="Margin/BottomCenter/HotbarPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 5.0
+offset_right = -8.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 6
 alignment = 1
 
-[node name="SlotGrass" type="Button" parent="Margin/BottomBar/HotbarContainer"]
-custom_minimum_size = Vector2(140, 64)
+[node name="SlotGrass" parent="Margin/BottomCenter/HotbarPanel/HBox" instance=ExtResource("3_slot_scn")]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
-theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
-text = "🌱 Plantar [Q]
-(1 Semente)"
+action_name = "Grama"
+key_shortcut = "Q"
+icon_texture = ExtResource("5_ic_grass")
+cost_description = "1 Semente"
+tooltip_info = "Planta grama que desacelera hordas terrestres."
 
-[node name="SlotTower" type="Button" parent="Margin/BottomBar/HotbarContainer"]
-custom_minimum_size = Vector2(150, 64)
+[node name="SlotTower" parent="Margin/BottomCenter/HotbarPanel/HBox" instance=ExtResource("3_slot_scn")]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
-theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
-text = "🏹 Torre [B]
-(3 🌿, 2 ⚙️)"
+action_name = "Torre"
+key_shortcut = "B"
+icon_texture = ExtResource("6_ic_tower")
+cost_description = "3 Gravetos, 2 Engrenagens"
+tooltip_info = "Ergue uma torre de gravetos com borrifador de veneno."
 
-[node name="SlotAttack" type="Button" parent="Margin/BottomBar/HotbarContainer"]
-custom_minimum_size = Vector2(140, 64)
+[node name="SlotAttack" parent="Margin/BottomCenter/HotbarPanel/HBox" instance=ExtResource("3_slot_scn")]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
-theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
-text = "🗡️ Ataque
-[Espaço/Click]"
+action_name = "Ataque"
+key_shortcut = "Esp"
+icon_texture = ExtResource("7_ic_needle")
+tooltip_info = "Combo de 3 tempos com a agulha de costura."
 
-[node name="SlotPoison" type="Button" parent="Margin/BottomBar/HotbarContainer"]
-custom_minimum_size = Vector2(145, 64)
+[node name="SlotPoison" parent="Margin/BottomCenter/HotbarPanel/HBox" instance=ExtResource("3_slot_scn")]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
-theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
-text = "🧪 Veneno [T]
-(Lento/Ácido/Névoa)"
+action_name = "Lento"
+key_shortcut = "T"
+icon_texture = ExtResource("8_ic_poison")
+tooltip_info = "Alterna veneno da torre próxima (Lento, Ácido, Névoa)."
 
-[node name="SlotDash" type="Button" parent="Margin/BottomBar/HotbarContainer"]
-custom_minimum_size = Vector2(135, 64)
+[node name="SlotDash" parent="Margin/BottomCenter/HotbarPanel/HBox" instance=ExtResource("3_slot_scn")]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
-theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
-text = "💨 Esquiva
-[Shift / R-Click]"
+action_name = "Esquiva"
+key_shortcut = "Shift"
+icon_texture = ExtResource("9_ic_dash")
+tooltip_info = "Esquiva rápida com estocada perfurante."
 
-[node name="SlotRepair" type="Button" parent="Margin/BottomBar/HotbarContainer"]
-custom_minimum_size = Vector2(140, 64)
+[node name="SlotRepair" parent="Margin/BottomCenter/HotbarPanel/HBox" instance=ExtResource("3_slot_scn")]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
-theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
-text = "🔨 Reparar [E]
-(2 Gravetos)"
+action_name = "Reparar"
+key_shortcut = "E"
+icon_texture = ExtResource("10_ic_repair")
+cost_description = "2 Gravetos"
+tooltip_info = "Conserta ou evolui a torre de gravetos próxima."
+
+[node name="BottomRight" type="Control" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+
+[node name="Panel" type="Panel" parent="Margin/BottomRight"]
+custom_minimum_size = Vector2(230, 56)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -230.0
+offset_top = -56.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="HBox" type="HBoxContainer" parent="Margin/BottomRight/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 6.0
+offset_right = -10.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="TwigsHBox" type="HBoxContainer" parent="Margin/BottomRight/Panel/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="TwigIcon" type="TextureRect" parent="Margin/BottomRight/Panel/HBox/TwigsHBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("11_ic_twig")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TwigsLabel" type="Label" parent="Margin/BottomRight/Panel/HBox/TwigsHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "10"
+
+[node name="GearsHBox" type="HBoxContainer" parent="Margin/BottomRight/Panel/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="GearIcon" type="TextureRect" parent="Margin/BottomRight/Panel/HBox/GearsHBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("12_ic_gear")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GearsLabel" type="Label" parent="Margin/BottomRight/Panel/HBox/GearsHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "4"
+
+[node name="SeedsHBox" type="HBoxContainer" parent="Margin/BottomRight/Panel/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="SeedIcon" type="TextureRect" parent="Margin/BottomRight/Panel/HBox/SeedsHBox"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("13_ic_seed")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SeedsLabel" type="Label" parent="Margin/BottomRight/Panel/HBox/SeedsHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "8"
+
+[node name="CapLabel" type="Label" parent="Margin/BottomRight/Panel/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.909804, 0.72549, 0.290196, 1)
+theme_override_font_sizes/font_size = 11
+text = "🎒 22/30"
 
 [node name="BannerContainer" type="Control" parent="."]
 layout_mode = 3
@@ -380,7 +477,6 @@ offset_right = 220.0
 offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="VBox" type="VBoxContainer" parent="GameOverPanel"]
 layout_mode = 1
@@ -398,7 +494,7 @@ theme_override_constants/separation = 16
 [node name="Title" type="Label" parent="GameOverPanel/VBox"]
 layout_mode = 2
 text = "A FLOR FOI DEVORADA!"
-label_settings = SubResource("LabelSettings_big")
+label_settings = SubResource("LabelSettings_overlay")
 horizontal_alignment = 1
 
 [node name="Desc" type="Label" parent="GameOverPanel/VBox"]
@@ -408,10 +504,9 @@ Plante grama para desacelerá-las e posicione torres de veneno!"
 horizontal_alignment = 1
 
 [node name="RestartBtn" type="Button" parent="GameOverPanel/VBox"]
-custom_minimum_size = Vector2(180, 42)
+custom_minimum_size = Vector2(180, 40)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
 text = "🔄 Tentar Novamente (R)"
 
 [node name="VictoryPanel" type="Panel" parent="."]
@@ -427,7 +522,6 @@ offset_right = 220.0
 offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="VBox" type="VBoxContainer" parent="VictoryPanel"]
 layout_mode = 1
@@ -445,7 +539,7 @@ theme_override_constants/separation = 16
 [node name="Title" type="Label" parent="VictoryPanel/VBox"]
 layout_mode = 2
 text = "🌸 JARDIM SALVO! 🌸"
-label_settings = SubResource("LabelSettings_big")
+label_settings = SubResource("LabelSettings_overlay")
 horizontal_alignment = 1
 
 [node name="Desc" type="Label" parent="VictoryPanel/VBox"]
@@ -454,10 +548,9 @@ text = "Parabéns, Pip! Você defendeu todas as 7 ondas com sucesso contra as ho
 horizontal_alignment = 1
 
 [node name="PlayAgainBtn" type="Button" parent="VictoryPanel/VBox"]
-custom_minimum_size = Vector2(180, 42)
+custom_minimum_size = Vector2(180, 40)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
 text = "✨ Jogar Novamente (R)"
 
 [connection signal="pressed" from="GameOverPanel/VBox/RestartBtn" to="." method="_on_restart_pressed"]

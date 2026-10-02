@@ -1,0 +1,138 @@
+[gd_scene format=3 uid="uid://c3m7x8q4v1p0w"]
+
+[ext_resource type="Script" path="res://scripts/ui/action_slot.gd" id="1_slot"]
+[ext_resource type="Theme" path="res://ui/theme/jardim.tres" id="2_theme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_keybadge"]
+bg_color = Color(0.12, 0.16, 0.1, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.91, 0.73, 0.29, 0.8)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="LabelSettings" id="LabelSettings_key"]
+font_size = 10
+font_color = Color(0.95, 0.9, 0.77, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_act"]
+font_size = 11
+font_color = Color(0.95, 0.9, 0.77, 1)
+outline_size = 3
+outline_color = Color(0.12, 0.08, 0.05, 0.9)
+
+[node name="ActionSlot" type="Control"]
+custom_minimum_size = Vector2(52, 68)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 52.0
+offset_bottom = 68.0
+theme = ExtResource("2_theme")
+script = ExtResource("1_slot")
+
+[node name="Button" type="Button" parent="."]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -24.0
+offset_right = 24.0
+offset_bottom = 48.0
+grow_horizontal = 2
+pivot_offset = Vector2(24, 24)
+
+[node name="IconRect" type="TextureRect" parent="Button"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -14.0
+offset_top = -14.0
+offset_right = 14.0
+offset_bottom = 14.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(14, 14)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="KeyBadge" type="Label" parent="Button"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -18.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 13.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_keybadge")
+text = "Q"
+label_settings = SubResource("LabelSettings_key")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WarningBorder" type="ReferenceRect" parent="Button"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+border_color = Color(0.784314, 0.25098, 0.184314, 1)
+border_width = 2.5
+editor_only = false
+
+[node name="CooldownOverlay" type="ColorRect" parent="Button"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.08, 0.08, 0.75)
+
+[node name="CooldownLabel" type="Label" parent="Button/CooldownOverlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -10.0
+offset_right = 20.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 11
+text = "0.5s"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ActionLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -30.0
+offset_top = -18.0
+offset_right = 30.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Ação"
+label_settings = SubResource("LabelSettings_act")
+horizontal_alignment = 1
+vertical_alignment = 1
