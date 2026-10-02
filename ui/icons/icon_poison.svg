@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Frasco artesanal de vidro com veneno -->
+  <path d="M26 18 L38 18 L38 24 L46 36 C50 42 48 54 38 56 C26 58 16 52 18 40 L26 24 Z" 
+        fill="#8E7CC3" stroke="#5A3E2B" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Nível do veneno e bolhas -->
+  <path d="M19 42 C24 38 40 44 45 40 C46 48 44 54 36 55 C26 56 18 50 19 42 Z" fill="#7ED957"/>
+  <circle cx="28" cy="46" r="2.5" fill="#E8B94A"/>
+  <circle cx="36" cy="48" r="1.5" fill="#F3E6C4"/>
+  <circle cx="34" cy="42" r="2" fill="#E8B94A"/>
+  <!-- Rolha de cortiça com raminho -->
+  <rect x="27" y="10" width="10" height="8" rx="2" fill="#C9953C" stroke="#5A3E2B" stroke-width="1.8"/>
+  <path d="M32 10 C32 6 36 4 40 6" fill="none" stroke="#8FB05A" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Gota suspensa -->
+  <path d="M50 20 C50 20 46 26 46 29 C46 31 48 33 50 33 C52 33 54 31 54 29 C54 26 50 20 50 20 Z" fill="#E39A2D" stroke="#5A3E2B" stroke-width="1.5"/>
+</svg>

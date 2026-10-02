@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Lâmina da agulha prateada -->
+  <path d="M48 10 L52 14 L28 42 L24 38 Z" fill="#F3E6C4" stroke="#5A3E2B" stroke-width="2"/>
+  <path d="M52 14 L56 8 L50 12 Z" fill="#E8B94A"/>
+  <!-- Olho da agulha na ponta com brilho -->
+  <ellipse cx="51" cy="13" rx="1.5" ry="3" transform="rotate(45 51 13)" fill="#5A3E2B"/>
+  <!-- Guarda-mão de dedal de latão -->
+  <rect x="21" y="37" width="10" height="7" rx="2" transform="rotate(45 26 40.5)" fill="#C9953C" stroke="#5A3E2B" stroke-width="1.8"/>
+  <!-- Cabo com linha de costura vermelha enrolada -->
+  <path d="M22 44 L12 54" stroke="#B5471F" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="20" y1="46" x2="18" y2="44" stroke="#F3E6C4" stroke-width="1.5"/>
+  <line x1="16" y1="50" x2="14" y2="48" stroke="#F3E6C4" stroke-width="1.5"/>
+  <!-- Laço de linha solta -->
+  <path d="M12 54 C8 58 6 52 9 47 C12 43 16 46 16 46" fill="none" stroke="#B5471F" stroke-width="2" stroke-linecap="round"/>
+</svg>

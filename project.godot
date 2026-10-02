@@ -20,6 +20,10 @@ config/icon="res://icon.svg"
 
 GameManager="*res://scripts/game_manager.gd"
 
+[gui]
+
+theme/custom="res://ui/theme/jardim.tres"
+
 [display]
 
 window/size/viewport_width=1280

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Linhas cinéticas e rastro de vento -->
+  <path d="M8 22 C18 20 28 24 38 20" fill="none" stroke="#E8B94A" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M12 32 C26 30 38 34 52 30" fill="none" stroke="#F3E6C4" stroke-width="3" stroke-linecap="round"/>
+  <path d="M6 42 C16 40 28 44 42 40" fill="none" stroke="#8FB05A" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Folhas rodopiando na esquiva -->
+  <path d="M46 16 C52 14 56 18 54 24 C48 26 44 22 46 16 Z" fill="#8FB05A" stroke="#5A3E2B" stroke-width="1.8"/>
+  <path d="M26 14 C30 12 33 15 32 19 C28 20 25 18 26 14 Z" fill="#E8B94A" stroke="#5A3E2B" stroke-width="1.5"/>
+  <path d="M36 46 C42 44 45 48 43 52 C38 54 34 50 36 46 Z" fill="#8FB05A" stroke="#5A3E2B" stroke-width="1.8"/>
+  <!-- Ponta de impacto -->
+  <polygon points="56,30 46,25 48,30 46,35" fill="#E8B94A"/>
+</svg>

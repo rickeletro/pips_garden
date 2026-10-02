@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Corpo da semente ovalada -->
+  <path d="M32 14 C44 26 48 42 32 54 C16 42 20 26 32 14 Z" 
+        fill="#8FB05A" stroke="#5A3E2B" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Destaque interno de brilho -->
+  <path d="M30 22 C36 28 38 38 28 46" fill="none" stroke="#E8B94A" stroke-width="3" stroke-linecap="round"/>
+  <!-- Gota de orvalho reluzente -->
+  <circle cx="28" cy="28" r="3" fill="#F3E6C4"/>
+  <circle cx="27" cy="27" r="1" fill="#FFFFFF"/>
+  <!-- Pequena folhinha no topo -->
+  <path d="M32 14 C32 8 36 6 40 8 C38 12 34 14 32 14 Z" fill="#4F6B3A" stroke="#5A3E2B" stroke-width="1.2"/>
+</svg>

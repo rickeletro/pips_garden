@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Pétalas da flor central -->
+  <g fill="#B5471F" stroke="#5A3E2B" stroke-width="2" stroke-linejoin="round">
+    <ellipse cx="32" cy="18" rx="8" ry="12"/>
+    <ellipse cx="32" cy="46" rx="8" ry="12"/>
+    <ellipse cx="18" cy="32" rx="12" ry="8"/>
+    <ellipse cx="46" cy="32" rx="12" ry="8"/>
+    <ellipse cx="22" cy="22" rx="10" ry="7" transform="rotate(45 22 22)"/>
+    <ellipse cx="42" cy="42" rx="10" ry="7" transform="rotate(45 42 42)"/>
+    <ellipse cx="42" cy="22" rx="10" ry="7" transform="rotate(-45 42 22)"/>
+    <ellipse cx="22" cy="42" rx="10" ry="7" transform="rotate(-45 22 42)"/>
+  </g>
+  <!-- Miolo de pólen dourado com brilho -->
+  <circle cx="32" cy="32" r="10" fill="#E8B94A" stroke="#5A3E2B" stroke-width="2"/>
+  <circle cx="32" cy="32" r="7" fill="#C9953C"/>
+  <circle cx="30" cy="30" r="2" fill="#F3E6C4"/>
+</svg>

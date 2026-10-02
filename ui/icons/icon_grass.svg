@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Semente e broto de grama viçosa -->
+  <path d="M32 54 C32 54 28 42 22 34 C16 26 12 24 10 16 C16 16 26 20 30 28 C30 22 28 14 36 8 C40 16 38 26 35 32 C41 24 49 18 54 18 C54 24 48 32 40 40 C35 45 32 54 32 54 Z" 
+        fill="#8FB05A" stroke="#5A3E2B" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Nervura central / destaque dourado -->
+  <path d="M32 52 C32 44 33 34 36 20" fill="none" stroke="#E8B94A" stroke-width="2" stroke-linecap="round"/>
+  <path d="M26 38 C22 34 18 30 16 24" fill="none" stroke="#F3E6C4" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Base de terra fértil -->
+  <ellipse cx="32" cy="56" rx="14" ry="4" fill="#5A3E2B"/>
+</svg>

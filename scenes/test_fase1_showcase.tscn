@@ -1,0 +1,346 @@
+[gd_scene format=3 uid="uid://b0f1showcase1x"]
+
+[ext_resource type="Script" path="res://scripts/test_fase1_showcase.gd" id="1_show"]
+[ext_resource type="Theme" path="res://ui/theme/jardim.tres" id="2_theme"]
+[ext_resource type="FontFile" path="res://ui/fonts/Fondamento-Regular.ttf" id="3_font_title"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_grass.svg" id="4_ic_grass"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_tower.svg" id="5_ic_tower"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_needle.svg" id="6_ic_needle"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_poison.svg" id="7_ic_poison"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_dash.svg" id="8_ic_dash"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_repair.svg" id="9_ic_repair"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_twig.svg" id="10_ic_twig"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_gear.svg" id="11_ic_gear"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_seed.svg" id="12_ic_seed"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_flower.svg" id="13_ic_flower"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_fondamento"]
+font = ExtResource("3_font_title")
+font_size = 32
+font_color = Color(0.952941, 0.901961, 0.768627, 1)
+outline_size = 6
+outline_color = Color(0.12, 0.08, 0.05, 0.9)
+
+[node name="Showcase" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_show")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.15, 0.2, 0.14, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "Jardim Miúdo — Fase 1: Fundação Visual"
+label_settings = SubResource("LabelSettings_fondamento")
+
+[node name="Subtitle" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "Design Tokens (ui/theme/tokens.gd) • Theme Godot (ui/theme/jardim.tres) • Ícones SVG 64px • Tipografia Nunito & Fondamento"
+
+[node name="HBox" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="PanelPalette" type="Panel" parent="Margin/VBox/HBox"]
+custom_minimum_size = Vector2(400, 480)
+layout_mode = 2
+
+[node name="VBoxPalette" type="VBoxContainer" parent="Margin/VBox/HBox/PanelPalette"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="PalLabel" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+layout_mode = 2
+text = "PALETA DE TOKENS OFICIAL"
+
+[node name="C1" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.309804, 0.419608, 0.227451, 1)
+
+[node name="L1" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C1"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+text = "verde_musgo #4F6B3A"
+
+[node name="C2" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.560784, 0.690196, 0.352941, 1)
+
+[node name="L2" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C2"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+text = "verde_folha #8FB05A"
+
+[node name="C3" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.352941, 0.243137, 0.168627, 1)
+
+[node name="L3" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C3"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+text = "marrom_casca #5A3E2B"
+
+[node name="C4" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.952941, 0.901961, 0.768627, 1)
+
+[node name="L4" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C4"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+theme_override_colors/font_color = Color(0.2, 0.15, 0.1, 1)
+text = "creme_pergaminho #F3E6C4"
+
+[node name="C5" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.909804, 0.72549, 0.290196, 1)
+
+[node name="L5" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C5"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+text = "dourado_luz #E8B94A"
+
+[node name="C6" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.709804, 0.278431, 0.121569, 1)
+
+[node name="L6" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C6"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+text = "ruivo_cobre #B5471F"
+
+[node name="C7" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.788235, 0.584314, 0.235294, 1)
+
+[node name="L7" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C7"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+text = "latao_engrenagem #C9953C"
+
+[node name="C8" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.494118, 0.85098, 0.341176, 1)
+
+[node name="L8" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C8"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+text = "veneno_verde #7ED957"
+
+[node name="C9" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.890196, 0.603922, 0.176471, 1)
+
+[node name="L9" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C9"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+text = "veneno_ambar #E39A2D"
+
+[node name="C10" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.556863, 0.486275, 0.764706, 1)
+
+[node name="L10" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C10"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+text = "veneno_violeta #8E7CC3"
+
+[node name="C11" type="ColorRect" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.784314, 0.25098, 0.184314, 1)
+
+[node name="L11" type="Label" parent="Margin/VBox/HBox/PanelPalette/VBoxPalette/C11"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 200.0
+offset_bottom = 22.0
+text = "perigo #C8402F"
+
+[node name="PanelIcons" type="Panel" parent="Margin/VBox/HBox"]
+custom_minimum_size = Vector2(740, 480)
+layout_mode = 2
+
+[node name="VBoxIcons" type="VBoxContainer" parent="Margin/VBox/HBox/PanelIcons"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 16.0
+offset_right = -20.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="IconsHeader" type="Label" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons"]
+layout_mode = 2
+text = "ÍCONES VETORIAIS SVG EM SLOTS DE 48px"
+
+[node name="SlotsGrid" type="GridContainer" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 12
+columns = 5
+
+[node name="Slot1" type="Button" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SlotsGrid"]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+text = "Plantar"
+icon = ExtResource("4_ic_grass")
+expand_icon = true
+
+[node name="Slot2" type="Button" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SlotsGrid"]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+text = "Torre"
+icon = ExtResource("5_ic_tower")
+expand_icon = true
+
+[node name="Slot3" type="Button" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SlotsGrid"]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+text = "Ataque"
+icon = ExtResource("6_ic_needle")
+expand_icon = true
+
+[node name="Slot4" type="Button" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SlotsGrid"]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+text = "Veneno"
+icon = ExtResource("7_ic_poison")
+expand_icon = true
+
+[node name="Slot5" type="Button" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SlotsGrid"]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+text = "Esquiva"
+icon = ExtResource("8_ic_dash")
+expand_icon = true
+
+[node name="Slot6" type="Button" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SlotsGrid"]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+text = "Reparar"
+icon = ExtResource("9_ic_repair")
+expand_icon = true
+
+[node name="Slot7" type="Button" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SlotsGrid"]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+text = "Graveto"
+icon = ExtResource("10_ic_twig")
+expand_icon = true
+
+[node name="Slot8" type="Button" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SlotsGrid"]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+text = "Engrenagem"
+icon = ExtResource("11_ic_gear")
+expand_icon = true
+
+[node name="Slot9" type="Button" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SlotsGrid"]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+text = "Semente"
+icon = ExtResource("12_ic_seed")
+expand_icon = true
+
+[node name="Slot10" type="Button" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SlotsGrid"]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+text = "Flor"
+icon = ExtResource("13_ic_flower")
+expand_icon = true
+
+[node name="SampleBars" type="VBoxContainer" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BarLabel" type="Label" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SampleBars"]
+layout_mode = 2
+text = "Barras com Estilo do Theme Oficial:"
+
+[node name="ProgressBar" type="ProgressBar" parent="Margin/VBox/HBox/PanelIcons/VBoxIcons/SampleBars"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+value = 75.0
+show_percentage = false

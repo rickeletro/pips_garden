@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Graveto principal -->
+  <path d="M14 52 C24 44 34 32 46 14 C48 11 52 14 50 17 C38 36 28 48 18 56 Z" 
+        fill="#5A3E2B" stroke="#4F6B3A" stroke-width="1.5"/>
+  <!-- Ramo lateral com broto -->
+  <path d="M30 40 C36 38 42 42 46 40" fill="none" stroke="#5A3E2B" stroke-width="3" stroke-linecap="round"/>
+  <!-- Pequenas folhinhas verdes brotando do galho -->
+  <path d="M46 40 C50 36 54 38 52 42 C48 44 46 42 46 40 Z" fill="#8FB05A" stroke="#5A3E2B" stroke-width="1.2"/>
+  <path d="M40 24 C44 20 48 22 46 26 C42 27 40 25 40 24 Z" fill="#8FB05A" stroke="#5A3E2B" stroke-width="1.2"/>
+</svg>
