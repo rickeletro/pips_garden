@@ -159,13 +159,13 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -140.0
-offset_bottom = 60.0
+offset_left = -205.0
+offset_bottom = 160.0
 grow_horizontal = 0
 theme_override_constants/separation = 8
 
 [node name="MinimapPanel" type="Panel" parent="Margin/TopRight/HBox"]
-custom_minimum_size = Vector2(105, 90)
+custom_minimum_size = Vector2(155, 155)
 layout_mode = 2
 
 [node name="MinimapCanvas" type="Control" parent="Margin/TopRight/HBox/MinimapPanel"]
@@ -184,36 +184,38 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -30.0
-offset_top = -14.0
-offset_right = 30.0
+offset_left = -40.0
+offset_top = -16.0
+offset_right = 40.0
+offset_bottom = -2.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 9
 text = "JARDIM 10x"
 horizontal_alignment = 1
 
 [node name="RightButtons" type="VBoxContainer" parent="Margin/TopRight/HBox"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 4
 
 [node name="PauseButton" type="Button" parent="Margin/TopRight/HBox/RightButtons"]
-custom_minimum_size = Vector2(30, 26)
+custom_minimum_size = Vector2(34, 30)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "⏸"
 
 [node name="ZoomInButton" type="Button" parent="Margin/TopRight/HBox/RightButtons"]
-custom_minimum_size = Vector2(30, 26)
+custom_minimum_size = Vector2(34, 30)
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 text = "+"
 
 [node name="ZoomOutButton" type="Button" parent="Margin/TopRight/HBox/RightButtons"]
-custom_minimum_size = Vector2(30, 26)
+custom_minimum_size = Vector2(34, 30)
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 text = "−"
+
 
 [node name="BottomLeft" type="Control" parent="Margin"]
 layout_mode = 2

@@ -57,12 +57,91 @@ func init_references() -> void:
 func _physics_process(delta: float) -> void:
 	handle_status_effects(delta)
 	
-	if is_flying:
-		process_flying_movement(delta)
-	else:
-		process_ground_movement(delta)
-		
 	check_attack_target(delta)
+	
+	if not is_currently_attacking:
+		if is_flying:
+			process_flying_movement(delta)
+		else:
+			process_ground_movement(delta)
+	else:
+		velocity = velocity.lerp(Vector3.ZERO, delta * 8.0)
+		move_and_slide()
+
+var is_currently_attacking: bool = false
+
+func check_attack_target(delta: float) -> void:
+	attack_timer -= delta
+	is_currently_attacking = false
+	
+	# 1. Alvo prioritário corpo-a-corpo: Pip (Heroína)
+	var pip = GameManager.heroine
+	if pip and is_instance_valid(pip):
+		var dist_pip = global_position.distance_to(pip.global_position)
+		var attack_range_pip = 2.4 if is_flying else 1.65
+		if dist_pip <= attack_range_pip:
+			is_currently_attacking = true
+			if attack_timer <= 0.0:
+				perform_attack_on_pip(pip)
+				attack_timer = attack_interval
+			return
+			
+	# 2. Torre de Defesa no caminho
+	var tree = get_tree()
+	if tree:
+		var towers = tree.get_nodes_in_group("towers")
+		for tw in towers:
+			if is_instance_valid(tw) and tw.get("is_broken") != true:
+				var dist_tw = global_position.distance_to(tw.global_position)
+				if dist_tw <= 1.85:
+					is_currently_attacking = true
+					if attack_timer <= 0.0:
+						perform_attack_on_tower(tw)
+						attack_timer = attack_interval
+					return
+
+	# 3. Flor Central do Jardim (Objetivo final)
+	if not target_flower or not is_instance_valid(target_flower):
+		if GameManager.flower:
+			target_flower = GameManager.flower
+	if target_flower and is_instance_valid(target_flower):
+		var dist_fl = global_position.distance_to(target_flower.global_position)
+		if dist_fl <= 2.3:
+			is_currently_attacking = true
+			if attack_timer <= 0.0:
+				perform_attack_on_flower()
+				attack_timer = attack_interval
+			return
+
+func perform_attack_on_pip(pip: Node3D) -> void:
+	if visual_root:
+		play_lunge_visual(pip.global_position)
+	if pip.has_method("take_damage"):
+		pip.take_damage(attack_damage, global_position)
+
+func perform_attack_on_tower(tw: Node3D) -> void:
+	if visual_root:
+		play_lunge_visual(tw.global_position)
+	if tw.has_method("take_damage"):
+		tw.take_damage(attack_damage)
+
+func perform_attack_on_flower() -> void:
+	if visual_root and target_flower:
+		play_lunge_visual(target_flower.global_position)
+	if target_flower and target_flower.has_method("take_damage"):
+		target_flower.take_damage(attack_damage)
+	else:
+		GameManager.damage_flower(attack_damage)
+
+func play_lunge_visual(target_pos: Vector3) -> void:
+	var tree = get_tree()
+	if not tree or not visual_root:
+		return
+	var dir = (target_pos - global_position).normalized()
+	dir.y = 0.0
+	var tween = tree.create_tween()
+	tween.tween_property(visual_root, "position", dir * 0.35, 0.08)
+	tween.tween_property(visual_root, "position", Vector3.ZERO, 0.12)
 
 func handle_status_effects(delta: float) -> void:
 	# Grass deceleration effect:
@@ -159,23 +238,6 @@ func move_towards_point(target_pos: Vector3, delta: float) -> void:
 	if dir.length_squared() > 0.01 and visual_root:
 		var target_rot = atan2(dir.x, dir.z)
 		visual_root.rotation.y = lerp_angle(visual_root.rotation.y, target_rot, 10.0 * delta)
-
-func check_attack_target(delta: float) -> void:
-	attack_timer -= delta
-	if attack_timer <= 0.0:
-		if target_flower and is_instance_valid(target_flower):
-			if global_position.distance_to(target_flower.global_position) < 2.2:
-				perform_attack_on_flower()
-				attack_timer = attack_interval
-
-func perform_attack_on_flower() -> void:
-	GameManager.damage_flower(attack_damage)
-	if visual_root:
-		var tree = get_tree()
-		if tree:
-			var tween = tree.create_tween()
-			tween.tween_property(visual_root, "scale", Vector3(1.3, 0.7, 1.3), 0.1)
-			tween.tween_property(visual_root, "scale", Vector3.ONE, 0.1)
 
 func take_damage(amount: float, knockback: Vector3 = Vector3.ZERO, is_dot: bool = false) -> void:
 	hp -= amount

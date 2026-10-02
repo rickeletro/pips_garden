@@ -44,12 +44,31 @@ var attack_range: float = 6.0
 var current_target: Node3D = null
 var gear_rot_speed: float = 0.0
 
+var damage_materials: Array[StandardMaterial3D] = []
+var base_albedo_colors: Array[Color] = []
+
 func _ready() -> void:
 	add_to_group("towers")
 	hp = max_hp
+	setup_damage_materials()
 	update_level_visuals()
 	update_poison_visual()
 	update_damage_state()
+
+func setup_damage_materials() -> void:
+	damage_materials.clear()
+	base_albedo_colors.clear()
+	if not visuals_standing:
+		return
+	for node in visuals_standing.find_children("*", "MeshInstance3D"):
+		var m = node as MeshInstance3D
+		if m and m != poison_liquid and m != broken_smoke:
+			var mat = m.get_active_material(0)
+			if mat and mat is StandardMaterial3D:
+				var dup = mat.duplicate() as StandardMaterial3D
+				m.material_override = dup
+				damage_materials.append(dup)
+				base_albedo_colors.append(dup.albedo_color)
 
 func _process(delta: float) -> void:
 	if is_broken:
@@ -251,6 +270,16 @@ func take_damage(amount: float) -> void:
 		return
 	hp -= amount
 	tower_damaged.emit(hp, max_hp)
+	
+	# Shudder/twitch no impacto de dano
+	if visuals_standing:
+		var tree = get_tree()
+		if tree:
+			var twitch_tween = tree.create_tween()
+			var rand_offset = Vector3((randf() - 0.5) * 0.15, 0, (randf() - 0.5) * 0.15)
+			twitch_tween.tween_property(visuals_standing, "position", rand_offset, 0.05)
+			twitch_tween.tween_property(visuals_standing, "position", Vector3.ZERO, 0.08)
+			
 	update_damage_state()
 	
 	if hp <= 0.0:
@@ -260,8 +289,29 @@ func take_damage(amount: float) -> void:
 		GameManager.notify("Uma torre de gravetos quebrou! Aproxime-se e repare (E).", Tokens.PERIGO)
 
 func update_damage_state() -> void:
+	var hp_pct = clampf(hp / max_hp, 0.0, 1.0)
+	var danger_factor = 1.0 - hp_pct # 0.0 em 100% de vida, 1.0 quando destruída
+	
 	if broken_smoke:
-		broken_smoke.visible = (hp < max_hp * 0.5)
+		broken_smoke.visible = (hp_pct < 0.5)
+		
+	# Mudança progressiva de cor: a torre vai ficando cada vez mais vermelha conforme toma dano
+	var target_red = Color(0.92, 0.15, 0.12, 1.0)
+	for i in range(damage_materials.size()):
+		if i < base_albedo_colors.size():
+			var mat = damage_materials[i]
+			var orig_col = base_albedo_colors[i]
+			
+			# Mistura a cor original da madeira/latão com vermelho de perigo
+			mat.albedo_color = orig_col.lerp(target_red, danger_factor * 0.82)
+			
+			# Quando a torre está em estado crítico (< 40% de vida), ativa pulso de emissão vermelha
+			if danger_factor > 0.4:
+				mat.emission_enabled = true
+				mat.emission = Color(0.95, 0.12, 0.08)
+				mat.emission_energy_multiplier = (danger_factor - 0.4) * 2.2
+			else:
+				mat.emission_enabled = false
 
 func collapse_tower() -> void:
 	if visuals_standing: visuals_standing.visible = false
