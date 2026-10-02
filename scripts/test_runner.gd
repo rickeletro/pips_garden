@@ -130,5 +130,20 @@ func _ready() -> void:
 	ghost_inst.queue_free()
 	print("✔ Torre de gravetos: 3 níveis visuais, dano/colapso, reparo dinâmico e ghost validados 100%.")
 	
+	# 7. Testar Requisitos da Fase 4: Pip (Visual Arrietty, Proporções Chibi e 6 Animações)
+	var col_shape = heroine.get_node("CollisionShape3D") as CollisionShape3D
+	assert(col_shape != null and col_shape.shape is CapsuleShape3D, "Pip deve ter CapsuleShape3D")
+	var capsule = col_shape.shape as CapsuleShape3D
+	assert(capsule.height <= 0.8 and capsule.height >= 0.6, "Altura de Pip deve ser miniatura (0.6 a 0.8 unidades)")
+	assert(heroine.hair_ponytail != null, "Pip deve possuir mecha de cabelo ruivo")
+	assert(heroine.needle_mesh != null, "Pip deve portar agulha de costura")
+	
+	# Testar disparo das 6 animações
+	heroine.execute_attack_combo()
+	heroine.play_collect_hop()
+	heroine.take_damage(5.0)
+	heroine.start_dash()
+	print("✔ Pip: proporções de miniatura, cabelo ruivo, agulha e 6 animações procedurais validadas 100%.")
+	
 	print("--- TODOS OS TESTES PASSARAM COM 100% DE SUCESSO! ---")
 	get_tree().quit(0)

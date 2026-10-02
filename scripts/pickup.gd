@@ -63,6 +63,8 @@ func collect() -> void:
 			success = GameManager.add_seed()
 			
 	if success:
+		if player_node and player_node.has_method("play_collect_hop"):
+			player_node.play_collect_hop()
 		var tree = get_tree()
 		if tree:
 			var tween = tree.create_tween()
