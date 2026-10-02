@@ -1,0 +1,67 @@
+[gd_scene format=3 uid="uid://cm3p8y7u1x4q2"]
+
+[ext_resource type="Script" path="res://scripts/pickup.gd" id="1_pickup"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_pickup"]
+radius = 0.55
+
+[sub_resource type="StandardMaterial3D" id="Mat_Twig"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.55, 0.38, 0.22, 1)
+roughness = 0.8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_twig"]
+material = SubResource("Mat_Twig")
+top_radius = 0.04
+bottom_radius = 0.06
+height = 0.65
+
+[sub_resource type="StandardMaterial3D" id="Mat_GearGold"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.95, 0.8, 0.25, 1)
+metallic = 0.85
+roughness = 0.25
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_gear"]
+material = SubResource("Mat_GearGold")
+top_radius = 0.26
+bottom_radius = 0.26
+height = 0.08
+
+[sub_resource type="StandardMaterial3D" id="Mat_Seed"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.4, 0.88, 0.35, 1)
+emission_enabled = true
+emission = Color(0.3, 0.75, 0.25, 1)
+emission_energy_multiplier = 0.5
+roughness = 0.5
+
+[sub_resource type="SphereMesh" id="SphereMesh_seed"]
+material = SubResource("Mat_Seed")
+radius = 0.2
+height = 0.35
+
+[node name="Pickup" type="Area3D" groups=["pickups"]]
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("1_pickup")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_pickup")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="TwigMesh" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CylinderMesh_twig")
+
+[node name="GearMesh" type="MeshInstance3D" parent="Visuals"]
+visible = false
+mesh = SubResource("CylinderMesh_gear")
+
+[node name="SeedMesh" type="MeshInstance3D" parent="Visuals"]
+visible = false
+mesh = SubResource("SphereMesh_seed")

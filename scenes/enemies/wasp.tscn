@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://b5m7n3j8k2v9p"]
+
+[ext_resource type="Script" path="res://scripts/wasp.gd" id="1_wasp"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_wasp"]
+radius = 0.45
+
+[sub_resource type="StandardMaterial3D" id="Mat_YellowStripe"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.95, 0.8, 0.1, 1)
+roughness = 0.4
+
+[sub_resource type="SphereMesh" id="SphereMesh_abdomen"]
+material = SubResource("Mat_YellowStripe")
+radius = 0.25
+height = 0.65
+
+[sub_resource type="StandardMaterial3D" id="Mat_BlackThorax"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.12, 0.12, 0.12, 1)
+roughness = 0.5
+
+[sub_resource type="SphereMesh" id="SphereMesh_thorax"]
+material = SubResource("Mat_BlackThorax")
+radius = 0.22
+height = 0.42
+
+[sub_resource type="StandardMaterial3D" id="Mat_Wing"]
+transparency = 1
+albedo_color = Color(0.85, 0.95, 1, 0.55)
+roughness = 0.2
+
+[sub_resource type="BoxMesh" id="BoxMesh_wing"]
+material = SubResource("Mat_Wing")
+size = Vector3(0.7, 0.02, 0.25)
+
+[node name="Wasp" type="CharacterBody3D" groups=["enemies"]]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_wasp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+shape = SubResource("SphereShape3D_wasp")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Abdomen" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, -0.1, -0.25)
+mesh = SubResource("SphereMesh_abdomen")
+
+[node name="Thorax" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.1)
+mesh = SubResource("SphereMesh_thorax")
+
+[node name="Head" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0.32)
+mesh = SubResource("SphereMesh_thorax")
+
+[node name="WingLeft" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, -0.38, 0.18, 0.05)
+mesh = SubResource("BoxMesh_wing")
+
+[node name="WingRight" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, 0.38, 0.18, 0.05)
+mesh = SubResource("BoxMesh_wing")

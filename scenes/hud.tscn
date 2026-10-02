@@ -1,0 +1,464 @@
+[gd_scene format=3 uid="uid://b1m7q9v4c3x8e"]
+
+[ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.12, 0.16, 0.12, 0.88)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pip_hp"]
+bg_color = Color(0.25, 0.75, 0.35, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_flower_hp"]
+bg_color = Color(0.92, 0.25, 0.45, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xp"]
+bg_color = Color(0.95, 0.8, 0.2, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_countdown"]
+bg_color = Color(0.95, 0.65, 0.15, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(0.22, 0.55, 0.32, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+bg_color = Color(0.3, 0.68, 0.4, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.16, 0.22, 0.16, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.5, 0.3, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_hover"]
+bg_color = Color(0.22, 0.32, 0.22, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.8, 0.35, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_disabled"]
+bg_color = Color(0.12, 0.14, 0.12, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.25, 0.25, 0.5)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="LabelSettings" id="LabelSettings_banner"]
+font_size = 22
+outline_size = 6
+outline_color = Color(0, 0, 0, 0.85)
+
+[sub_resource type="LabelSettings" id="LabelSettings_big"]
+font_size = 32
+outline_size = 8
+outline_color = Color(0, 0, 0, 0.9)
+
+[node name="GameHUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="Margin" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="TopLeft" type="Control" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="Panel" type="Panel" parent="Margin/TopLeft"]
+layout_mode = 0
+offset_right = 240.0
+offset_bottom = 110.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Margin/TopLeft"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 228.0
+offset_bottom = 100.0
+
+[node name="NameLabel" type="Label" parent="Margin/TopLeft/VBox"]
+layout_mode = 2
+text = "🗡️ Pip (A Pequena Coletora)"
+
+[node name="HPLabel" type="Label" parent="Margin/TopLeft/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Pip HP: 100 / 100"
+
+[node name="HPBar" type="ProgressBar" parent="Margin/TopLeft/VBox"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_pip_hp")
+value = 100.0
+show_percentage = false
+
+[node name="LevelLabel" type="Label" parent="Margin/TopLeft/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Nível 1 (XP: 0 / 50)"
+
+[node name="XPBar" type="ProgressBar" parent="Margin/TopLeft/VBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_xp")
+value = 0.0
+show_percentage = false
+
+[node name="TopCenter" type="Control" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+
+[node name="VBox" type="VBoxContainer" parent="Margin/TopCenter"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -210.0
+offset_right = 210.0
+offset_bottom = 145.0
+grow_horizontal = 2
+theme_override_constants/separation = 4
+
+[node name="WaveLabel" type="Label" parent="Margin/TopCenter/VBox"]
+layout_mode = 2
+text = "Onda 1 / 7 - Preparação"
+horizontal_alignment = 1
+
+[node name="FlowerLabel" type="Label" parent="Margin/TopCenter/VBox"]
+layout_mode = 2
+text = "🌸 Flor do Jardim: 120 / 120"
+horizontal_alignment = 1
+
+[node name="FlowerHPBar" type="ProgressBar" parent="Margin/TopCenter/VBox"]
+custom_minimum_size = Vector2(400, 16)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_flower_hp")
+value = 100.0
+show_percentage = false
+
+[node name="CountdownContainer" type="HBoxContainer" parent="Margin/TopCenter/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="CountdownLabel" type="Label" parent="Margin/TopCenter/VBox/CountdownContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+text = "⏳ Início automático em: 15s"
+
+[node name="CountdownBar" type="ProgressBar" parent="Margin/TopCenter/VBox/CountdownContainer"]
+custom_minimum_size = Vector2(140, 10)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/fill = SubResource("StyleBoxFlat_countdown")
+max_value = 15.0
+value = 15.0
+show_percentage = false
+
+[node name="SkipWaitButton" type="Button" parent="Margin/TopCenter/VBox"]
+custom_minimum_size = Vector2(230, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "⏩ Iniciar Agora (Enter/F)"
+
+[node name="TopRight" type="Control" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+
+[node name="Panel" type="Panel" parent="Margin/TopRight"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_bottom = 120.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Margin/TopRight/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="Margin/TopRight/Panel/VBox"]
+layout_mode = 2
+text = "🎒 Bolsa de Couro"
+
+[node name="TwigsLabel" type="Label" parent="Margin/TopRight/Panel/VBox"]
+layout_mode = 2
+text = "🌿 Gravetos: 10"
+
+[node name="GearsLabel" type="Label" parent="Margin/TopRight/Panel/VBox"]
+layout_mode = 2
+text = "⚙️ Engrenagens: 4"
+
+[node name="SeedsLabel" type="Label" parent="Margin/TopRight/Panel/VBox"]
+layout_mode = 2
+text = "🌱 Sementes: 8"
+
+[node name="CapacityLabel" type="Label" parent="Margin/TopRight/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Bolsa: 22 / 30"
+
+[node name="BottomBar" type="Control" parent="Margin"]
+layout_mode = 2
+size_flags_vertical = 8
+
+[node name="HotbarContainer" type="HBoxContainer" parent="Margin/BottomBar"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -460.0
+offset_top = -68.0
+offset_right = 460.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="SlotGrass" type="Button" parent="Margin/BottomBar/HotbarContainer"]
+custom_minimum_size = Vector2(140, 64)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
+theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
+text = "🌱 Plantar [Q]
+(1 Semente)"
+
+[node name="SlotTower" type="Button" parent="Margin/BottomBar/HotbarContainer"]
+custom_minimum_size = Vector2(150, 64)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
+theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
+text = "🏹 Torre [B]
+(3 🌿, 2 ⚙️)"
+
+[node name="SlotAttack" type="Button" parent="Margin/BottomBar/HotbarContainer"]
+custom_minimum_size = Vector2(140, 64)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
+theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
+text = "🗡️ Ataque
+[Espaço/Click]"
+
+[node name="SlotPoison" type="Button" parent="Margin/BottomBar/HotbarContainer"]
+custom_minimum_size = Vector2(145, 64)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
+theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
+text = "🧪 Veneno [T]
+(Lento/Ácido/Névoa)"
+
+[node name="SlotDash" type="Button" parent="Margin/BottomBar/HotbarContainer"]
+custom_minimum_size = Vector2(135, 64)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
+theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
+text = "💨 Esquiva
+[Shift / R-Click]"
+
+[node name="SlotRepair" type="Button" parent="Margin/BottomBar/HotbarContainer"]
+custom_minimum_size = Vector2(140, 64)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
+theme_override_styles/hover = SubResource("StyleBoxFlat_slot_hover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_slot_disabled")
+text = "🔨 Reparar [E]
+(2 Gravetos)"
+
+[node name="BannerContainer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -140.0
+offset_right = 300.0
+offset_bottom = -90.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BannerLabel" type="Label" parent="BannerContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Bem-vindo ao Jardim Miúdo!"
+label_settings = SubResource("LabelSettings_banner")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GameOverPanel" type="Panel" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -140.0
+offset_right = 220.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="GameOverPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="GameOverPanel/VBox"]
+layout_mode = 2
+text = "A FLOR FOI DEVORADA!"
+label_settings = SubResource("LabelSettings_big")
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="GameOverPanel/VBox"]
+layout_mode = 2
+text = "As pragas do jardim superaram suas defesas.
+Plante grama para desacelerá-las e posicione torres de veneno!"
+horizontal_alignment = 1
+
+[node name="RestartBtn" type="Button" parent="GameOverPanel/VBox"]
+custom_minimum_size = Vector2(180, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "🔄 Tentar Novamente (R)"
+
+[node name="VictoryPanel" type="Panel" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -140.0
+offset_right = 220.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="VictoryPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="VictoryPanel/VBox"]
+layout_mode = 2
+text = "🌸 JARDIM SALVO! 🌸"
+label_settings = SubResource("LabelSettings_big")
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="VictoryPanel/VBox"]
+layout_mode = 2
+text = "Parabéns, Pip! Você defendeu todas as 7 ondas com sucesso contra as hordas terrestres e aéreas!"
+horizontal_alignment = 1
+
+[node name="PlayAgainBtn" type="Button" parent="VictoryPanel/VBox"]
+custom_minimum_size = Vector2(180, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "✨ Jogar Novamente (R)"
+
+[connection signal="pressed" from="GameOverPanel/VBox/RestartBtn" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="VictoryPanel/VBox/PlayAgainBtn" to="." method="_on_restart_pressed"]
