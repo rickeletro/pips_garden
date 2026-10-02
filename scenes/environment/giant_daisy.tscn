@@ -1,0 +1,107 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Stem"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.28, 0.48, 0.2, 1)
+roughness = 0.7
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_stem"]
+material = SubResource("Mat_Stem")
+top_radius = 0.08
+bottom_radius = 0.14
+height = 3.2
+radial_segments = 8
+
+[sub_resource type="StandardMaterial3D" id="Mat_Center"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.96, 0.78, 0.22, 1)
+roughness = 0.5
+emission_enabled = true
+emission = Color(0.96, 0.78, 0.22, 1)
+emission_energy_multiplier = 0.35
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_center"]
+material = SubResource("Mat_Center")
+top_radius = 0.5
+bottom_radius = 0.5
+height = 0.22
+radial_segments = 12
+
+[sub_resource type="StandardMaterial3D" id="Mat_Petal"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.97, 0.95, 0.88, 1)
+roughness = 0.65
+
+[sub_resource type="BoxMesh" id="BoxMesh_petal"]
+material = SubResource("Mat_Petal")
+size = Vector3(0.38, 0.06, 1.1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_leaf"]
+material = SubResource("Mat_Stem")
+size = Vector3(0.5, 0.04, 1.0)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_stem"]
+height = 3.2
+radius = 0.16
+
+[node name="GiantDaisy" type="StaticBody3D"]
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+shape = SubResource("CylinderShape3D_stem")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Stem" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+mesh = SubResource("CylinderMesh_stem")
+
+[node name="Leaf1" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(0.866025, -0.258819, 0.426777, 0, 0.853553, 0.52101, -0.5, -0.448288, 0.739211, 0.35, 1.2, 0.2)
+mesh = SubResource("BoxMesh_leaf")
+
+[node name="Leaf2" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(-0.707107, 0.353553, -0.612372, 0, 0.866025, 0.5, 0.707107, 0.353553, -0.612372, -0.35, 1.8, -0.2)
+mesh = SubResource("BoxMesh_leaf")
+
+[node name="FlowerHead" type="Node3D" parent="Visuals"]
+transform = Transform3D(0.965926, -0.12941, 0.224144, 0, 0.866025, 0.5, -0.258819, -0.482963, 0.836516, 0, 3.2, 0)
+
+[node name="Center" type="MeshInstance3D" parent="Visuals/FlowerHead"]
+mesh = SubResource("CylinderMesh_center")
+
+[node name="Petal0" type="MeshInstance3D" parent="Visuals/FlowerHead"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.95)
+mesh = SubResource("BoxMesh_petal")
+
+[node name="Petal1" type="MeshInstance3D" parent="Visuals/FlowerHead"]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0.67, 0, 0.67)
+mesh = SubResource("BoxMesh_petal")
+
+[node name="Petal2" type="MeshInstance3D" parent="Visuals/FlowerHead"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.95, 0, 0)
+mesh = SubResource("BoxMesh_petal")
+
+[node name="Petal3" type="MeshInstance3D" parent="Visuals/FlowerHead"]
+transform = Transform3D(-0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, -0.707107, 0.67, 0, -0.67)
+mesh = SubResource("BoxMesh_petal")
+
+[node name="Petal4" type="MeshInstance3D" parent="Visuals/FlowerHead"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -0.95)
+mesh = SubResource("BoxMesh_petal")
+
+[node name="Petal5" type="MeshInstance3D" parent="Visuals/FlowerHead"]
+transform = Transform3D(-0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, -0.67, 0, -0.67)
+mesh = SubResource("BoxMesh_petal")
+
+[node name="Petal6" type="MeshInstance3D" parent="Visuals/FlowerHead"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -0.95, 0, 0)
+mesh = SubResource("BoxMesh_petal")
+
+[node name="Petal7" type="MeshInstance3D" parent="Visuals/FlowerHead"]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.67, 0, 0.67)
+mesh = SubResource("BoxMesh_petal")

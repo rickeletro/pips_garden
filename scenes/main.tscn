@@ -37,17 +37,17 @@ fog_light_color = Color(0.98, 0.93, 0.82, 1)
 fog_density = 0.004
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
-size = Vector3(36, 1, 36)
+size = Vector3(105, 1, 105)
 
 [sub_resource type="StandardMaterial3D" id="Mat_GardenSoil"]
 diffuse_mode = 2
 specular_mode = 2
-albedo_color = Color(0.36, 0.27, 0.18, 1)
+albedo_color = Color(0.24, 0.34, 0.18, 1)
 roughness = 0.9
 
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
 material = SubResource("Mat_GardenSoil")
-size = Vector3(36, 1, 36)
+size = Vector3(105, 1, 105)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")

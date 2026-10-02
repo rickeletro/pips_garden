@@ -14,6 +14,7 @@ var is_collected: bool = false
 var start_y: float = 0.25
 
 func _ready() -> void:
+	add_to_group("pickups")
 	start_y = position.y
 	update_type_visuals()
 	body_entered.connect(_on_body_entered)

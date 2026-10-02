@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Bark"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.35, 0.24, 0.17, 1)
+roughness = 0.85
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_root_segment"]
+material = SubResource("Mat_Bark")
+top_radius = 0.65
+bottom_radius = 0.95
+height = 14.0
+radial_segments = 8
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_root"]
+size = Vector3(14.0, 1.4, 2.0)
+
+[node name="GiantTreeRoot" type="StaticBody3D"]
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+shape = SubResource("BoxShape3D_root")
+
+[node name="RootMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0.45, 0)
+mesh = SubResource("CylinderMesh_root_segment")

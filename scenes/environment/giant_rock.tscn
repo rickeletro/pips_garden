@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Rock"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.44, 0.45, 0.42, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_rock"]
+material = SubResource("Mat_Rock")
+size = Vector3(4.8, 3.2, 4.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rock"]
+size = Vector3(4.8, 3.2, 4.2)
+
+[node name="GiantRock" type="StaticBody3D"]
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+shape = SubResource("BoxShape3D_rock")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0, 1.6, 0)
+mesh = SubResource("BoxMesh_rock")

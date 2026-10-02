@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" path="res://ui/icons/icon_gear.svg" id="12_ic_gear"]
 [ext_resource type="Texture2D" path="res://ui/icons/icon_seed.svg" id="13_ic_seed"]
 [ext_resource type="FontFile" path="res://ui/fonts/Fondamento-Regular.ttf" id="14_font_title"]
+[ext_resource type="Script" path="res://scripts/ui/minimap_canvas.gd" id="15_minimap"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_flower_fill"]
 bg_color = Color(0.709804, 0.278431, 0.121569, 1)
@@ -164,24 +165,17 @@ grow_horizontal = 0
 theme_override_constants/separation = 8
 
 [node name="MinimapPanel" type="Panel" parent="Margin/TopRight/HBox"]
-custom_minimum_size = Vector2(68, 60)
+custom_minimum_size = Vector2(105, 90)
 layout_mode = 2
 
-[node name="RadarCenter" type="ColorRect" parent="Margin/TopRight/HBox/MinimapPanel"]
-custom_minimum_size = Vector2(8, 8)
+[node name="MinimapCanvas" type="Control" parent="Margin/TopRight/HBox/MinimapPanel"]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -4.0
-offset_top = -4.0
-offset_right = 4.0
-offset_bottom = 4.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.709804, 0.278431, 0.121569, 1)
+script = ExtResource("15_minimap")
 
 [node name="MinimapLabel" type="Label" parent="Margin/TopRight/HBox/MinimapPanel"]
 layout_mode = 1
@@ -190,21 +184,36 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -26.0
+offset_left = -30.0
 offset_top = -14.0
-offset_right = 26.0
+offset_right = 30.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_font_sizes/font_size = 9
-text = "JARDIM"
+theme_override_font_sizes/font_size = 8
+text = "JARDIM 10x"
 horizontal_alignment = 1
 
-[node name="PauseButton" type="Button" parent="Margin/TopRight/HBox"]
-custom_minimum_size = Vector2(40, 40)
+[node name="RightButtons" type="VBoxContainer" parent="Margin/TopRight/HBox"]
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_font_sizes/font_size = 14
+theme_override_constants/separation = 3
+
+[node name="PauseButton" type="Button" parent="Margin/TopRight/HBox/RightButtons"]
+custom_minimum_size = Vector2(30, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
 text = "⏸"
+
+[node name="ZoomInButton" type="Button" parent="Margin/TopRight/HBox/RightButtons"]
+custom_minimum_size = Vector2(30, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "+"
+
+[node name="ZoomOutButton" type="Button" parent="Margin/TopRight/HBox/RightButtons"]
+custom_minimum_size = Vector2(30, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "−"
 
 [node name="BottomLeft" type="Control" parent="Margin"]
 layout_mode = 2

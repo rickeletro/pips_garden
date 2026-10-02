@@ -9,8 +9,10 @@ class_name GameHUD
 @onready var countdown_bar: ProgressBar = $Margin/TopLeft/Panel/VBox/CountdownBar
 @onready var skip_wait_button: Button = $Margin/TopLeft/Panel/VBox/WaveHBox/SkipButton
 
-# Top Right - Minimap & Pause
-@onready var pause_button: Button = $Margin/TopRight/HBox/PauseButton
+# Top Right - Minimap & Zoom Controls
+@onready var pause_button: Button = $Margin/TopRight/HBox/RightButtons/PauseButton
+@onready var zoom_in_button: Button = $Margin/TopRight/HBox/RightButtons/ZoomInButton
+@onready var zoom_out_button: Button = $Margin/TopRight/HBox/RightButtons/ZoomOutButton
 @onready var minimap_panel: Panel = $Margin/TopRight/HBox/MinimapPanel
 
 # Bottom Left - Pip
@@ -54,6 +56,19 @@ func _ready() -> void:
 	
 	skip_wait_button.pressed.connect(_on_skip_wait_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
+	
+	if zoom_in_button:
+		zoom_in_button.pressed.connect(func():
+			var cam = get_viewport().get_camera_3d()
+			if cam and cam.has_method("zoom_in"):
+				cam.zoom_in()
+		)
+	if zoom_out_button:
+		zoom_out_button.pressed.connect(func():
+			var cam = get_viewport().get_camera_3d()
+			if cam and cam.has_method("zoom_out"):
+				cam.zoom_out()
+		)
 	
 	# Connect Action Slots
 	slot_grass.slot_activated.connect(func(): GameManager.request_plant_grass.emit())

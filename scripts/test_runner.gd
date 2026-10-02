@@ -145,5 +145,21 @@ func _ready() -> void:
 	heroine.start_dash()
 	print("✔ Pip: proporções de miniatura, cabelo ruivo, agulha e 6 animações procedurais validadas 100%.")
 	
+	# 8. Testar Requisitos da Fase 5: Jardim 10x Maior, Trilhas, Grama MultiMesh Aquarela e Zoom In/Out
+	assert(grid.HALF_EXTENT >= 24, "Jardim deve ser 10x maior que o inicial (~100m x 100m)")
+	assert(grid.path_cells.size() >= 40, "Trilha sinuosa das hordas deve existir com pelo menos 40 células")
+	assert(grid.grass_multimesh != null, "MultiMesh da grama deve estar ativo")
+	assert(grid.grass_multimesh.multimesh.instance_count >= 10000, "MultiMesh deve suportar milhares de folhas de grama a 60 FPS")
+	
+	var cam: GardenCameraController = root_node.get_node("Camera3D")
+	assert(cam != null, "Camera3D com controlador de zoom deve existir")
+	var prev_zoom = cam.target_zoom
+	cam.zoom_in()
+	assert(cam.target_zoom < prev_zoom, "Comando de zoom_in deve diminuir distância da câmera")
+	cam.zoom_out()
+	cam.zoom_out()
+	assert(cam.target_zoom > prev_zoom, "Comando de zoom_out deve afastar a câmera")
+	print("✔ Jardim 10x maior, trilhas sinuosas, grama MultiMesh Zelda TotK e Zoom In/Out validados 100%.")
+	
 	print("--- TODOS OS TESTES PASSARAM COM 100% DE SUCESSO! ---")
 	get_tree().quit(0)

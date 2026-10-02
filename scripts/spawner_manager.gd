@@ -117,9 +117,13 @@ func spawn_ground_harvest(twig_count: int, gear_count: int, seed_count: int) -> 
 	for i in range(gear_count): total_items.append("GEAR")
 	for i in range(seed_count): total_items.append("SEED")
 	
+	var extent = 18
+	if grid_manager:
+		extent = mini(18, grid_manager.HALF_EXTENT - 3)
+		
 	for item_type in total_items:
-		var rx = randi_range(-6, 6)
-		var rz = randi_range(-6, 6)
+		var rx = randi_range(-extent, extent)
+		var rz = randi_range(-extent, extent)
 		if rx == 0 and rz == 0:
 			rx = 2
 			
