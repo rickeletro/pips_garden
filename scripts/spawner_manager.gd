@@ -35,7 +35,7 @@ func _ready() -> void:
 	add_to_group("spawner_manager")
 	init_references()
 	GameManager.wave_state_changed.connect(_on_wave_state_changed)
-	spawn_ground_harvest(14, 8, 12)
+	spawn_ground_harvest(14, 8, 0) # Sementes não vêm aleatórias no chão; vêm dos Dentes-de-Leão (Dandelion Clock)
 
 func is_spawning_active() -> bool:
 	return spawning_active or not spawn_queue.is_empty()
@@ -63,8 +63,8 @@ func _on_wave_state_changed(state: String, wave_num: int) -> void:
 	if state == "WAVE_ACTIVE":
 		start_wave_spawning(wave_num)
 	elif state == "PREPARATION":
-		# Renovação de recursos no jardim para a próxima defesa
-		spawn_ground_harvest(10, 5, 8)
+		# Renovação de gravetos e engrenagens no jardim (sementes vêm dos dentes-de-leão)
+		spawn_ground_harvest(10, 5, 0)
 
 func start_wave_spawning(wave_num: int) -> void:
 	var idx = clampi(wave_num - 1, 0, wave_configs.size() - 1)

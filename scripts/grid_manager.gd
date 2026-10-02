@@ -401,6 +401,8 @@ func spawn_ambient_garden_flowers() -> void:
 	var root_scn = load("res://scenes/environment/giant_tree_root.tscn")
 	var dew_scn = load("res://scenes/environment/giant_dewdrop.tscn")
 	
+	var dandelion_clock_scn = load("res://scenes/environment/dandelion_clock.tscn")
+	
 	# 1. Margaridas gigantes pelo campo
 	if daisy_scn:
 		for i in range(36):
@@ -412,9 +414,32 @@ func spawn_ambient_garden_flowers() -> void:
 			daisy.scale = Vector3(s, s, s)
 			flowers_root.add_child(daisy)
 			
-	# 2. Dentes-de-Leão dourados
+	# 2. Dentes-de-Leão Pom-Pom Interativos (Dandelion Clocks com sementes e pappus flutuantes)
+	if dandelion_clock_scn:
+		var starter_positions = [
+			Vector2i(2, 3),
+			Vector2i(-3, 2),
+			Vector2i(3, -3),
+			Vector2i(-2, -4),
+			Vector2i(5, 1),
+			Vector2i(-4, -2)
+		]
+		for s_pos in starter_positions:
+			var d_clock = dandelion_clock_scn.instantiate()
+			d_clock.position = grid_to_world(s_pos, 0.0)
+			d_clock.rotation.y = randf() * TAU
+			flowers_root.add_child(d_clock)
+			
+		for i in range(22):
+			var d_clock = dandelion_clock_scn.instantiate()
+			var cell = get_random_free_cell()
+			d_clock.position = grid_to_world(cell, 0.0)
+			d_clock.rotation.y = randf() * TAU
+			flowers_root.add_child(d_clock)
+			
+	# 3. Dentes-de-Leão dourados (flores amarelas abertas)
 	if dandelion_scn:
-		for i in range(42):
+		for i in range(30):
 			var dand = dandelion_scn.instantiate()
 			var cell = get_random_free_cell()
 			dand.position = grid_to_world(cell, 0.0)

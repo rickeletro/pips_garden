@@ -5,7 +5,8 @@ class_name GardenPickup
 
 @onready var mesh_twig: MeshInstance3D = $Visuals/TwigMesh
 @onready var mesh_gear: MeshInstance3D = $Visuals/GearMesh
-@onready var mesh_seed: MeshInstance3D = $Visuals/SeedMesh
+@onready var seed_visuals: Node3D = $Visuals.get_node_or_null("SeedVisuals")
+@onready var mesh_seed: Node3D = $Visuals.get_node_or_null("SeedMesh") if not seed_visuals else seed_visuals
 @onready var visuals: Node3D = $Visuals
 
 var player_node: Node3D = null
@@ -22,7 +23,10 @@ func _ready() -> void:
 func update_type_visuals() -> void:
 	if mesh_twig: mesh_twig.visible = (item_type == "TWIG")
 	if mesh_gear: mesh_gear.visible = (item_type == "GEAR")
-	if mesh_seed: mesh_seed.visible = (item_type == "SEED")
+	if seed_visuals:
+		seed_visuals.visible = (item_type == "SEED")
+	elif mesh_seed:
+		mesh_seed.visible = (item_type == "SEED")
 
 func _process(delta: float) -> void:
 	if is_collected:

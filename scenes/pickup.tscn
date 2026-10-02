@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://cm3p8y7u1x4q2"]
+[gd_scene load_steps=18 format=3 uid="uid://cm3p8y7u1x4q2"]
 
 [ext_resource type="Script" path="res://scripts/pickup.gd" id="1_pickup"]
 
@@ -30,19 +30,55 @@ top_radius = 0.26
 bottom_radius = 0.26
 height = 0.08
 
-[sub_resource type="StandardMaterial3D" id="Mat_Seed"]
+[sub_resource type="StandardMaterial3D" id="Mat_SeedKernel"]
 diffuse_mode = 2
 specular_mode = 2
-albedo_color = Color(0.4, 0.88, 0.35, 1)
+albedo_color = Color(0.96, 0.76, 0.18, 1)
+roughness = 0.35
 emission_enabled = true
-emission = Color(0.3, 0.75, 0.25, 1)
-emission_energy_multiplier = 0.5
-roughness = 0.5
+emission = Color(1, 0.84, 0.25, 1)
+emission_energy_multiplier = 0.85
 
-[sub_resource type="SphereMesh" id="SphereMesh_seed"]
-material = SubResource("Mat_Seed")
-radius = 0.2
-height = 0.35
+[sub_resource type="CylinderMesh" id="CylinderMesh_seed_body"]
+material = SubResource("Mat_SeedKernel")
+top_radius = 0.02
+bottom_radius = 0.15
+height = 0.42
+radial_segments = 12
+
+[sub_resource type="SphereMesh" id="SphereMesh_seed_base"]
+material = SubResource("Mat_SeedKernel")
+radius = 0.15
+height = 0.22
+radial_segments = 12
+rings = 6
+
+[sub_resource type="StandardMaterial3D" id="Mat_SeedPlume"]
+transparency = 1
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.98, 0.98, 0.95, 0.88)
+roughness = 0.9
+emission_enabled = true
+emission = Color(1, 1, 0.9, 1)
+emission_energy_multiplier = 0.45
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_seed_tuft"]
+material = SubResource("Mat_SeedPlume")
+top_radius = 0.12
+bottom_radius = 0.02
+height = 0.24
+radial_segments = 8
+
+[sub_resource type="StandardMaterial3D" id="Mat_SeedHalo"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 0.85, 0.3, 0.35)
+
+[sub_resource type="TorusMesh" id="TorusMesh_halo"]
+material = SubResource("Mat_SeedHalo")
+inner_radius = 0.22
+outer_radius = 0.32
 
 [node name="Pickup" type="Area3D" groups=["pickups"]]
 collision_layer = 8
@@ -62,6 +98,21 @@ mesh = SubResource("CylinderMesh_twig")
 visible = false
 mesh = SubResource("CylinderMesh_gear")
 
-[node name="SeedMesh" type="MeshInstance3D" parent="Visuals"]
+[node name="SeedVisuals" type="Node3D" parent="Visuals"]
 visible = false
-mesh = SubResource("SphereMesh_seed")
+
+[node name="SeedBody" type="MeshInstance3D" parent="Visuals/SeedVisuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+mesh = SubResource("CylinderMesh_seed_body")
+
+[node name="SeedBase" type="MeshInstance3D" parent="Visuals/SeedVisuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("SphereMesh_seed_base")
+
+[node name="SeedPappusTuft" type="MeshInstance3D" parent="Visuals/SeedVisuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36, 0)
+mesh = SubResource("CylinderMesh_seed_tuft")
+
+[node name="SeedGroundHalo" type="MeshInstance3D" parent="Visuals/SeedVisuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.22, 0)
+mesh = SubResource("TorusMesh_halo")

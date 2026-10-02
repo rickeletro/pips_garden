@@ -1,0 +1,137 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scripts/dandelion_clock.gd" id="1_clock"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_hitbox"]
+height = 2.8
+radius = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_Stem"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.35, 0.55, 0.24, 1)
+roughness = 0.7
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_stem"]
+material = SubResource("Mat_Stem")
+top_radius = 0.05
+bottom_radius = 0.11
+height = 2.4
+radial_segments = 8
+
+[sub_resource type="StandardMaterial3D" id="Mat_Leaf"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.28, 0.48, 0.2, 1)
+roughness = 0.75
+
+[sub_resource type="BoxMesh" id="BoxMesh_leaf"]
+material = SubResource("Mat_Leaf")
+size = Vector3(0.35, 0.05, 0.95)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Receptacle"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.42, 0.46, 0.25, 1)
+roughness = 0.8
+
+[sub_resource type="SphereMesh" id="SphereMesh_receptacle"]
+material = SubResource("Mat_Receptacle")
+radius = 0.22
+height = 0.24
+radial_segments = 10
+rings = 6
+
+[sub_resource type="StandardMaterial3D" id="Mat_DandelionFluff"]
+transparency = 1
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.96, 0.96, 0.92, 0.92)
+roughness = 0.85
+emission_enabled = true
+emission = Color(1, 0.98, 0.88, 1)
+emission_energy_multiplier = 0.28
+
+[sub_resource type="SphereMesh" id="SphereMesh_fluff_main"]
+material = SubResource("Mat_DandelionFluff")
+radius = 0.68
+height = 1.25
+radial_segments = 16
+rings = 10
+
+[sub_resource type="StandardMaterial3D" id="Mat_SpikeTuft"]
+transparency = 1
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.98, 0.98, 0.95, 0.85)
+roughness = 0.9
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_spike"]
+material = SubResource("Mat_SpikeTuft")
+top_radius = 0.08
+bottom_radius = 0.015
+height = 0.45
+radial_segments = 6
+
+[node name="DandelionClock" type="Node3D" groups=["dandelion"]]
+script = ExtResource("1_clock")
+
+[node name="HitArea" type="Area3D" parent="." groups=["dandelion"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+collision_layer = 4
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HitArea"]
+shape = SubResource("CylinderShape3D_hitbox")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Leaves" type="Node3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+
+[node name="Leaf1" type="MeshInstance3D" parent="Visuals/Leaves"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0, 0.45)
+mesh = SubResource("BoxMesh_leaf")
+
+[node name="Leaf2" type="MeshInstance3D" parent="Visuals/Leaves"]
+transform = Transform3D(-0.5, 0.224144, 0.836516, 0, 0.965926, -0.258819, -0.866025, -0.12941, -0.482963, 0.4, 0, -0.22)
+mesh = SubResource("BoxMesh_leaf")
+
+[node name="Leaf3" type="MeshInstance3D" parent="Visuals/Leaves"]
+transform = Transform3D(-0.5, -0.224144, -0.836516, 0, 0.965926, -0.258819, 0.866025, -0.12941, -0.482963, -0.4, 0, -0.22)
+mesh = SubResource("BoxMesh_leaf")
+
+[node name="Stem" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+mesh = SubResource("CylinderMesh_stem")
+
+[node name="ClockHead" type="Node3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+
+[node name="Receptacle" type="MeshInstance3D" parent="Visuals/ClockHead"]
+mesh = SubResource("SphereMesh_receptacle")
+
+[node name="FluffGlobe" type="Node3D" parent="Visuals/ClockHead"]
+
+[node name="MainFluff" type="MeshInstance3D" parent="Visuals/ClockHead/FluffGlobe"]
+mesh = SubResource("SphereMesh_fluff_main")
+
+[node name="SpikeN" type="MeshInstance3D" parent="Visuals/ClockHead/FluffGlobe"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0.62)
+mesh = SubResource("CylinderMesh_spike")
+
+[node name="SpikeS" type="MeshInstance3D" parent="Visuals/ClockHead/FluffGlobe"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, -0.62)
+mesh = SubResource("CylinderMesh_spike")
+
+[node name="SpikeE" type="MeshInstance3D" parent="Visuals/ClockHead/FluffGlobe"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.62, 0, 0)
+mesh = SubResource("CylinderMesh_spike")
+
+[node name="SpikeW" type="MeshInstance3D" parent="Visuals/ClockHead/FluffGlobe"]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, -0.62, 0, 0)
+mesh = SubResource("CylinderMesh_spike")
+
+[node name="SpikeUp" type="MeshInstance3D" parent="Visuals/ClockHead/FluffGlobe"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.62, 0)
+mesh = SubResource("CylinderMesh_spike")

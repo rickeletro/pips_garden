@@ -48,14 +48,31 @@ func _draw() -> void:
 			draw_circle(map_pos, 2.2, Color(0.55, 0.44, 0.32, 0.85))
 			draw_circle(map_pos, 1.0, Color(0.72, 0.62, 0.48, 0.9))
 
-	# 3. Recursos coletáveis no chão
+	# 3. Recursos coletáveis no chão e Dentes-de-Leão
 	if tree:
+		# Dentes-de-Leão (Pom-poms com sementes)
+		var dandelions = tree.get_nodes_in_group("dandelion")
+		for dand in dandelions:
+			if is_instance_valid(dand):
+				var dand_map = world_to_minimap(dand.global_position, center, draw_radius)
+				var is_h = dand.get("is_harvested") == true
+				if not is_h:
+					draw_circle(dand_map, 2.4, Color(0.96, 0.96, 0.92, 0.8))
+					draw_arc(dand_map, 3.8, 0, TAU, 8, Color(1.0, 1.0, 0.9, 0.35), 1.0)
+					
+		# Itens no chão (com sementes em dourado brilhante destacado)
 		var pickups = tree.get_nodes_in_group("pickups")
 		var pulse_glow = 0.5 + sin(Time.get_ticks_msec() * 0.007) * 0.4
 		for p in pickups:
 			if is_instance_valid(p):
 				var p_map = world_to_minimap(p.global_position, center, draw_radius)
-				draw_circle(p_map, 1.6, Color(1.0, 1.0, 0.85, pulse_glow))
+				var itype = p.get("item_type")
+				if itype == "SEED":
+					draw_circle(p_map, 2.5, Color(0.12, 0.08, 0.02, 1.0))
+					draw_circle(p_map, 1.8, Color(1.0, 0.85, 0.22, pulse_glow))
+				else:
+					draw_circle(p_map, 1.5, Color(0.85, 0.85, 0.85, pulse_glow * 0.8))
+
 
 	# 4. Torres de Defesa (Ícones nítidos com estado de vida / dano)
 	if tree:

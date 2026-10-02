@@ -245,6 +245,26 @@ func execute_attack_combo() -> void:
 			var knock_dir = (body.global_position - global_position).normalized()
 			if body.has_method("take_damage"):
 				body.take_damage(base_dmg, knock_dir * (3.8 if combo_step == 3 else 1.6))
+		elif body.has_method("on_attack_hit"):
+			body.on_attack_hit(global_position)
+			
+	var areas = attack_area.get_overlapping_areas()
+	for a in areas:
+		var parent = a.get_parent()
+		if parent and parent.has_method("on_attack_hit"):
+			parent.on_attack_hit(global_position)
+		elif a.has_method("on_attack_hit"):
+			a.on_attack_hit(global_position)
+			
+	# Checagem de proximidade direta para soprar/colher dentes-de-leão (Dandelion Clock)
+	var tree = get_tree()
+	if tree:
+		var dandelions = tree.get_nodes_in_group("dandelion")
+		for dand in dandelions:
+			if is_instance_valid(dand):
+				if global_position.distance_to(dand.global_position) <= attack_radius + 1.2:
+					if dand.has_method("on_attack_hit"):
+						dand.on_attack_hit(global_position)
 
 func create_slash_effect(tint: Color, scale_mult: float) -> void:
 	if not slash_fx:
@@ -424,6 +444,17 @@ func check_dash_hits() -> void:
 		if body.is_in_group("enemies") and body.has_method("take_damage"):
 			var knock = dash_direction * 3.5
 			body.take_damage(20.0 + GameManager.pip_damage_bonus, knock)
+		elif body.has_method("on_attack_hit"):
+			body.on_attack_hit(global_position)
+			
+	var tree = get_tree()
+	if tree:
+		var dandelions = tree.get_nodes_in_group("dandelion")
+		for dand in dandelions:
+			if is_instance_valid(dand):
+				if global_position.distance_to(dand.global_position) <= 2.2:
+					if dand.has_method("on_attack_hit"):
+						dand.on_attack_hit(global_position)
 
 func try_interact_or_repair() -> void:
 	var tree = get_tree()

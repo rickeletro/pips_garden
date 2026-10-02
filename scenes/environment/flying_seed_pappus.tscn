@@ -1,0 +1,77 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/flying_seed_pappus.gd" id="1_pappus"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_PappusFluff"]
+transparency = 1
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.98, 0.98, 0.95, 0.9)
+roughness = 0.9
+emission_enabled = true
+emission = Color(1, 1, 0.92, 1)
+emission_energy_multiplier = 0.35
+
+[sub_resource type="SphereMesh" id="SphereMesh_parachute"]
+material = SubResource("Mat_PappusFluff")
+radius = 0.22
+height = 0.28
+radial_segments = 12
+rings = 6
+
+[sub_resource type="StandardMaterial3D" id="Mat_Stalk"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.65, 0.62, 0.45, 1)
+roughness = 0.8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_stalk"]
+material = SubResource("Mat_Stalk")
+top_radius = 0.012
+bottom_radius = 0.012
+height = 0.45
+radial_segments = 6
+
+[sub_resource type="StandardMaterial3D" id="Mat_SeedKernel"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.96, 0.76, 0.18, 1)
+roughness = 0.4
+emission_enabled = true
+emission = Color(1, 0.84, 0.25, 1)
+emission_energy_multiplier = 0.8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_seed"]
+material = SubResource("Mat_SeedKernel")
+top_radius = 0.02
+bottom_radius = 0.12
+height = 0.28
+radial_segments = 8
+
+[sub_resource type="SphereMesh" id="SphereMesh_seed_base"]
+material = SubResource("Mat_SeedKernel")
+radius = 0.12
+height = 0.16
+radial_segments = 8
+rings = 4
+
+[node name="FlyingSeedPappus" type="Node3D"]
+script = ExtResource("1_pappus")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="PappusParachute" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+mesh = SubResource("SphereMesh_parachute")
+
+[node name="Stalk" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
+mesh = SubResource("CylinderMesh_stalk")
+
+[node name="SeedKernel" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06, 0)
+mesh = SubResource("CylinderMesh_seed")
+
+[node name="SeedBase" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.18, 0)
+mesh = SubResource("SphereMesh_seed_base")
