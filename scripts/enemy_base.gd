@@ -107,6 +107,9 @@ func recalculate_path() -> void:
 		path_waypoints = grid_manager.get_path_to_flower(global_position)
 		current_waypoint_idx = 0
 
+var last_pos: Vector3 = Vector3.ZERO
+var stuck_timer: float = 0.0
+
 func process_ground_movement(delta: float) -> void:
 	if path_waypoints.is_empty() or current_waypoint_idx >= path_waypoints.size():
 		if target_flower and is_instance_valid(target_flower):
@@ -116,12 +119,24 @@ func process_ground_movement(delta: float) -> void:
 	var target_wp = path_waypoints[current_waypoint_idx]
 	target_wp.y = global_position.y
 	
-	if global_position.distance_to(target_wp) < 0.6:
+	if global_position.distance_to(target_wp) < 1.3:
 		current_waypoint_idx += 1
 		if current_waypoint_idx < path_waypoints.size():
 			target_wp = path_waypoints[current_waypoint_idx]
 			target_wp.y = global_position.y
 			
+	# Stuck detection: se bloqueado por colisão ou relevo, avança waypoint ou recalcula
+	if global_position.distance_squared_to(last_pos) < 0.02:
+		stuck_timer += delta
+		if stuck_timer > 1.0:
+			stuck_timer = 0.0
+			current_waypoint_idx += 1
+			if current_waypoint_idx >= path_waypoints.size():
+				recalculate_path()
+	else:
+		stuck_timer = 0.0
+		last_pos = global_position
+		
 	move_towards_point(target_wp, delta)
 
 func process_flying_movement(delta: float) -> void:

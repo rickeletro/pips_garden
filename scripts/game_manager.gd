@@ -171,6 +171,11 @@ func register_enemy_killed(enemy: Node3D) -> void:
 	enemies_alive = max(0, enemies_alive - 1)
 	enemy_died.emit(enemy)
 	if wave_state == WaveState.WAVE_ACTIVE and enemies_alive == 0:
+		var tree = get_tree()
+		if tree:
+			var spawner = tree.get_first_node_in_group("spawner_manager")
+			if spawner and spawner.has_method("is_spawning_active") and spawner.is_spawning_active():
+				return
 		on_wave_cleared()
 
 func on_wave_cleared() -> void:

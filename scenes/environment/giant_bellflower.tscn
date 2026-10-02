@@ -29,16 +29,7 @@ bottom_radius = 0.55
 height = 0.75
 radial_segments = 10
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_stem"]
-height = 2.0
-radius = 0.12
-
-[node name="GiantBellflower" type="StaticBody3D"]
-collision_mask = 0
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
-shape = SubResource("CylinderShape3D_stem")
+[node name="GiantBellflower" type="Node3D"]
 
 [node name="Stem" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)

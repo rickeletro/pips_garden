@@ -32,9 +32,13 @@ var spawn_timer: float = 0.0
 var spawn_interval: float = 1.0
 
 func _ready() -> void:
+	add_to_group("spawner_manager")
 	init_references()
 	GameManager.wave_state_changed.connect(_on_wave_state_changed)
-	spawn_ground_harvest(12, 6, 8)
+	spawn_ground_harvest(14, 8, 12)
+
+func is_spawning_active() -> bool:
+	return spawning_active or not spawn_queue.is_empty()
 
 func init_references() -> void:
 	if GameManager.grid_manager:
@@ -92,6 +96,8 @@ func spawn_single_enemy(type: String) -> void:
 		
 	var sp_cell = spawners[randi() % spawners.size()]
 	var spawn_pos = grid_manager.grid_to_world(sp_cell, 0.0)
+	if type == "wasp":
+		spawn_pos.y = 1.8
 	
 	var en_node: Node3D = null
 	match type:
@@ -103,8 +109,11 @@ func spawn_single_enemy(type: String) -> void:
 			if wasp_scene: en_node = wasp_scene.instantiate()
 			
 	if en_node:
+		en_node.position = spawn_pos
 		add_child(en_node)
 		en_node.global_position = spawn_pos
+		if en_node.has_method("recalculate_path"):
+			en_node.recalculate_path()
 
 func spawn_ground_harvest(twig_count: int, gear_count: int, seed_count: int) -> void:
 	if not grid_manager:

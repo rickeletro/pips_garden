@@ -19,10 +19,10 @@ var astar: AStar2D = AStar2D.new()
 
 var flower_cell: Vector2i = Vector2i(0, 0)
 var spawner_cells: Array[Vector2i] = [
-	Vector2i(0, -22), # Portão Norte
-	Vector2i(-22, 0), # Portão Oeste
-	Vector2i(22, 0),  # Portão Leste
-	Vector2i(0, 22)   # Portão Sul
+	Vector2i(0, -16), # Entrada Norte
+	Vector2i(-16, 0), # Entrada Oeste
+	Vector2i(16, 0),  # Entrada Leste
+	Vector2i(0, 16)   # Entrada Sul
 ]
 
 const WEIGHT_DIRT: float = 3.5
