@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://b0f1showcase1x"]
+[gd_scene format=3 uid="uid://bgwqmt4jsraoh"]
 
 [ext_resource type="Script" path="res://scripts/test_fase1_showcase.gd" id="1_show"]
 [ext_resource type="Theme" path="res://ui/theme/jardim.tres" id="2_theme"]

@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/tower_ghost.gd" id="1_ghost"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tent"]
+top_radius = 0.05
+bottom_radius = 0.45
+height = 1.2
+radial_segments = 6
+
+[sub_resource type="TorusMesh" id="TorusMesh_ring"]
+inner_radius = 0.5
+outer_radius = 0.6
+rings = 16
+ring_segments = 6
+
+[node name="TowerGhost" type="Node3D"]
+script = ExtResource("1_ghost")
+
+[node name="TentMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+mesh = SubResource("CylinderMesh_tent")
+
+[node name="IndicatorRing" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+mesh = SubResource("TorusMesh_ring")

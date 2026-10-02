@@ -3,64 +3,149 @@
 [ext_resource type="Script" path="res://scripts/tower.gd" id="1_tower"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_body"]
-height = 1.6
-radius = 0.55
+height = 1.8
+radius = 0.65
 
-[sub_resource type="StandardMaterial3D" id="Mat_Wood"]
+[sub_resource type="StandardMaterial3D" id="Mat_WoodBark"]
 diffuse_mode = 2
 specular_mode = 2
-albedo_color = Color(0.48, 0.32, 0.18, 1)
+albedo_color = Color(0.352941, 0.243137, 0.168627, 1)
 roughness = 0.85
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_stick"]
-material = SubResource("Mat_Wood")
-top_radius = 0.045
+[sub_resource type="CylinderMesh" id="CylinderMesh_twig_main"]
+material = SubResource("Mat_WoodBark")
+top_radius = 0.04
 bottom_radius = 0.075
-height = 1.6
+height = 1.75
 
-[sub_resource type="StandardMaterial3D" id="Mat_Brass"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_rung"]
+material = SubResource("Mat_WoodBark")
+top_radius = 0.03
+bottom_radius = 0.03
+height = 0.75
+
+[sub_resource type="StandardMaterial3D" id="Mat_Twine"]
 diffuse_mode = 2
 specular_mode = 2
-albedo_color = Color(0.92, 0.76, 0.28, 1)
+albedo_color = Color(0.909804, 0.72549, 0.290196, 1)
+roughness = 0.9
+
+[sub_resource type="TorusMesh" id="TorusMesh_twine"]
+material = SubResource("Mat_Twine")
+inner_radius = 0.08
+outer_radius = 0.16
+
+[sub_resource type="StandardMaterial3D" id="Mat_AcornCap"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.309804, 0.419608, 0.227451, 1)
+roughness = 0.7
+
+[sub_resource type="SphereMesh" id="SphereMesh_acorn_top"]
+material = SubResource("Mat_AcornCap")
+radius = 0.28
+height = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_PoisonAmber"]
+albedo_color = Color(0.890196, 0.603922, 0.176471, 1)
+emission_enabled = true
+emission = Color(0.890196, 0.603922, 0.176471, 1)
+emission_energy_multiplier = 0.85
+roughness = 0.25
+
+[sub_resource type="SphereMesh" id="SphereMesh_liquid"]
+material = SubResource("Mat_PoisonAmber")
+radius = 0.24
+height = 0.38
+
+[sub_resource type="StandardMaterial3D" id="Mat_Straw"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.83, 0.76, 0.55, 1)
+roughness = 0.6
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_straw"]
+material = SubResource("Mat_Straw")
+top_radius = 0.03
+bottom_radius = 0.045
+height = 0.55
+
+[sub_resource type="TorusMesh" id="TorusMesh_tip"]
+material = SubResource("Mat_PoisonAmber")
+inner_radius = 0.02
+outer_radius = 0.05
+
+[sub_resource type="StandardMaterial3D" id="Mat_BrassToy"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.788235, 0.584314, 0.235294, 1)
 metallic = 0.85
 roughness = 0.25
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_gear"]
-material = SubResource("Mat_Brass")
-top_radius = 0.38
-bottom_radius = 0.38
-height = 0.08
+[sub_resource type="CylinderMesh" id="CylinderMesh_gear_sm"]
+material = SubResource("Mat_BrassToy")
+top_radius = 0.25
+bottom_radius = 0.25
+height = 0.06
 
-[sub_resource type="StandardMaterial3D" id="Mat_Reed"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_gear_lg"]
+material = SubResource("Mat_BrassToy")
+top_radius = 0.42
+bottom_radius = 0.42
+height = 0.07
+
+[sub_resource type="StandardMaterial3D" id="Mat_Spring"]
 diffuse_mode = 2
 specular_mode = 2
-albedo_color = Color(0.35, 0.45, 0.22, 1)
+albedo_color = Color(0.788235, 0.584314, 0.235294, 1)
+metallic = 0.8
+roughness = 0.3
+
+[sub_resource type="TorusMesh" id="TorusMesh_spring"]
+material = SubResource("Mat_Spring")
+inner_radius = 0.1
+outer_radius = 0.16
+
+[sub_resource type="StandardMaterial3D" id="Mat_Glass"]
+transparency = 1
+albedo_color = Color(0.85, 0.95, 1, 0.4)
+roughness = 0.1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_bottle"]
+material = SubResource("Mat_Glass")
+top_radius = 0.08
+bottom_radius = 0.1
+height = 0.28
+
+[sub_resource type="StandardMaterial3D" id="Mat_FireflyGlow"]
+albedo_color = Color(0.909804, 0.72549, 0.290196, 1)
+emission_enabled = true
+emission = Color(0.909804, 0.72549, 0.290196, 1)
+emission_energy_multiplier = 1.8
+
+[sub_resource type="SphereMesh" id="SphereMesh_firefly"]
+material = SubResource("Mat_FireflyGlow")
+radius = 0.04
+height = 0.08
+
+[sub_resource type="StandardMaterial3D" id="Mat_Leaf"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.560784, 0.690196, 0.352941, 1)
 roughness = 0.6
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_nozzle"]
-material = SubResource("Mat_Reed")
-top_radius = 0.035
-bottom_radius = 0.055
-height = 0.55
+[sub_resource type="BoxMesh" id="BoxMesh_banner"]
+material = SubResource("Mat_Leaf")
+size = Vector3(0.08, 0.35, 0.22)
 
-[sub_resource type="StandardMaterial3D" id="Mat_GlassVial"]
+[sub_resource type="StandardMaterial3D" id="Mat_SmokePuff"]
 transparency = 1
-albedo_color = Color(0.2, 0.7, 1, 0.8)
-roughness = 0.2
+albedo_color = Color(0.35, 0.32, 0.3, 0.65)
 
-[sub_resource type="SphereMesh" id="SphereMesh_vial"]
-material = SubResource("Mat_GlassVial")
-radius = 0.18
-height = 0.36
-
-[sub_resource type="StandardMaterial3D" id="Mat_Smoke"]
-transparency = 1
-albedo_color = Color(0.3, 0.3, 0.3, 0.7)
-
-[sub_resource type="SphereMesh" id="SphereMesh_smoke"]
-material = SubResource("Mat_Smoke")
-radius = 0.35
-height = 0.7
+[sub_resource type="SphereMesh" id="SphereMesh_smoke_puff"]
+material = SubResource("Mat_SmokePuff")
+radius = 0.3
+height = 0.6
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_range"]
 radius = 6.0
@@ -71,42 +156,144 @@ collision_mask = 6
 script = ExtResource("1_tower")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CylinderShape3D_body")
 
 [node name="Visuals" type="Node3D" parent="."]
 
-[node name="Stick1" type="MeshInstance3D" parent="Visuals"]
-transform = Transform3D(0.965926, 0.183013, -0.183013, 0, 0.707107, 0.707107, 0.258819, -0.683013, 0.683013, -0.2, 0.75, -0.2)
-mesh = SubResource("CylinderMesh_stick")
+[node name="StandingTent" type="Node3D" parent="Visuals"]
 
-[node name="Stick2" type="MeshInstance3D" parent="Visuals"]
-transform = Transform3D(0.965926, -0.183013, 0.183013, 0, 0.707107, 0.707107, -0.258819, -0.683013, 0.683013, 0.2, 0.75, -0.2)
-mesh = SubResource("CylinderMesh_stick")
+[node name="TentFrame" type="Node3D" parent="Visuals/StandingTent"]
 
-[node name="Stick3" type="MeshInstance3D" parent="Visuals"]
-transform = Transform3D(1, 0, 0, 0, 0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0.75, 0.25)
-mesh = SubResource("CylinderMesh_stick")
+[node name="TwigNorth" type="MeshInstance3D" parent="Visuals/StandingTent/TentFrame"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.85, -0.26)
+mesh = SubResource("CylinderMesh_twig_main")
 
-[node name="Gear" type="MeshInstance3D" parent="Visuals"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0)
-mesh = SubResource("CylinderMesh_gear")
+[node name="TwigSouth" type="MeshInstance3D" parent="Visuals/StandingTent/TentFrame"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0.85, 0.26)
+mesh = SubResource("CylinderMesh_twig_main")
 
-[node name="PoisonVial" type="MeshInstance3D" parent="Visuals"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, 0)
-mesh = SubResource("SphereMesh_vial")
+[node name="TwigEast" type="MeshInstance3D" parent="Visuals/StandingTent/TentFrame"]
+transform = Transform3D(0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0, 0, 1, 0.26, 0.85, 0)
+mesh = SubResource("CylinderMesh_twig_main")
 
-[node name="Nozzle" type="Node3D" parent="Visuals"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0)
+[node name="TwigWest" type="MeshInstance3D" parent="Visuals/StandingTent/TentFrame"]
+transform = Transform3D(0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0, 0, 1, -0.26, 0.85, 0)
+mesh = SubResource("CylinderMesh_twig_main")
 
-[node name="NozzleMesh" type="MeshInstance3D" parent="Visuals/Nozzle"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0.3)
-mesh = SubResource("CylinderMesh_nozzle")
+[node name="CrossRung1" type="MeshInstance3D" parent="Visuals/StandingTent/TentFrame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0.35)
+mesh = SubResource("CylinderMesh_rung")
 
-[node name="BrokenSmoke" type="MeshInstance3D" parent="Visuals"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+[node name="CrossRung2" type="MeshInstance3D" parent="Visuals/StandingTent/TentFrame"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.35, 0.5, 0)
+mesh = SubResource("CylinderMesh_rung")
+
+[node name="ApexTwine" type="MeshInstance3D" parent="Visuals/StandingTent/TentFrame"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1.55, 0)
+mesh = SubResource("TorusMesh_twine")
+
+[node name="Level1Parts" type="Node3D" parent="Visuals/StandingTent"]
+
+[node name="AcornTank" type="MeshInstance3D" parent="Visuals/StandingTent/Level1Parts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0)
+mesh = SubResource("SphereMesh_acorn_top")
+
+[node name="PoisonLiquid" type="MeshInstance3D" parent="Visuals/StandingTent/Level1Parts/AcornTank"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+mesh = SubResource("SphereMesh_liquid")
+
+[node name="Nozzle" type="Node3D" parent="Visuals/StandingTent/Level1Parts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0)
+
+[node name="StrawMesh" type="MeshInstance3D" parent="Visuals/StandingTent/Level1Parts/Nozzle"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0.32)
+mesh = SubResource("CylinderMesh_straw")
+
+[node name="TipRing" type="MeshInstance3D" parent="Visuals/StandingTent/Level1Parts/Nozzle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.6)
+mesh = SubResource("TorusMesh_tip")
+
+[node name="ToyGear" type="MeshInstance3D" parent="Visuals/StandingTent/Level1Parts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.62, 0)
+mesh = SubResource("CylinderMesh_gear_sm")
+
+[node name="Level2Parts" type="Node3D" parent="Visuals/StandingTent"]
 visible = false
-mesh = SubResource("SphereMesh_smoke")
+
+[node name="PlatformRungs" type="Node3D" parent="Visuals/StandingTent/Level2Parts"]
+
+[node name="Plat1" type="MeshInstance3D" parent="Visuals/StandingTent/Level2Parts/PlatformRungs"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, 0.22)
+mesh = SubResource("CylinderMesh_rung")
+
+[node name="Plat2" type="MeshInstance3D" parent="Visuals/StandingTent/Level2Parts/PlatformRungs"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -0.22)
+mesh = SubResource("CylinderMesh_rung")
+
+[node name="GearPairA" type="MeshInstance3D" parent="Visuals/StandingTent/Level2Parts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 1.75, 0)
+mesh = SubResource("CylinderMesh_gear_sm")
+
+[node name="GearPairB" type="MeshInstance3D" parent="Visuals/StandingTent/Level2Parts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 1.75, 0)
+mesh = SubResource("CylinderMesh_gear_sm")
+
+[node name="Spring" type="MeshInstance3D" parent="Visuals/StandingTent/Level2Parts"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1.45, 0)
+mesh = SubResource("TorusMesh_spring")
+
+[node name="Level3Parts" type="Node3D" parent="Visuals/StandingTent"]
+visible = false
+
+[node name="MasterGear" type="MeshInstance3D" parent="Visuals/StandingTent/Level3Parts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+mesh = SubResource("CylinderMesh_gear_lg")
+
+[node name="FireflyLantern" type="Node3D" parent="Visuals/StandingTent/Level3Parts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 1.85, 0.2)
+
+[node name="GlassBottle" type="MeshInstance3D" parent="Visuals/StandingTent/Level3Parts/FireflyLantern"]
+mesh = SubResource("CylinderMesh_bottle")
+
+[node name="Firefly" type="MeshInstance3D" parent="Visuals/StandingTent/Level3Parts/FireflyLantern"]
+mesh = SubResource("SphereMesh_firefly")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Visuals/StandingTent/Level3Parts/FireflyLantern"]
+light_color = Color(0.95, 0.88, 0.45, 1)
+light_energy = 0.9
+omni_range = 3.5
+
+[node name="LeafBanners" type="Node3D" parent="Visuals/StandingTent/Level3Parts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, 0)
+
+[node name="Banner1" type="MeshInstance3D" parent="Visuals/StandingTent/Level3Parts/LeafBanners"]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.15, 0, 0)
+mesh = SubResource("BoxMesh_banner")
+
+[node name="Banner2" type="MeshInstance3D" parent="Visuals/StandingTent/Level3Parts/LeafBanners"]
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.15, 0, 0)
+mesh = SubResource("BoxMesh_banner")
+
+[node name="BrokenSmoke" type="MeshInstance3D" parent="Visuals/StandingTent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+visible = false
+mesh = SubResource("SphereMesh_smoke_puff")
+
+[node name="CollapsedTent" type="Node3D" parent="Visuals"]
+visible = false
+
+[node name="CollapsedTwig1" type="MeshInstance3D" parent="Visuals/CollapsedTent"]
+transform = Transform3D(0.866025, 0, 0.5, 0.5, 0, -0.866025, 0, 1, 0, -0.2, 0.08, 0.3)
+mesh = SubResource("CylinderMesh_twig_main")
+
+[node name="CollapsedTwig2" type="MeshInstance3D" parent="Visuals/CollapsedTent"]
+transform = Transform3D(-0.707107, 0, 0.707107, 0.707107, 0, 0.707107, 0, 1, 0, 0.3, 0.08, -0.2)
+mesh = SubResource("CylinderMesh_twig_main")
+
+[node name="CollapsedTwig3" type="MeshInstance3D" parent="Visuals/CollapsedTent"]
+transform = Transform3D(0.5, 0, -0.866025, -0.866025, 0, -0.5, 0, 1, 0, 0, 0.08, 0)
+mesh = SubResource("CylinderMesh_twig_main")
 
 [node name="RangeArea" type="Area3D" parent="."]
 collision_layer = 0

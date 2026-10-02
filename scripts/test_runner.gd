@@ -94,5 +94,41 @@ func _ready() -> void:
 	await get_tree().process_frame
 	print("✔ Pragas eliminadas e drops criados sem nenhum erro de referência nula.")
 	
+	# 6. Testar Requisitos da Fase 3: Torre de Gravetos em 3 Níveis, Estados de Dano e Ghost
+	assert(tower_built.level == 1, "Torre inicial deve ser nível 1")
+	assert(tower_built.visuals_standing.visible == true, "Torre inicial deve ter estrutura cônica em pé")
+	assert(tower_built.visuals_collapsed.visible == false, "Torre inicial não deve ter escombros ativos")
+	
+	# Testar dano e colapso
+	tower_built.take_damage(120.0)
+	assert(tower_built.is_broken == true, "Torre deve ficar quebrada após dano letal")
+	assert(tower_built.visuals_standing.visible == false, "Tenda em pé deve ocultar no colapso")
+	assert(tower_built.visuals_collapsed.visible == true, "Escombros de gravetos devem aparecer no colapso")
+	
+	# Testar reparo
+	GameManager.twigs += 10
+	GameManager.gears += 10
+	var repaired = tower_built.repair()
+	assert(repaired == true, "Reparo deve ter sucesso com recursos disponíveis")
+	assert(tower_built.is_broken == false, "Torre deve voltar a funcionar após reparo")
+	assert(tower_built.visuals_standing.visible == true, "Tenda em pé deve reaparecer após reparo")
+	assert(tower_built.visuals_collapsed.visible == false, "Escombros devem ser ocultados após reparo")
+	
+	# Testar upgrades de nível
+	var upgraded_l2 = tower_built.try_upgrade()
+	assert(upgraded_l2 == true and tower_built.level == 2, "Upgrade para nível 2 deve funcionar")
+	var upgraded_l3 = tower_built.try_upgrade()
+	assert(upgraded_l3 == true and tower_built.level == 3, "Upgrade para nível 3 deve funcionar")
+	assert(tower_built.level3_root.visible == true, "Nível 3 deve exibir engrenagem mestra e vaga-lume")
+	
+	# Testar ghost de posicionamento
+	var ghost_scene = load("res://scenes/tower_ghost.tscn")
+	var ghost_inst: TowerGhost = ghost_scene.instantiate()
+	root_node.add_child(ghost_inst)
+	ghost_inst.set_valid(true)
+	ghost_inst.set_valid(false)
+	ghost_inst.queue_free()
+	print("✔ Torre de gravetos: 3 níveis visuais, dano/colapso, reparo dinâmico e ghost validados 100%.")
+	
 	print("--- TODOS OS TESTES PASSARAM COM 100% DE SUCESSO! ---")
 	get_tree().quit(0)
