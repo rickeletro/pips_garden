@@ -1,0 +1,94 @@
+[gd_scene format=3 uid="uid://c5m8p6k3w1yae"]
+
+[ext_resource type="Script" path="res://scripts/boss_spider.gd" id="1_spider"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_body"]
+radius = 1.1
+
+[sub_resource type="StandardMaterial3D" id="Mat_SpiderVelvet"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.12, 0.1, 0.15, 1)
+roughness = 0.8
+rim_enabled = true
+rim = 0.8
+rim_tint = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_SpiderGlow"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.95, 0.95, 1, 1)
+emission_enabled = true
+emission = Color(0.85, 0.9, 1, 1)
+emission_energy_multiplier = 1.2
+
+[sub_resource type="SphereMesh" id="SphereMesh_abdomen"]
+material = SubResource("Mat_SpiderVelvet")
+radius = 0.75
+height = 1.2
+
+[sub_resource type="SphereMesh" id="SphereMesh_cephalothorax"]
+material = SubResource("Mat_SpiderVelvet")
+radius = 0.45
+height = 0.7
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_leg"]
+material = SubResource("Mat_SpiderVelvet")
+top_radius = 0.04
+bottom_radius = 0.06
+height = 1.4
+
+[sub_resource type="PrismMesh" id="PrismMesh_fang"]
+material = SubResource("Mat_SpiderGlow")
+size = Vector3(0.12, 0.35, 0.12)
+
+[node name="BossSpider" type="CharacterBody3D" groups=["enemies"]]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_spider")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("SphereShape3D_body")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Abdomen" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, -0.65)
+mesh = SubResource("SphereMesh_abdomen")
+
+[node name="Head" type="Node3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0.35)
+
+[node name="HeadMesh" type="MeshInstance3D" parent="Visuals/Head"]
+mesh = SubResource("SphereMesh_cephalothorax")
+
+[node name="Fangs" type="Node3D" parent="Visuals/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0.45)
+
+[node name="FangL" type="MeshInstance3D" parent="Visuals/Head/Fangs"]
+transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0.12, 0, 0)
+mesh = SubResource("PrismMesh_fang")
+
+[node name="FangR" type="MeshInstance3D" parent="Visuals/Head/Fangs"]
+transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, -0.12, 0, 0)
+mesh = SubResource("PrismMesh_fang")
+
+[node name="Legs" type="Node3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+
+[node name="Leg1L" type="MeshInstance3D" parent="Visuals/Legs"]
+transform = Transform3D(0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0, 0, 1, 0.65, 0, 0.3)
+mesh = SubResource("CylinderMesh_leg")
+
+[node name="Leg1R" type="MeshInstance3D" parent="Visuals/Legs"]
+transform = Transform3D(0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0, 1, -0.65, 0, 0.3)
+mesh = SubResource("CylinderMesh_leg")
+
+[node name="Leg2L" type="MeshInstance3D" parent="Visuals/Legs"]
+transform = Transform3D(0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0, 0, 1, 0.75, 0, -0.2)
+mesh = SubResource("CylinderMesh_leg")
+
+[node name="Leg2R" type="MeshInstance3D" parent="Visuals/Legs"]
+transform = Transform3D(0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0, 1, -0.75, 0, -0.2)
+mesh = SubResource("CylinderMesh_leg")

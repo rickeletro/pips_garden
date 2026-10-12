@@ -10,11 +10,13 @@
 [ext_resource type="Texture2D" path="res://ui/icons/icon_poison.svg" id="8_ic_poison"]
 [ext_resource type="Texture2D" path="res://ui/icons/icon_dash.svg" id="9_ic_dash"]
 [ext_resource type="Texture2D" path="res://ui/icons/icon_repair.svg" id="10_ic_repair"]
+[ext_resource type="Texture2D" path="res://ui/icons/icon_water.svg" id="17_ic_water"]
 [ext_resource type="Texture2D" path="res://ui/icons/icon_twig.svg" id="11_ic_twig"]
 [ext_resource type="Texture2D" path="res://ui/icons/icon_gear.svg" id="12_ic_gear"]
 [ext_resource type="Texture2D" path="res://ui/icons/icon_seed.svg" id="13_ic_seed"]
 [ext_resource type="FontFile" path="res://ui/fonts/Fondamento-Regular.ttf" id="14_font_title"]
 [ext_resource type="Script" path="res://scripts/ui/minimap_canvas.gd" id="15_minimap"]
+[ext_resource type="Script" path="res://scripts/ui/ivy_border.gd" id="16_ivy_border"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_flower_fill"]
 bg_color = Color(0.709804, 0.278431, 0.121569, 1)
@@ -56,6 +58,46 @@ font_size = 28
 font_color = Color(0.952941, 0.901961, 0.768627, 1)
 outline_size = 6
 outline_color = Color(0.12, 0.08, 0.05, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_intro_title"]
+font = ExtResource("14_font_title")
+font_size = 82
+font_color = Color(0.18, 0.42, 0.22, 1)
+outline_size = 8
+outline_color = Color(0.98, 0.96, 0.90, 0.98)
+shadow_size = 12
+shadow_color = Color(0.08, 0.18, 0.09, 0.35)
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_intro_btn"]
+bg_color = Color(0.96, 0.94, 0.88, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24, 0.48, 0.28, 0.85)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.1, 0.2, 0.1, 0.2)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_intro_btn_hover"]
+bg_color = Color(0.98, 0.97, 0.92, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.65, 0.38, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.2, 0.5, 0.2, 0.35)
+shadow_size = 10
+shadow_offset = Vector2(0, 4)
 
 [node name="GameHUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -133,7 +175,7 @@ text = "Onda 1 / 7"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.91, 0.73, 0.29, 1)
 theme_override_font_sizes/font_size = 11
-text = "15s"
+text = "30s"
 
 [node name="SkipButton" type="Button" parent="Margin/TopLeft/Panel/VBox/WaveHBox"]
 custom_minimum_size = Vector2(65, 20)
@@ -145,8 +187,8 @@ text = "⏩ Pular"
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_countdown")
-max_value = 15.0
-value = 15.0
+max_value = 30.0
+value = 30.0
 show_percentage = false
 
 [node name="TopRight" type="Control" parent="Margin"]
@@ -291,16 +333,16 @@ size_flags_horizontal = 4
 size_flags_vertical = 8
 
 [node name="HotbarPanel" type="Panel" parent="Margin/BottomCenter"]
-custom_minimum_size = Vector2(360, 78)
+custom_minimum_size = Vector2(420, 78)
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -180.0
+offset_left = -210.0
 offset_top = -78.0
-offset_right = 180.0
+offset_right = 210.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -362,6 +404,14 @@ key_shortcut = "E"
 icon_texture = ExtResource("10_ic_repair")
 cost_description = "2 Gravetos"
 tooltip_info = "Conserta ou evolui a torre de gravetos próxima."
+
+[node name="SlotWater" parent="Margin/BottomCenter/HotbarPanel/HBox" instance=ExtResource("3_slot_scn")]
+layout_mode = 2
+action_name = "Regar"
+key_shortcut = "F"
+icon_texture = ExtResource("17_ic_water")
+cost_description = "1 Orvalho"
+tooltip_info = "Restaura a hidratação da Flor Central ou Dente-de-Leão próximo."
 
 [node name="BottomRight" type="Control" parent="Margin"]
 layout_mode = 2
@@ -558,11 +608,60 @@ layout_mode = 2
 text = "Parabéns, Pip! Você defendeu todas as 7 ondas com sucesso contra as hordas terrestres e aéreas!"
 horizontal_alignment = 1
 
-[node name="PlayAgainBtn" type="Button" parent="VictoryPanel/VBox"]
-custom_minimum_size = Vector2(180, 40)
+[node name="IntroPanel" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="IvyBorder" type="Control" parent="IntroPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("16_ivy_border")
+
+[node name="CenterBox" type="VBoxContainer" parent="IntroPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -120.0
+offset_right = 350.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="Title" type="Label" parent="IntroPanel/CenterBox"]
+layout_mode = 2
+text = "Pip's Garden"
+label_settings = SubResource("LabelSettings_intro_title")
+horizontal_alignment = 1
+
+[node name="EnterButton" type="Button" parent="IntroPanel/CenterBox"]
+custom_minimum_size = Vector2(240, 50)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "✨ Jogar Novamente (R)"
+theme_override_colors/font_color = Color(0.18, 0.42, 0.22, 1)
+theme_override_colors/font_hover_color = Color(0.12, 0.55, 0.20, 1)
+theme_override_colors/font_pressed_color = Color(0.10, 0.35, 0.15, 1)
+theme_override_fonts/font = ExtResource("14_font_title")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_intro_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_intro_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_intro_btn")
+text = "Entrar no Jardim"
 
 [connection signal="pressed" from="GameOverPanel/VBox/RestartBtn" to="." method="_on_restart_pressed"]
 [connection signal="pressed" from="VictoryPanel/VBox/PlayAgainBtn" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="IntroPanel/CenterBox/EnterButton" to="." method="_on_enter_pressed"]
+

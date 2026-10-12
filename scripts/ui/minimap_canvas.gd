@@ -3,9 +3,60 @@ class_name MinimapCanvas
 
 @export var map_radius_meters: float = 48.0 # Raio do mapa de 100m (~48m em cada direção)
 
-func _process(_delta: float) -> void:
-	# Redesenhar a cada frame para rastreamento suave e contínuo
-	queue_redraw()
+var cached_norm_path: PackedVector2Array = PackedVector2Array()
+var path_cached: bool = false
+
+func _ready() -> void:
+	if GameManager.grid_manager:
+		_connect_grid(GameManager.grid_manager as GridManager)
+
+func _connect_grid(grid: GridManager) -> void:
+	if grid and not grid.path_updated.is_connected(rebuild_path_cache):
+		grid.path_updated.connect(rebuild_path_cache)
+		rebuild_path_cache()
+
+func rebuild_path_cache() -> void:
+	cached_norm_path.clear()
+	var grid = GameManager.grid_manager as GridManager
+	if not grid:
+		var tree = get_tree()
+		if tree:
+			grid = tree.get_first_node_in_group("grid_manager") as GridManager
+	if not grid:
+		return
+		
+	for cell in grid.path_cells.keys():
+		var world_pos = grid.grid_to_world(cell, 0.0)
+		var norm_x = clampf(world_pos.x / map_radius_meters, -1.0, 1.0)
+		var norm_y = clampf(world_pos.z / map_radius_meters, -1.0, 1.0)
+		cached_norm_path.append(Vector2(norm_x, norm_y))
+	path_cached = true
+
+var redraw_timer: float = 0.0
+var query_timer: float = 0.0
+var cached_dandelions: Array = []
+var cached_pickups: Array = []
+var cached_towers: Array = []
+var cached_enemies: Array = []
+
+func _process(delta: float) -> void:
+	if not path_cached:
+		rebuild_path_cache()
+		
+	query_timer -= delta
+	if query_timer <= 0.0:
+		query_timer = 0.12
+		var tree = get_tree()
+		if tree:
+			cached_dandelions = tree.get_nodes_in_group("dandelion")
+			cached_pickups = tree.get_nodes_in_group("pickups")
+			cached_towers = tree.get_nodes_in_group("towers")
+			cached_enemies = tree.get_nodes_in_group("enemies")
+			
+	redraw_timer -= delta
+	if redraw_timer <= 0.0:
+		redraw_timer = 0.065 # ~15 FPS de atualização visual
+		queue_redraw()
 
 func _draw() -> void:
 	var center = size * 0.5
@@ -37,99 +88,87 @@ func _draw() -> void:
 		draw_string(font, center + Vector2(draw_radius - 10, 3), "L", HORIZONTAL_ALIGNMENT_CENTER, -1, font_size, col_card)
 		draw_string(font, center + Vector2(-draw_radius + 4, 3), "O", HORIZONTAL_ALIGNMENT_CENTER, -1, font_size, col_card)
 
-	var grid = GameManager.grid_manager as GridManager
-	var tree = get_tree()
-	
-	# 2. Trilhas sinuosas de pedras
-	if grid:
-		for cell in grid.path_cells.keys():
-			var world_pos = grid.grid_to_world(cell, 0.0)
-			var map_pos = world_to_minimap(world_pos, center, draw_radius)
-			draw_circle(map_pos, 2.2, Color(0.55, 0.44, 0.32, 0.85))
-			draw_circle(map_pos, 1.0, Color(0.72, 0.62, 0.48, 0.9))
+	# 2. Trilhas sinuosas de pedras (desenhadas ultra-rápido a partir do cache)
+	var col_path_bg = Color(0.55, 0.44, 0.32, 0.85)
+	var col_path_fg = Color(0.72, 0.62, 0.48, 0.9)
+	for norm_pos in cached_norm_path:
+		var map_pos = center + norm_pos * draw_radius
+		draw_circle(map_pos, 2.2, col_path_bg)
+		draw_circle(map_pos, 1.0, col_path_fg)
 
 	# 3. Recursos coletáveis no chão e Dentes-de-Leão
-	if tree:
-		# Dentes-de-Leão (Pom-poms com sementes)
-		var dandelions = tree.get_nodes_in_group("dandelion")
-		for dand in dandelions:
-			if is_instance_valid(dand):
-				var dand_map = world_to_minimap(dand.global_position, center, draw_radius)
-				var is_h = dand.get("is_harvested") == true
-				if not is_h:
-					draw_circle(dand_map, 2.4, Color(0.96, 0.96, 0.92, 0.8))
-					draw_arc(dand_map, 3.8, 0, TAU, 8, Color(1.0, 1.0, 0.9, 0.35), 1.0)
-					
-		# Itens no chão (com sementes em dourado brilhante destacado)
-		var pickups = tree.get_nodes_in_group("pickups")
-		var pulse_glow = 0.5 + sin(Time.get_ticks_msec() * 0.007) * 0.4
-		for p in pickups:
-			if is_instance_valid(p):
-				var p_map = world_to_minimap(p.global_position, center, draw_radius)
-				var itype = p.get("item_type")
-				if itype == "SEED":
-					draw_circle(p_map, 2.5, Color(0.12, 0.08, 0.02, 1.0))
-					draw_circle(p_map, 1.8, Color(1.0, 0.85, 0.22, pulse_glow))
-				else:
-					draw_circle(p_map, 1.5, Color(0.85, 0.85, 0.85, pulse_glow * 0.8))
-
+	for dand in cached_dandelions:
+		if is_instance_valid(dand):
+			var dand_map = world_to_minimap(dand.global_position, center, draw_radius)
+			var is_h = dand.get("is_harvested") == true
+			if not is_h:
+				draw_circle(dand_map, 2.4, Color(0.96, 0.96, 0.92, 0.8))
+				draw_arc(dand_map, 3.8, 0, TAU, 8, Color(1.0, 1.0, 0.9, 0.35), 1.0)
+				
+	# Itens no chão (com sementes em dourado brilhante destacado)
+	var pulse_glow = 0.5 + sin(Time.get_ticks_msec() * 0.007) * 0.4
+	for p in cached_pickups:
+		if is_instance_valid(p):
+			var p_map = world_to_minimap(p.global_position, center, draw_radius)
+			var itype = p.get("item_type")
+			if itype == "SEED":
+				draw_circle(p_map, 2.5, Color(0.12, 0.08, 0.02, 1.0))
+				draw_circle(p_map, 1.8, Color(1.0, 0.85, 0.22, pulse_glow))
+			else:
+				draw_circle(p_map, 1.5, Color(0.85, 0.85, 0.85, pulse_glow * 0.8))
 
 	# 4. Torres de Defesa (Ícones nítidos com estado de vida / dano)
-	if tree:
-		var towers = tree.get_nodes_in_group("towers")
-		for tw in towers:
-			if is_instance_valid(tw):
-				var tw_map = world_to_minimap(tw.global_position, center, draw_radius)
-				var is_broken = tw.get("is_broken") == true
-				var hp_pct = 1.0
-				if tw.get("max_hp") and tw.get("max_hp") > 0:
-					hp_pct = clampf(float(tw.get("hp")) / float(tw.get("max_hp")), 0.0, 1.0)
-					
-				# Círculo de alcance da torre
-				draw_arc(tw_map, 11.0, 0, TAU, 16, Color(Tokens.LATAO_ENGRENAGEM.r, Tokens.LATAO_ENGRENAGEM.g, Tokens.LATAO_ENGRENAGEM.b, 0.18), 1.0)
+	for tw in cached_towers:
+		if is_instance_valid(tw):
+			var tw_map = world_to_minimap(tw.global_position, center, draw_radius)
+			var is_broken = tw.get("is_broken") == true
+			var hp_pct = 1.0
+			if tw.get("max_hp") and tw.get("max_hp") > 0:
+				hp_pct = clampf(float(tw.get("hp")) / float(tw.get("max_hp")), 0.0, 1.0)
 				
-				# Cor da torre: muda de Latão Dourado para Vermelho de Alerta quando danificada!
-				var tower_color = Tokens.LATAO_ENGRENAGEM.lerp(Tokens.PERIGO, (1.0 - hp_pct) * 0.85)
-				if is_broken:
-					tower_color = Tokens.PERIGO
-					
-				# Borda preta de alto contraste + corpo da torre
-				draw_circle(tw_map, 4.8, Color(0.1, 0.06, 0.02, 1.0))
-				draw_circle(tw_map, 3.6, tower_color)
+			# Círculo de alcance da torre
+			draw_arc(tw_map, 11.0, 0, TAU, 16, Color(Tokens.LATAO_ENGRENAGEM.r, Tokens.LATAO_ENGRENAGEM.g, Tokens.LATAO_ENGRENAGEM.b, 0.18), 1.0)
+			
+			# Cor da torre: muda de Latão Dourado para Vermelho de Alerta quando danificada!
+			var tower_color = Tokens.LATAO_ENGRENAGEM.lerp(Tokens.PERIGO, (1.0 - hp_pct) * 0.85)
+			if is_broken:
+				tower_color = Tokens.PERIGO
 				
-				# Anel indicador de saúde da torre
-				var ring_col = Color(0.3, 0.85, 0.3) if hp_pct > 0.6 else (Color(1.0, 0.75, 0.2) if hp_pct > 0.3 else Tokens.PERIGO)
-				draw_arc(tw_map, 5.2, -PI * 0.5, -PI * 0.5 + TAU * hp_pct, 12, ring_col, 1.4)
-				
-				# Se quebrada, desenha '!' de alerta
-				if is_broken and font:
-					var blink = sin(Time.get_ticks_msec() * 0.015) > 0.0
-					if blink:
-						draw_string(font, tw_map + Vector2(-2, 4), "!", HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color(1, 1, 1))
+			# Borda preta de alto contraste + corpo da torre
+			draw_circle(tw_map, 4.8, Color(0.1, 0.06, 0.02, 1.0))
+			draw_circle(tw_map, 3.6, tower_color)
+			
+			# Anel indicador de saúde da torre
+			var ring_col = Color(0.3, 0.85, 0.3) if hp_pct > 0.6 else (Color(1.0, 0.75, 0.2) if hp_pct > 0.3 else Tokens.PERIGO)
+			draw_arc(tw_map, 5.2, -PI * 0.5, -PI * 0.5 + TAU * hp_pct, 12, ring_col, 1.4)
+			
+			# Se quebrada, desenha '!' de alerta
+			if is_broken and font:
+				var blink = sin(Time.get_ticks_msec() * 0.015) > 0.0
+				if blink:
+					draw_string(font, tw_map + Vector2(-2, 4), "!", HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color(1, 1, 1))
 
 	# 5. Hordas / Inimigos se locomovendo (Marcadores vermelhos bem visíveis e animados)
-	if tree:
-		var enemies = tree.get_nodes_in_group("enemies")
-		var time_ms = Time.get_ticks_msec()
-		for en in enemies:
-			if is_instance_valid(en):
-				var en_map = world_to_minimap(en.global_position, center, draw_radius)
-				var is_flying = en.get("is_flying") == true
-				
-				if is_flying:
-					# Vespa / Voador: Losango amarelo-alaranjado com asas
-					var pulse = sin(time_ms * 0.015) * 1.0
-					draw_rect(Rect2(en_map - Vector2(3.5, 3.5), Vector2(7, 7)), Color(0.1, 0.0, 0.0, 1.0), true)
-					draw_rect(Rect2(en_map - Vector2(2.5, 2.5), Vector2(5, 5)), Color(1.0, 0.5, 0.1, 1.0), true)
-					draw_circle(en_map, 1.5, Color(1.0, 0.9, 0.3, 1.0))
-					draw_arc(en_map, 5.0 + pulse, 0, TAU, 8, Color(1.0, 0.6, 0.1, 0.5), 1.0)
-				else:
-					# Pragas terrestres (pulgões, lagartas): Ponto vermelho vivo com borda escura e halo
-					var pulse = 0.5 + sin(time_ms * 0.012) * 0.5
-					draw_circle(en_map, 4.4, Color(0.12, 0.0, 0.0, 1.0)) # Borda escura para contraste
-					draw_circle(en_map, 3.2, Tokens.PERIGO) # Vermelho vibrante
-					draw_circle(en_map, 1.3, Color(1.0, 0.75, 0.6, 1.0)) # Núcleo brilhante
-					draw_arc(en_map, 5.0 + pulse * 1.2, 0, TAU, 10, Color(Tokens.PERIGO.r, Tokens.PERIGO.g, Tokens.PERIGO.b, 0.35), 1.0)
+	var time_ms = Time.get_ticks_msec()
+	for en in cached_enemies:
+		if is_instance_valid(en):
+			var en_map = world_to_minimap(en.global_position, center, draw_radius)
+			var is_flying = en.get("is_flying") == true
+			
+			if is_flying:
+				# Vespa / Voador: Losango amarelo-alaranjado com asas
+				var pulse = sin(time_ms * 0.015) * 1.0
+				draw_rect(Rect2(en_map - Vector2(3.5, 3.5), Vector2(7, 7)), Color(0.1, 0.0, 0.0, 1.0), true)
+				draw_rect(Rect2(en_map - Vector2(2.5, 2.5), Vector2(5, 5)), Color(1.0, 0.5, 0.1, 1.0), true)
+				draw_circle(en_map, 1.5, Color(1.0, 0.9, 0.3, 1.0))
+				draw_arc(en_map, 5.0 + pulse, 0, TAU, 8, Color(1.0, 0.6, 0.1, 0.5), 1.0)
+			else:
+				# Pragas terrestres (pulgões, lagartas): Ponto vermelho vivo com borda escura e halo
+				var pulse = 0.5 + sin(time_ms * 0.012) * 0.5
+				draw_circle(en_map, 4.4, Color(0.12, 0.0, 0.0, 1.0)) # Borda escura para contraste
+				draw_circle(en_map, 3.2, Tokens.PERIGO) # Vermelho vibrante
+				draw_circle(en_map, 1.3, Color(1.0, 0.75, 0.6, 1.0)) # Núcleo brilhante
+				draw_arc(en_map, 5.0 + pulse * 1.2, 0, TAU, 10, Color(Tokens.PERIGO.r, Tokens.PERIGO.g, Tokens.PERIGO.b, 0.35), 1.0)
 
 	# 6. Flor Central do Jardim (Objetivo Principal)
 	var flower_pos = center

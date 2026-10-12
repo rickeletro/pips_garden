@@ -6,9 +6,9 @@ extends Node3D
 func _ready() -> void:
 	spawn_decorative_garden_border()
 	
-	# Initial tutorial prompt
-	await get_tree().create_timer(0.5).timeout
-	GameManager.notify("Bem-vindo ao Jardim Miúdo! Plante grama (Q) e construa torres (B) antes da onda!", Color(1.0, 0.95, 0.5))
+	if not GameManager.is_in_intro:
+		await get_tree().create_timer(0.5).timeout
+		GameManager.notify("Bem-vindo ao Jardim Miúdo! Plante grama (Q) e construa torres (B) antes da onda!", Color(1.0, 0.95, 0.5))
 
 func spawn_decorative_garden_border() -> void:
 	# Giant blades of grass and pebbles around the border to frame the garden
@@ -33,8 +33,8 @@ func spawn_decorative_garden_border() -> void:
 	dew_mat.roughness = 0.05
 	dew_mat.metallic = 0.2
 	
-	var radius = 15.5
-	var count = 36
+	var radius = float(GridManager.HALF_EXTENT * GridManager.CELL_SIZE) + 1.2 # ~49.2m na borda externa
+	var count = 72
 	for i in range(count):
 		var angle = (float(i) / count) * TAU
 		var pos = Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)

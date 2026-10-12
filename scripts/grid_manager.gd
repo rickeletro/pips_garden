@@ -14,6 +14,8 @@ var grid_data: Dictionary = {} # Vector2i -> TileType
 var path_cells: Dictionary = {} # Vector2i -> bool
 var towers: Dictionary = {} # Vector2i -> Node3D
 var grass_visuals: Dictionary = {} # Vector2i -> Node3D
+var grass_health: Dictionary = {} # Vector2i -> float
+const MAX_GRASS_HP: float = 35.0
 
 var astar: AStar2D = AStar2D.new()
 
@@ -32,19 +34,89 @@ const WEIGHT_GRASS: float = 1.0 # Grama viçosa plantada por Pip (preferência m
 # Packed scenes
 @export var tower_scene: PackedScene
 
-# MultiMeshInstance3D para a Grama com Shader Aquarela Zelda TotK
+# Modelos GLTF e Caches de Malhas do Cenário (Grass.glb, Flowers.glb, Rocks.glb, Bushes.glb, Flower Bushes.glb, Trees.glb)
+var grass_meshes: Array[Mesh] = []
+var grass_material: Material = null
+var flower_meshes: Array[Mesh] = []
+var bush_meshes: Array[Mesh] = []
+var rock_meshes: Array[Mesh] = []
+var tree_meshes: Array[Mesh] = []
+
+# MultiMeshInstance3D para a Grama GLTF com Vento Zelda
 var grass_multimesh: MultiMeshInstance3D = null
-var grass_blade_mesh: BoxMesh = null
 var current_grass_count: int = 0
-const MAX_GRASS_BLADES: int = 28000
+const MAX_GRASS_BLADES: int = 10000
 
 func _ready() -> void:
 	GameManager.grid_manager = self
+	load_gltf_scenery_models()
 	generate_winding_paths()
 	init_grid()
 	init_watercolor_grass_multimesh()
+	spawn_distant_horizon_forest()
 	spawn_path_decorations()
 	spawn_ambient_garden_flowers()
+	spawn_interactive_dew_drops(8)
+	GameManager.wave_state_changed.connect(_on_wave_state_changed)
+
+func load_gltf_scenery_models() -> void:
+	# 1. Grama (Grass.glb)
+	var grass_scn = load("res://models/Grass.glb")
+	if grass_scn:
+		var g_inst = grass_scn.instantiate()
+		for child in g_inst.find_children("*", "MeshInstance3D"):
+			if child is MeshInstance3D and child.mesh:
+				grass_meshes.append(child.mesh)
+		g_inst.queue_free()
+		
+	# 2. Flores (Flowers.glb)
+	var flower_scn = load("res://models/Flowers.glb")
+	if flower_scn:
+		var f_inst = flower_scn.instantiate()
+		for child in f_inst.find_children("*", "MeshInstance3D"):
+			if child is MeshInstance3D and child.mesh:
+				flower_meshes.append(child.mesh)
+		f_inst.queue_free()
+
+	# 3. Arbustos com Flores e Folhagens (Flower Bushes.glb & Bushes.glb)
+	var flower_bush_scn = load("res://models/Flower Bushes.glb")
+	if flower_bush_scn:
+		var fb_inst = flower_bush_scn.instantiate()
+		for child in fb_inst.find_children("*", "MeshInstance3D"):
+			if child is MeshInstance3D and child.mesh:
+				bush_meshes.append(child.mesh)
+		fb_inst.queue_free()
+
+	var bush_scn = load("res://models/Bushes.glb")
+	if bush_scn:
+		var b_inst = bush_scn.instantiate()
+		for child in b_inst.find_children("*", "MeshInstance3D"):
+			if child is MeshInstance3D and child.mesh:
+				bush_meshes.append(child.mesh)
+		b_inst.queue_free()
+
+	# 4. Pedras e Rochedos (Rocks.glb)
+	var rock_scn = load("res://models/Rocks.glb")
+	if rock_scn:
+		var r_inst = rock_scn.instantiate()
+		for child in r_inst.find_children("*", "MeshInstance3D"):
+			if child is MeshInstance3D and child.mesh:
+				rock_meshes.append(child.mesh)
+		r_inst.queue_free()
+
+	# 5. Árvores da Floresta do Horizonte (Trees.glb)
+	var tree_scn = load("res://models/Trees.glb")
+	if tree_scn:
+		var t_inst = tree_scn.instantiate()
+		for child in t_inst.find_children("*", "MeshInstance3D"):
+			if child is MeshInstance3D and child.mesh:
+				tree_meshes.append(child.mesh)
+		t_inst.queue_free()
+
+func _on_wave_state_changed(state: String, wave_number: int) -> void:
+	# Ao amanhecer do Dia 1 e Dia 2, formam-se 8 Gotas de Orvalho
+	if GameManager.current_period == "DAY" and wave_number == 0 and state == "PREPARATION":
+		spawn_interactive_dew_drops(8)
 
 func get_point_id(cell: Vector2i) -> int:
 	return (cell.x + 100) * 10000 + (cell.y + 100)
@@ -148,29 +220,30 @@ func init_grid() -> void:
 	for spawner in spawner_cells:
 		grid_data[spawner] = TileType.SPAWNER
 
-# Inicializa o MultiMeshInstance3D com o Shader Aquarela Zelda TotK
+# Inicializa o MultiMeshInstance3D com os tufos de grama aquarela e Shader de Vento Zelda TotK
 func init_watercolor_grass_multimesh() -> void:
 	grass_multimesh = MultiMeshInstance3D.new()
-	grass_multimesh.name = "ZeldaWatercolorGrassMultiMesh"
+	grass_multimesh.name = "GrassMultiMesh"
 	
 	var mm = MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_colors = true
 	mm.instance_count = MAX_GRASS_BLADES
 	
-	grass_blade_mesh = BoxMesh.new()
-	grass_blade_mesh.size = Vector3(0.18, 0.95, 0.04)
-	
-	var mat = load("res://shaders/zelda_watercolor_grass.tres")
-	if mat:
-		grass_blade_mesh.material = mat
+	var blade_mesh = BoxMesh.new()
+	blade_mesh.size = Vector3(0.18, 0.95, 0.04)
+	mm.mesh = blade_mesh
 		
-	mm.mesh = grass_blade_mesh
+	var wind_mat = load("res://shaders/zelda_watercolor_grass.tres")
+	if wind_mat:
+		grass_multimesh.material_override = wind_mat
+		
 	grass_multimesh.multimesh = mm
+	grass_multimesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(grass_multimesh)
 	
-	# Povoar grama ambiente espalhada pelo campo do jardim
-	spawn_ambient_meadow_grass(11000)
+	# Povoar grama ambiente espalhada pelo campo do jardim (~2200 tufos altos)
+	spawn_ambient_meadow_grass(2200)
 
 func spawn_ambient_meadow_grass(count: int) -> void:
 	var mm = grass_multimesh.multimesh
@@ -188,19 +261,50 @@ func spawn_ambient_meadow_grass(count: int) -> void:
 			
 		var t = Transform3D()
 		var rot_y = randf() * TAU
-		var tilt_x = (randf() - 0.5) * 0.25
 		t = t.rotated(Vector3.UP, rot_y)
-		t = t.rotated(Vector3.RIGHT, tilt_x)
 		
-		var scale_var = 0.75 + randf() * 0.55
-		t = t.scaled(Vector3(scale_var, scale_var, scale_var))
-		t.origin = Vector3(rx, (grass_blade_mesh.size.y * scale_var) * 0.5, rz)
+		# Escala para a grama ficar ereta e mais alta que a Pip (~0.85m a 1.25m)
+		var s_height = randf_range(1.0, 1.45)
+		var s_width = randf_range(0.9, 1.3)
+		t = t.scaled(Vector3(s_width, s_height, s_width))
+		t.origin = Vector3(rx, s_height * 0.45, rz)
 		
 		mm.set_instance_transform(current_grass_count, t)
-		var col_var = Color(0.85 + randf() * 0.15, 0.9 + randf() * 0.1, 0.85 + randf() * 0.15, 1.0)
+		var col_var = Color(0.9 + randf() * 0.1, 0.95 + randf() * 0.05, 0.9 + randf() * 0.1, 1.0)
 		mm.set_instance_color(current_grass_count, col_var)
 		
 		current_grass_count += 1
+		
+	mm.visible_instance_count = current_grass_count
+
+# Cria floresta colossal ao horizonte em 1 único Draw Call via MultiMesh (Zero Lag!)
+func spawn_distant_horizon_forest() -> void:
+	if tree_meshes.is_empty():
+		return
+		
+	var tree_mm_node = MultiMeshInstance3D.new()
+	tree_mm_node.name = "DistantForestMultiMesh"
+	
+	var mm = MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = tree_meshes[0]
+	mm.instance_count = 80
+	tree_mm_node.multimesh = mm
+	tree_mm_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(tree_mm_node)
+	
+	for i in range(80):
+		var angle = (float(i) / 80.0) * TAU
+		var dist = randf_range(54.0, 88.0)
+		var pos = Vector3(cos(angle) * dist, 0.0, sin(angle) * dist)
+		
+		var t = Transform3D()
+		t = t.rotated(Vector3.UP, randf() * TAU)
+		t = t.rotated_local(Vector3.RIGHT, deg_to_rad(-90))
+		var s_tree = randf_range(280.0, 420.0)
+		t = t.scaled_local(Vector3(s_tree, s_tree, s_tree))
+		t.origin = pos
+		mm.set_instance_transform(i, t)
 
 func plant_grass(cell: Vector2i) -> bool:
 	if not is_valid_cell(cell):
@@ -219,6 +323,7 @@ func plant_grass(cell: Vector2i) -> bool:
 		return false
 	
 	grid_data[cell] = TileType.GRASS
+	grass_health[cell] = MAX_GRASS_HP
 	var id = get_point_id(cell)
 	astar.set_point_weight_scale(id, WEIGHT_GRASS)
 	
@@ -229,6 +334,34 @@ func plant_grass(cell: Vector2i) -> bool:
 	grass_planted.emit(cell)
 	path_updated.emit()
 	return true
+
+func damage_grass(cell: Vector2i, amount: float) -> bool:
+	if not grid_data.has(cell) or grid_data[cell] != TileType.GRASS:
+		return false
+		
+	var hp = grass_health.get(cell, MAX_GRASS_HP) - amount
+	grass_health[cell] = hp
+	
+	if hp <= 0.0:
+		destroy_grass(cell)
+		return true # Grama destruída
+	return false
+
+func destroy_grass(cell: Vector2i) -> void:
+	if not grid_data.has(cell) or grid_data[cell] != TileType.GRASS:
+		return
+	grass_health.erase(cell)
+	
+	var id = get_point_id(cell)
+	if path_cells.has(cell):
+		grid_data[cell] = TileType.PATH
+		astar.set_point_weight_scale(id, WEIGHT_PATH)
+	else:
+		grid_data[cell] = TileType.DIRT
+		astar.set_point_weight_scale(id, WEIGHT_DIRT)
+		
+	GameManager.notify("⚠️ Uma lagarta devorou a grama do jardim!", Tokens.DOURADO_LUZ)
+	path_updated.emit()
 
 func add_dense_grass_to_multimesh(cell: Vector2i, count: int) -> void:
 	if not grass_multimesh or not grass_multimesh.multimesh:
@@ -244,14 +377,16 @@ func add_dense_grass_to_multimesh(cell: Vector2i, count: int) -> void:
 		var offset_z = (randf() - 0.5) * (CELL_SIZE * 0.85)
 		var t = Transform3D()
 		t = t.rotated(Vector3.UP, randf() * TAU)
-		t = t.rotated(Vector3.RIGHT, (randf() - 0.5) * 0.3)
-		var s = 0.85 + randf() * 0.45
-		t = t.scaled(Vector3(s, s, s))
-		t.origin = center + Vector3(offset_x, (grass_blade_mesh.size.y * s) * 0.5, offset_z)
+		var s_height = randf_range(1.1, 1.5)
+		var s_width = randf_range(1.0, 1.4)
+		t = t.scaled(Vector3(s_width, s_height, s_width))
+		t.origin = center + Vector3(offset_x, s_height * 0.45, offset_z)
 		
 		mm.set_instance_transform(current_grass_count, t)
-		mm.set_instance_color(current_grass_count, Color(1.0, 1.0, 0.9, 1.0))
+		mm.set_instance_color(current_grass_count, Color(1.0, 1.0, 0.92, 1.0))
 		current_grass_count += 1
+		
+	mm.visible_instance_count = current_grass_count
 
 func can_place_tower(cell: Vector2i) -> bool:
 	if not is_valid_cell(cell):
@@ -326,6 +461,18 @@ func on_tower_destroyed(cell: Vector2i) -> void:
 	astar.set_point_disabled(id, false)
 	path_updated.emit()
 
+func on_tower_broken(world_pos: Vector3) -> void:
+	var cell = world_to_grid(world_pos)
+	var id = get_point_id(cell)
+	astar.set_point_disabled(id, false) # Libera caminho imediatamente
+	path_updated.emit()
+
+func on_tower_repaired(world_pos: Vector3) -> void:
+	var cell = world_to_grid(world_pos)
+	var id = get_point_id(cell)
+	astar.set_point_disabled(id, true) # Volta a bloquear o ponto no pathfinding
+	path_updated.emit()
+
 func get_path_to_flower(from_world_pos: Vector3) -> PackedVector3Array:
 	var from_cell = world_to_grid(from_world_pos)
 	if not is_valid_cell(from_cell):
@@ -348,147 +495,192 @@ func get_path_to_flower(from_world_pos: Vector3) -> PackedVector3Array:
 		
 	return result
 
-# Decorações visuais da trilha de terra batida e pedras
+# Trilha de terra batida contínua criada por passagem (Foot Trail suave e natural)
 func spawn_path_decorations() -> void:
-	var path_node = Node3D.new()
-	path_node.name = "PathDecorations"
-	add_child(path_node)
-	
-	var pebble_mat = StandardMaterial3D.new()
-	pebble_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
-	pebble_mat.albedo_color = Color(0.52, 0.42, 0.32) # Terra batida
-	pebble_mat.roughness = 0.92
-	
-	for cell in path_cells.keys():
-		var pos = grid_to_world(cell, 0.015)
-		# Disco orgânico arredondado de terra/pedra
-		var slab = MeshInstance3D.new()
-		var disc = CylinderMesh.new()
-		disc.top_radius = CELL_SIZE * 0.44
-		disc.bottom_radius = CELL_SIZE * 0.48
-		disc.height = 0.025
-		disc.radial_segments = 8
-		slab.mesh = disc
-		slab.material_override = pebble_mat
-		slab.position = pos + Vector3((randf() - 0.5) * 0.25, 0.0, (randf() - 0.5) * 0.25)
-		slab.rotation.y = randf() * TAU
-		path_node.add_child(slab)
+	var path_keys = path_cells.keys()
+	var path_count = path_keys.size()
+	if path_count == 0:
+		return
 		
-		# Pedras de rio na beira da trilha
-		if randf() > 0.4:
-			var pebble = MeshInstance3D.new()
-			var sphere = SphereMesh.new()
-			sphere.radius = 0.14 + randf() * 0.12
-			sphere.height = sphere.radius * 1.3
-			pebble.mesh = sphere
-			var p_mat = StandardMaterial3D.new()
-			p_mat.albedo_color = Color(0.62, 0.58, 0.52)
-			pebble.material_override = p_mat
-			var edge_offset = Vector3((randf() - 0.5) * 1.5, 0.05, (randf() - 0.5) * 1.5)
-			pebble.position = pos + edge_offset
-			path_node.add_child(pebble)
+	# MultiMesh para a trilha contínua de terra batida pisada (Foot Trail)
+	var trail_mm_node = MultiMeshInstance3D.new()
+	trail_mm_node.name = "FootTrailMultiMesh"
+	
+	var trail_mm = MultiMesh.new()
+	trail_mm.transform_format = MultiMesh.TRANSFORM_3D
+	trail_mm.use_colors = true
+	trail_mm.instance_count = path_count
+	
+	var disc_mesh = CylinderMesh.new()
+	disc_mesh.top_radius = CELL_SIZE * 0.58
+	disc_mesh.bottom_radius = CELL_SIZE * 0.62
+	disc_mesh.height = 0.012
+	disc_mesh.radial_segments = 14
+	
+	var dirt_mat = StandardMaterial3D.new()
+	dirt_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	dirt_mat.specular_mode = BaseMaterial3D.SPECULAR_TOON
+	dirt_mat.albedo_color = Color(0.54, 0.44, 0.32) # Terra batida pisada natural
+	dirt_mat.roughness = 0.95
+	trail_mm_node.material_override = dirt_mat
+	
+	trail_mm.mesh = disc_mesh
+	trail_mm_node.multimesh = trail_mm
+	trail_mm_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(trail_mm_node)
+	
+	for i in range(path_count):
+		var cell = path_keys[i]
+		var pos = grid_to_world(cell, 0.006)
+		
+		var t_trail = Transform3D()
+		t_trail = t_trail.rotated(Vector3.UP, randf() * TAU)
+		var s_var = randf_range(0.96, 1.08)
+		t_trail = t_trail.scaled(Vector3(s_var, 1.0, s_var))
+		t_trail.origin = pos + Vector3(randf_range(-0.08, 0.08), 0.0, randf_range(-0.08, 0.08))
+		trail_mm.set_instance_transform(i, t_trail)
+		
+		var col_tint = Color(1.0 + randf_range(-0.04, 0.04), 1.0 + randf_range(-0.04, 0.04), 1.0 + randf_range(-0.04, 0.04), 1.0)
+		trail_mm.set_instance_color(i, col_tint)
 
-# Enche o jardim com flores coloridas, margaridas, dentes-de-leão e elementos gigantes
+# Enche as bordas do jardim com as flores .tscn e rochedos 3D, mantendo o centro com a Flor Central e Dentes-de-Leão
 func spawn_ambient_garden_flowers() -> void:
-	var flowers_root = Node3D.new()
-	flowers_root.name = "AmbientGardenFlora"
-	add_child(flowers_root)
+	var flora_root = Node3D.new()
+	flora_root.name = "AmbientGardenFlora"
+	add_child(flora_root)
 	
 	var daisy_scn = load("res://scenes/environment/giant_daisy.tscn")
 	var dandelion_scn = load("res://scenes/environment/giant_dandelion.tscn")
 	var bell_scn = load("res://scenes/environment/giant_bellflower.tscn")
+	var dandelion_clock_scn = load("res://scenes/environment/dandelion_clock.tscn")
 	var rock_scn = load("res://scenes/environment/giant_rock.tscn")
 	var root_scn = load("res://scenes/environment/giant_tree_root.tscn")
 	var dew_scn = load("res://scenes/environment/giant_dewdrop.tscn")
 	
-	var dandelion_clock_scn = load("res://scenes/environment/dandelion_clock.tscn")
-	
-	# 1. Margaridas gigantes pelo campo
-	if daisy_scn:
-		for i in range(36):
-			var daisy = daisy_scn.instantiate()
-			var cell = get_random_free_cell()
-			daisy.position = grid_to_world(cell, 0.0)
-			daisy.rotation.y = randf() * TAU
-			var s = 0.85 + randf() * 0.4
-			daisy.scale = Vector3(s, s, s)
-			flowers_root.add_child(daisy)
-			
-	# 2. Dentes-de-Leão Pom-Pom Interativos (Dandelion Clocks com sementes e pappus flutuantes)
+	# 1. Dentes-de-Leão Pom-Pom Interativos (Flor central e raio médio)
 	if dandelion_clock_scn:
 		var starter_positions = [
-			Vector2i(2, 3),
-			Vector2i(-3, 2),
-			Vector2i(3, -3),
-			Vector2i(-2, -4),
-			Vector2i(5, 1),
-			Vector2i(-4, -2)
+			Vector2i(4, 5),
+			Vector2i(-5, 4),
+			Vector2i(5, -5),
+			Vector2i(-4, -6),
+			Vector2i(7, 3),
+			Vector2i(-6, -4)
 		]
 		for s_pos in starter_positions:
 			var d_clock = dandelion_clock_scn.instantiate()
 			d_clock.position = grid_to_world(s_pos, 0.0)
 			d_clock.rotation.y = randf() * TAU
-			flowers_root.add_child(d_clock)
+			flora_root.add_child(d_clock)
 			
-		for i in range(22):
+		for i in range(6):
 			var d_clock = dandelion_clock_scn.instantiate()
-			var cell = get_random_free_cell()
+			var cell = get_random_mid_cell()
 			d_clock.position = grid_to_world(cell, 0.0)
 			d_clock.rotation.y = randf() * TAU
-			flowers_root.add_child(d_clock)
+			flora_root.add_child(d_clock)
 			
-	# 3. Dentes-de-Leão dourados (flores amarelas abertas)
+	# 2. Margaridas Gigantes .tscn (Apenas nas bordas externas radius >= 22m)
+	if daisy_scn:
+		for i in range(12):
+			var daisy = daisy_scn.instantiate()
+			var cell = get_random_border_cell()
+			daisy.position = grid_to_world(cell, 0.0)
+			daisy.rotation.y = randf() * TAU
+			var s = randf_range(1.2, 1.8)
+			daisy.scale = Vector3(s, s, s)
+			flora_root.add_child(daisy)
+			
+	# 3. Dentes-de-Leão Floridos Dourados .tscn (Apenas nas bordas externas radius >= 22m)
 	if dandelion_scn:
-		for i in range(30):
+		for i in range(10):
 			var dand = dandelion_scn.instantiate()
-			var cell = get_random_free_cell()
+			var cell = get_random_border_cell()
 			dand.position = grid_to_world(cell, 0.0)
 			dand.rotation.y = randf() * TAU
-			flowers_root.add_child(dand)
+			var s = randf_range(1.1, 1.6)
+			dand.scale = Vector3(s, s, s)
+			flora_root.add_child(dand)
 			
-	# 3. Campânulas violetas
+	# 4. Campânulas Violetas .tscn (Apenas nas bordas externas radius >= 22m)
 	if bell_scn:
-		for i in range(30):
+		for i in range(10):
 			var bell = bell_scn.instantiate()
-			var cell = get_random_free_cell()
+			var cell = get_random_border_cell()
 			bell.position = grid_to_world(cell, 0.0)
 			bell.rotation.y = randf() * TAU
-			flowers_root.add_child(bell)
+			var s = randf_range(1.2, 1.7)
+			bell.scale = Vector3(s, s, s)
+			flora_root.add_child(bell)
 			
-	# 4. Rochedos gigantes bloqueando trechos e esculpindo o relevo
+	# 5. Rochedos 3D Gigantes .tscn (com modelo real de pedra Rocks.glb, sem cubo!)
 	if rock_scn:
 		var rock_positions = [
-			Vector2i(-10, -12),
-			Vector2i(12, -10),
-			Vector2i(-12, 11),
-			Vector2i(11, 13)
+			Vector2i(-15, -17),
+			Vector2i(17, -15),
+			Vector2i(-17, 16),
+			Vector2i(16, 18),
+			Vector2i(-18, -6),
+			Vector2i(18, 7),
+			Vector2i(-7, -20),
+			Vector2i(8, 20)
 		]
 		for r_pos in rock_positions:
 			var rock = rock_scn.instantiate()
 			rock.position = grid_to_world(r_pos, 0.0)
 			rock.rotation.y = randf() * TAU
-			flowers_root.add_child(rock)
+			flora_root.add_child(rock)
 			
-	# 5. Raiz de árvore gigante atravessando o quadrante nordeste
+	# 6. Raízes de árvore gigantes .tscn atravessando quadrantes periféricos
 	if root_scn:
-		var tree_root = root_scn.instantiate()
-		tree_root.position = Vector3(18.0, 0.0, -16.0)
-		tree_root.rotation_degrees = Vector3(0, 35, 0)
-		flowers_root.add_child(tree_root)
+		var tree_root1 = root_scn.instantiate()
+		tree_root1.position = Vector3(24.0, 0.0, -22.0)
+		tree_root1.rotation_degrees = Vector3(0, 35, 0)
+		tree_root1.scale = Vector3(1.3, 1.3, 1.3)
+		flora_root.add_child(tree_root1)
 		
-	# 6. Gotas de orvalho translúcidas sobre as folhas
+		var tree_root2 = root_scn.instantiate()
+		tree_root2.position = Vector3(-22.0, 0.0, 24.0)
+		tree_root2.rotation_degrees = Vector3(0, -45, 0)
+		tree_root2.scale = Vector3(1.3, 1.3, 1.3)
+		flora_root.add_child(tree_root2)
+		
+	# 7. Gotas de orvalho gigantes .tscn sobre as folhas
 	if dew_scn:
-		for i in range(30):
+		for i in range(8):
 			var dew = dew_scn.instantiate()
-			var cell = get_random_free_cell()
+			var cell = get_random_mid_cell()
 			dew.position = grid_to_world(cell, 0.0)
-			flowers_root.add_child(dew)
+			flora_root.add_child(dew)
 
-func get_random_free_cell() -> Vector2i:
+# Célula na borda externa do jardim (distância >= 22m da Flor Central)
+func get_random_border_cell() -> Vector2i:
 	for _attempt in range(50):
 		var rx = randi_range(-HALF_EXTENT + 2, HALF_EXTENT - 2)
 		var ry = randi_range(-HALF_EXTENT + 2, HALF_EXTENT - 2)
 		var c = Vector2i(rx, ry)
-		if not path_cells.has(c) and c.length() > 3:
+		if not path_cells.has(c) and c.length() >= 11:
 			return c
-	return Vector2i(randi_range(4, 15), randi_range(4, 15))
+	var sign_x = 1 if randf() > 0.5 else -1
+	var sign_y = 1 if randf() > 0.5 else -1
+	return Vector2i(sign_x * randi_range(12, HALF_EXTENT - 2), sign_y * randi_range(12, HALF_EXTENT - 2))
+
+# Célula intermediária (distância moderada entre 6m e 18m)
+func get_random_mid_cell() -> Vector2i:
+	for _attempt in range(50):
+		var rx = randi_range(-10, 10)
+		var ry = randi_range(-10, 10)
+		var c = Vector2i(rx, ry)
+		if not path_cells.has(c) and c.length() >= 4 and c.length() <= 10:
+			return c
+	return Vector2i(randi_range(4, 8), randi_range(4, 8))
+
+const DewDropScript = preload("res://scripts/dew_drop.gd")
+
+func spawn_interactive_dew_drops(count: int = 8) -> void:
+	for i in range(count):
+		var drop = DewDropScript.new()
+		var cell = get_random_mid_cell()
+		drop.position = grid_to_world(cell, 0.0)
+		add_child(drop)
+

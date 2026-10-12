@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="TowerData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/tower_data.gd" id="1_tdata"]
+
+[resource]
+script = ExtResource("1_tdata")
+tower_name = "Torre de Gravetos (Nv 1)"
+level = 1
+specialization = 0
+damage_per_shot = 15.0
+attack_interval = 1.25
+range_radius = 4.5
+shots_per_burst = 1
+armor_pierce = 0.0
+splash_radius = 0.0
+slow_percent = 0.0
+cost_twigs = 3
+cost_gears = 2
+preventive_repair_twigs = 2
+rebuild_twigs = 4
+rebuild_gears = 1

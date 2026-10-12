@@ -1,0 +1,182 @@
+[gd_scene format=3 uid="uid://bc8d47nsdv3dm"]
+
+[ext_resource type="Script" path="res://scripts/boss_scorpion.gd" id="1_scorpion"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_body"]
+size = Vector3(2.4, 1.4, 2.8)
+
+[sub_resource type="StandardMaterial3D" id="Mat_ScorpionCarapace"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.16, 0.08, 0.25, 1)
+roughness = 0.25
+metallic = 0.7
+rim_enabled = true
+rim = 0.9
+rim_tint = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_ScorpionDarkLeg"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.1, 0.05, 0.16, 1)
+roughness = 0.4
+metallic = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_ScorpionRunes"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.2, 0.75, 1, 1)
+emission_enabled = true
+emission = Color(0.25, 0.85, 1, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_Weakpoint"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(1, 0.92, 0.2, 1)
+emission_enabled = true
+emission = Color(1, 0.95, 0.35, 1)
+emission_energy_multiplier = 2.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_body"]
+material = SubResource("Mat_ScorpionCarapace")
+size = Vector3(1.4, 0.55, 1.8)
+
+[sub_resource type="SphereMesh" id="SphereMesh_claw"]
+material = SubResource("Mat_ScorpionCarapace")
+radius = 0.35
+height = 0.7
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tail_seg"]
+material = SubResource("Mat_ScorpionRunes")
+top_radius = 0.16
+bottom_radius = 0.22
+height = 0.75
+
+[sub_resource type="PrismMesh" id="PrismMesh_stinger"]
+material = SubResource("Mat_ScorpionCarapace")
+size = Vector3(0.35, 0.85, 0.25)
+
+[sub_resource type="TorusMesh" id="TorusMesh_weakpoint"]
+material = SubResource("Mat_Weakpoint")
+inner_radius = 0.25
+outer_radius = 0.45
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_leg"]
+material = SubResource("Mat_ScorpionDarkLeg")
+top_radius = 0.05
+bottom_radius = 0.04
+height = 0.95
+
+[node name="BossScorpion" type="CharacterBody3D" groups=["enemies"]]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_scorpion")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+shape = SubResource("BoxShape3D_body")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="BodyMesh" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_body")
+
+[node name="RunesLight" type="OmniLight3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+light_color = Color(0.2, 0.8, 1, 1)
+light_energy = 1.8
+omni_range = 4.5
+
+[node name="ClawL" type="Node3D" parent="Visuals"]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.95, 0.45, 0.95)
+
+[node name="ClawMesh" type="MeshInstance3D" parent="Visuals/ClawL"]
+mesh = SubResource("SphereMesh_claw")
+
+[node name="ClawR" type="Node3D" parent="Visuals"]
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.95, 0.45, 0.95)
+
+[node name="ClawMesh" type="MeshInstance3D" parent="Visuals/ClawR"]
+mesh = SubResource("SphereMesh_claw")
+
+[node name="Tail" type="Node3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, -0.85)
+
+[node name="Seg1" type="MeshInstance3D" parent="Visuals/Tail"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, -0.5, 0, 0.5, 0.866025, 0, 0.45, -0.25)
+mesh = SubResource("CylinderMesh_tail_seg")
+
+[node name="Seg2" type="MeshInstance3D" parent="Visuals/Tail"]
+transform = Transform3D(1, 0, 0, 0, 0.5, -0.866025, 0, 0.866025, 0.5, 0, 1.05, -0.15)
+mesh = SubResource("CylinderMesh_tail_seg")
+
+[node name="StingerJoint" type="Node3D" parent="Visuals/Tail"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 0.25)
+
+[node name="Stinger" type="MeshInstance3D" parent="Visuals/Tail/StingerJoint"]
+transform = Transform3D(1, 0, 0, 0, -0.258819, 0.965926, 0, -0.965926, -0.258819, 0, 0, 0.25)
+mesh = SubResource("PrismMesh_stinger")
+
+[node name="WeakpointMarker" type="MeshInstance3D" parent="Visuals/Tail/StingerJoint"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.25)
+mesh = SubResource("TorusMesh_weakpoint")
+
+[node name="Legs" type="Node3D" parent="Visuals"]
+
+[node name="LegL1" type="Node3D" parent="Visuals/Legs"]
+transform = Transform3D(0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0, 1, 0.75, 0.4, 0.55)
+
+[node name="Mesh" type="MeshInstance3D" parent="Visuals/Legs/LegL1"]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 0.35, -0.25, 0)
+mesh = SubResource("CylinderMesh_leg")
+
+[node name="LegL2" type="Node3D" parent="Visuals/Legs"]
+transform = Transform3D(0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0, 1, 0.78, 0.4, 0.2)
+
+[node name="Mesh" type="MeshInstance3D" parent="Visuals/Legs/LegL2"]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 0.35, -0.25, 0)
+mesh = SubResource("CylinderMesh_leg")
+
+[node name="LegL3" type="Node3D" parent="Visuals/Legs"]
+transform = Transform3D(0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0, 1, 0.78, 0.4, -0.2)
+
+[node name="Mesh" type="MeshInstance3D" parent="Visuals/Legs/LegL3"]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 0.35, -0.25, 0)
+mesh = SubResource("CylinderMesh_leg")
+
+[node name="LegL4" type="Node3D" parent="Visuals/Legs"]
+transform = Transform3D(0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0, 1, 0.75, 0.4, -0.55)
+
+[node name="Mesh" type="MeshInstance3D" parent="Visuals/Legs/LegL4"]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 0.35, -0.25, 0)
+mesh = SubResource("CylinderMesh_leg")
+
+[node name="LegR1" type="Node3D" parent="Visuals/Legs"]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, -0.75, 0.4, 0.55)
+
+[node name="Mesh" type="MeshInstance3D" parent="Visuals/Legs/LegR1"]
+transform = Transform3D(0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0, 1, -0.35, -0.25, 0)
+mesh = SubResource("CylinderMesh_leg")
+
+[node name="LegR2" type="Node3D" parent="Visuals/Legs"]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, -0.78, 0.4, 0.2)
+
+[node name="Mesh" type="MeshInstance3D" parent="Visuals/Legs/LegR2"]
+transform = Transform3D(0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0, 1, -0.35, -0.25, 0)
+mesh = SubResource("CylinderMesh_leg")
+
+[node name="LegR3" type="Node3D" parent="Visuals/Legs"]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, -0.78, 0.4, -0.2)
+
+[node name="Mesh" type="MeshInstance3D" parent="Visuals/Legs/LegR3"]
+transform = Transform3D(0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0, 1, -0.35, -0.25, 0)
+mesh = SubResource("CylinderMesh_leg")
+
+[node name="LegR4" type="Node3D" parent="Visuals/Legs"]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, -0.75, 0.4, -0.55)
+
+[node name="Mesh" type="MeshInstance3D" parent="Visuals/Legs/LegR4"]
+transform = Transform3D(0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0, 1, -0.35, -0.25, 0)
+mesh = SubResource("CylinderMesh_leg")

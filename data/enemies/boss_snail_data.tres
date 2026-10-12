@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1_edata"]
+
+[resource]
+script = ExtResource("1_edata")
+enemy_name = "🐌 CARAMUJO ANCIÃO DO ORVALHO"
+is_boss = true
+icon = "🐌"
+max_hp = 480.0
+base_speed = 0.80
+attack_damage = 25.0
+attack_interval = 1.4
+xp_reward = 350
+is_flying = false
+armor_rating = 0.0
+drop_chance_total = 1.0
+fixed_drop_item = "FAIRY_TEAR"

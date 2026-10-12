@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="TowerData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/tower_data.gd" id="1_tdata"]
+
+[resource]
+script = ExtResource("1_tdata")
+tower_name = "Catapulta de Seiva (Nv 3B)"
+level = 3
+specialization = 2
+damage_per_shot = 35.0
+attack_interval = 1.66
+range_radius = 5.0
+shots_per_burst = 1
+armor_pierce = 0.0
+splash_radius = 2.5
+slow_percent = 0.15
+cost_twigs = 12
+cost_gears = 8
+preventive_repair_twigs = 2
+rebuild_twigs = 4
+rebuild_gears = 1

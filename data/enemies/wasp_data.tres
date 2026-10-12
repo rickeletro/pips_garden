@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1_edata"]
+
+[resource]
+script = ExtResource("1_edata")
+enemy_name = "Vespa Voadora"
+is_boss = false
+icon = "🐝"
+max_hp = 45.0
+base_speed = 3.6
+attack_damage = 7.0
+attack_interval = 0.9
+xp_reward = 25
+is_flying = true
+armor_rating = 0.0
+drop_chance_total = 0.20
+fixed_drop_item = ""

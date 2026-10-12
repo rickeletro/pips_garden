@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://c7627nvcx3ay"]
+
+[ext_resource type="Script" path="res://scripts/beetle.gd" id="1_beetle"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_beetle"]
+radius = 0.55
+
+[sub_resource type="StandardMaterial3D" id="Mat_BeetleShell"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.12, 0.15, 0.22, 1)
+metallic = 0.6
+roughness = 0.25
+
+[sub_resource type="SphereMesh" id="SphereMesh_shell"]
+material = SubResource("Mat_BeetleShell")
+radius = 0.35
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_BeetleBody"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.08, 0.08, 0.1, 1)
+roughness = 0.5
+
+[sub_resource type="SphereMesh" id="SphereMesh_body"]
+material = SubResource("Mat_BeetleBody")
+radius = 0.25
+height = 0.45
+
+[sub_resource type="StandardMaterial3D" id="Mat_Horn"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.18, 0.12, 0.08, 1)
+roughness = 0.3
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_horn"]
+material = SubResource("Mat_Horn")
+top_radius = 0.03
+bottom_radius = 0.09
+height = 0.35
+
+[node name="Beetle" type="CharacterBody3D" groups=["enemies"]]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_beetle")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+shape = SubResource("SphereShape3D_beetle")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Shell" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1.1, 0, 0, 0, 0.85, 0, 0, 0, 1.2, 0, 0.22, -0.05)
+mesh = SubResource("SphereMesh_shell")
+
+[node name="Head" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 0.9, 0, 0, 0, 1, 0, 0.16, 0.32)
+mesh = SubResource("SphereMesh_body")
+
+[node name="Horn" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 0.35, 0.45)
+mesh = SubResource("CylinderMesh_horn")

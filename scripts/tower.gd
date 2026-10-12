@@ -6,17 +6,32 @@ signal tower_destroyed
 signal level_upgraded(new_level: int)
 
 enum PoisonType { SLOW, CORROSIVE, MIST }
+enum Specialization { NONE, THORN_CANNON, SAP_CATAPULT }
+enum TowerState { IDLE_SEARCHING, ATTACKING, COLLAPSED }
 
+@export var tower_data: TowerData = null
 @export var poison_type: PoisonType = PoisonType.SLOW
 @export var level: int = 1
+@export var specialization: Specialization = Specialization.NONE
 @export var max_hp: float = 100.0
 
+var current_state: TowerState = TowerState.IDLE_SEARCHING
 var hp: float = 100.0
-var is_broken: bool = false
 
-var fire_rate: float = 0.85
+var is_broken: bool:
+	get: return current_state == TowerState.COLLAPSED
+	set(val):
+		if val:
+			change_state(TowerState.COLLAPSED)
+		else:
+			change_state(TowerState.IDLE_SEARCHING)
+
+var fire_rate: float = 1.25 # 0.8 disparos/s (1.25s intervalo)
 var fire_timer: float = 0.0
-var attack_range: float = 6.0
+var target_search_timer: float = 0.0
+var attack_range: float = 4.5
+var base_damage: float = 15.0
+var armor_pierce: float = 0.0
 
 # Node References
 @onready var visuals_standing: Node3D = $Visuals/StandingTent
@@ -47,13 +62,69 @@ var gear_rot_speed: float = 0.0
 var damage_materials: Array[StandardMaterial3D] = []
 var base_albedo_colors: Array[Color] = []
 
+# Cached static poison materials and projectile meshes
+static var poison_mats: Dictionary = {}
+static var projectile_mesh_standard: SphereMesh = null
+static var projectile_mesh_mist: SphereMesh = null
+static var projectile_mesh_spike: CylinderMesh = null
+static var projectile_mesh_sap: SphereMesh = null
+
 func _ready() -> void:
 	add_to_group("towers")
+	if tower_data:
+		level = tower_data.level
+		base_damage = tower_data.damage_per_shot
+		fire_rate = tower_data.attack_interval
+		attack_range = tower_data.range_radius
+		armor_pierce = tower_data.armor_pierce
+		specialization = tower_data.specialization as Specialization
 	hp = max_hp
+	_init_static_resources()
 	setup_damage_materials()
 	update_level_visuals()
 	update_poison_visual()
 	update_damage_state()
+
+func _init_static_resources() -> void:
+	if poison_mats.is_empty():
+		for p_type in [PoisonType.SLOW, PoisonType.CORROSIVE, PoisonType.MIST]:
+			var col = Tokens.VENENO_AMBAR
+			match p_type:
+				PoisonType.SLOW: col = Tokens.VENENO_AMBAR
+				PoisonType.CORROSIVE: col = Tokens.VENENO_VERDE
+				PoisonType.MIST: col = Tokens.VENENO_VIOLETA
+				
+			var mat = StandardMaterial3D.new()
+			mat.albedo_color = col
+			mat.emission_enabled = true
+			mat.emission = col
+			mat.emission_energy_multiplier = 0.85
+			mat.roughness = 0.25
+			poison_mats[p_type] = mat
+			
+		projectile_mesh_standard = SphereMesh.new()
+		projectile_mesh_standard.radius = 0.18
+		projectile_mesh_standard.height = 0.36
+		projectile_mesh_standard.radial_segments = 8
+		projectile_mesh_standard.rings = 4
+		
+		projectile_mesh_mist = SphereMesh.new()
+		projectile_mesh_mist.radius = 0.42
+		projectile_mesh_mist.height = 0.84
+		projectile_mesh_mist.radial_segments = 8
+		projectile_mesh_mist.rings = 4
+		
+		projectile_mesh_spike = CylinderMesh.new()
+		projectile_mesh_spike.top_radius = 0.02
+		projectile_mesh_spike.bottom_radius = 0.08
+		projectile_mesh_spike.height = 0.65
+		projectile_mesh_spike.radial_segments = 6
+		
+		projectile_mesh_sap = SphereMesh.new()
+		projectile_mesh_sap.radius = 0.32
+		projectile_mesh_sap.height = 0.64
+		projectile_mesh_sap.radial_segments = 8
+		projectile_mesh_sap.rings = 5
 
 func setup_damage_materials() -> void:
 	damage_materials.clear()
@@ -94,7 +165,10 @@ func _process(delta: float) -> void:
 		animate_level3_decorations(delta)
 	
 	fire_timer -= delta
-	acquire_target()
+	target_search_timer -= delta
+	if target_search_timer <= 0.0 or current_target == null or not is_instance_valid(current_target):
+		acquire_target()
+		target_search_timer = 0.12
 	
 	if current_target and is_instance_valid(current_target):
 		aim_nozzle(delta)
@@ -134,14 +208,27 @@ func update_level_visuals() -> void:
 	
 	match level:
 		1:
-			attack_range = 6.0
-			fire_rate = 0.85
+			attack_range = 4.5
+			fire_rate = 1.25 # 0.8 tiros/s (DPS Base: 12.0)
+			base_damage = 15.0
+			armor_pierce = 0.0
 		2:
-			attack_range = 7.5
-			fire_rate = 0.55
+			attack_range = 5.5
+			fire_rate = 0.909 # 1.1 tiros/s (DPS Base: 39.6)
+			base_damage = 18.0
+			armor_pierce = 0.0
 		3:
-			attack_range = 9.2
-			fire_rate = 0.38
+			if specialization == Specialization.SAP_CATAPULT:
+				attack_range = 5.0
+				fire_rate = 1.667 # 0.6 tiros/s (DPS Base: 21.0 Área)
+				base_damage = 35.0
+				armor_pierce = 0.0
+			else:
+				specialization = Specialization.THORN_CANNON
+				attack_range = 7.0
+				fire_rate = 2.0 # 0.5 tiros/s (DPS Base: 55.0 Perfuração)
+				base_damage = 110.0
+				armor_pierce = 0.5
 			
 	if range_shape and range_shape.shape is SphereShape3D:
 		range_shape.shape.radius = attack_range
@@ -154,27 +241,15 @@ func get_poison_color() -> Color:
 	return Tokens.VENENO_AMBAR
 
 func update_poison_visual() -> void:
-	var col = get_poison_color()
-	
-	if poison_liquid:
-		var mat = StandardMaterial3D.new()
-		mat.albedo_color = col
-		mat.emission_enabled = true
-		mat.emission = col
-		mat.emission_energy_multiplier = 0.85
-		mat.roughness = 0.25
+	var mat = poison_mats.get(poison_type, null)
+	if poison_liquid and mat:
 		poison_liquid.material_override = mat
 		
 	# Update nozzle tip
-	if nozzle and nozzle.has_node("TipRing"):
+	if nozzle and nozzle.has_node("TipRing") and mat:
 		var tip = nozzle.get_node("TipRing") as MeshInstance3D
 		if tip:
-			var tip_mat = StandardMaterial3D.new()
-			tip_mat.albedo_color = col
-			tip_mat.emission_enabled = true
-			tip_mat.emission = col
-			tip_mat.emission_energy_multiplier = 0.5
-			tip.material_override = tip_mat
+			tip.material_override = mat
 
 func cycle_poison_type() -> void:
 	poison_type = ((poison_type + 1) % 3) as PoisonType
@@ -182,15 +257,20 @@ func cycle_poison_type() -> void:
 	var type_name = ""
 	var col = get_poison_color()
 	match poison_type:
-		PoisonType.SLOW: type_name = "Veneno Âmbar (Cola e desacelera pragas)"
-		PoisonType.CORROSIVE: type_name = "Veneno Verde (Ácido corrosivo potente)"
-		PoisonType.MIST: type_name = "Névoa Violeta (Explosão tóxica em área)"
+		PoisonType.SLOW: type_name = "Veneno Âmbar (35% de lentidão por 3.5s)"
+		PoisonType.CORROSIVE: type_name = "Veneno Verde (6 dano/s por 4s = 24 dano garantido)"
+		PoisonType.MIST: type_name = "Névoa Violeta (Explosão de 2m com 40% dano base)"
 	GameManager.notify("Torre alterada para: %s" % type_name, col)
 
 func acquire_target() -> void:
 	if current_target and is_instance_valid(current_target):
 		if global_position.distance_to(current_target.global_position) <= attack_range:
-			return
+			if current_target is BossMoth and current_target.global_position.y > 3.0:
+				current_target = null
+			else:
+				return
+		else:
+			current_target = null
 	
 	current_target = null
 	var tree = get_tree()
@@ -200,70 +280,149 @@ func acquire_target() -> void:
 	var closest_dist = attack_range
 	for en in enemies:
 		if is_instance_valid(en):
+			# Mariposa em voo alto não pode ser alvejada pelas torres
+			if en is BossMoth and en.global_position.y > 3.0:
+				continue
 			var dist = global_position.distance_to(en.global_position)
 			if dist < closest_dist:
 				closest_dist = dist
 				current_target = en
 
 func fire_poison(target: Node3D) -> void:
+	SoundManager.play_sparkle()
+		
 	# Acorn tank squashes and pulses on pump
 	if acorn_tank:
 		var pump_tween = create_tween()
 		pump_tween.tween_property(acorn_tank, "scale", Vector3(1.25, 0.82, 1.25), 0.08)
 		pump_tween.tween_property(acorn_tank, "scale", Vector3.ONE, 0.12)
 	
-	# Spawn visual droplet/projectile
-	var spray = Node3D.new()
-	var mesh_inst = MeshInstance3D.new()
-	var sphere = SphereMesh.new()
-	sphere.radius = 0.22 if poison_type != PoisonType.MIST else 0.42
-	sphere.height = sphere.radius * 2.0
-	mesh_inst.mesh = sphere
+	_spawn_single_projectile(target)
 	
-	var mat = StandardMaterial3D.new()
-	var col = get_poison_color()
-	mat.albedo_color = col
-	mat.emission_enabled = true
-	mat.emission = col
-	mat.emission_energy_multiplier = 0.9
-	mesh_inst.material_override = mat
+	# Torre Nv 2 dispara 2 projéteis consecutivos
+	if level == 2:
+		var tree = get_tree()
+		if tree:
+			var second_shot_timer = tree.create_timer(0.12)
+			second_shot_timer.timeout.connect(func():
+				if is_instance_valid(self) and not is_broken and is_instance_valid(target):
+					_spawn_single_projectile(target)
+			)
+
+func _spawn_single_projectile(target: Node3D) -> void:
+	var mesh: Mesh = projectile_mesh_standard
+	var rot_x: float = 0.0
 	
-	spray.add_child(mesh_inst)
-	var parent_node = get_parent()
-	if parent_node:
-		parent_node.add_child(spray)
-		spray.global_position = nozzle.global_position
+	if level == 3 and specialization == Specialization.THORN_CANNON:
+		mesh = projectile_mesh_spike
+		rot_x = 90.0
+	elif level == 3 and specialization == Specialization.SAP_CATAPULT:
+		mesh = projectile_mesh_sap
+	elif poison_type == PoisonType.MIST:
+		mesh = projectile_mesh_mist
 		
-		var target_pos = target.global_position + Vector3(0, 0.35, 0)
-		var tween = create_tween()
-		tween.tween_property(spray, "global_position", target_pos, 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tween.tween_callback(func():
-			apply_poison_hit(target, target_pos)
-			spray.queue_free()
+	var mat = poison_mats.get(poison_type, null)
+	var start_pos = nozzle.global_position
+	var target_pos = target.global_position + Vector3(0, 0.35, 0)
+	
+	if NodePool:
+		NodePool.spawn_projectile(
+			start_pos,
+			target_pos,
+			0.16,
+			mesh,
+			mat,
+			rot_x,
+			func(): apply_poison_hit(target, target_pos)
 		)
+	else:
+		var spray = Node3D.new()
+		var mesh_inst = MeshInstance3D.new()
+		mesh_inst.mesh = mesh
+		mesh_inst.rotation_degrees.x = rot_x
+		mesh_inst.material_override = mat
+		spray.add_child(mesh_inst)
+		var parent_node = get_parent()
+		if parent_node:
+			parent_node.add_child(spray)
+			spray.global_position = start_pos
+			var tween = create_tween()
+			tween.tween_property(spray, "global_position", target_pos, 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			tween.tween_callback(func():
+				apply_poison_hit(target, target_pos)
+				spray.queue_free()
+			)
 
 func apply_poison_hit(target: Node3D, hit_pos: Vector3) -> void:
-	var dmg_mult = 1.0 + (level - 1) * 0.45
+	var final_dmg = base_damage
 	
+	# 1. Aplicação do Dano Direto / Splash
+	if level == 3 and specialization == Specialization.SAP_CATAPULT:
+		# Catapulta de Seiva: Dano Splash 2.5m + Poça de Seiva
+		var tree = get_tree()
+		if tree:
+			var enemies = tree.get_nodes_in_group("enemies")
+			for en in enemies:
+				if is_instance_valid(en) and hit_pos.distance_to(en.global_position) <= 2.5:
+					if en.has_method("take_damage"):
+						en.take_damage(final_dmg, Vector3.ZERO, false, armor_pierce)
+					if en.has_method("apply_slow"):
+						en.apply_slow(0.85, 3.0) # 15% slow da seiva
+			_spawn_sap_puddle_fx(hit_pos)
+	else:
+		if is_instance_valid(target) and target.has_method("take_damage"):
+			target.take_damage(final_dmg, Vector3.ZERO, false, armor_pierce)
+			
+	# 2. Aplicação dos Multiplicadores de Veneno
 	match poison_type:
 		PoisonType.SLOW:
+			# 🟢 Letárgico: Reduz velocidade em 35% por 3.5s (acumula com grama 40% -> 0.60 * 0.65 = 0.39)
 			if is_instance_valid(target) and target.has_method("apply_slow"):
-				target.apply_slow(0.45, 3.5)
-				target.take_damage(9.0 * dmg_mult)
+				target.apply_slow(0.65, 3.5)
 		PoisonType.CORROSIVE:
+			# 🧪 Ácido: 6 dano por segundo por 4s (24 dano total garantido, ignora armadura)
 			if is_instance_valid(target) and target.has_method("apply_corrosive_dot"):
-				target.apply_corrosive_dot(14.0 * dmg_mult, 4.0)
-				target.take_damage(16.0 * dmg_mult)
+				target.apply_corrosive_dot(6.0, 4.0)
 		PoisonType.MIST:
+			# 🟣 Névoa de Esporos: Nuvem de 2.0m causando 40% do dano base do projétil aos adjacentes
 			var tree = get_tree()
 			if tree:
 				var enemies = tree.get_nodes_in_group("enemies")
-				var blast_radius = 3.6
 				for en in enemies:
-					if is_instance_valid(en) and hit_pos.distance_to(en.global_position) <= blast_radius:
-						en.take_damage(24.0 * dmg_mult)
+					if is_instance_valid(en) and en != target and hit_pos.distance_to(en.global_position) <= 2.0:
+						if en.has_method("take_damage"):
+							en.take_damage(final_dmg * 0.40, Vector3.ZERO, false, armor_pierce)
 						if en.has_method("apply_slow"):
-							en.apply_slow(0.7, 2.0)
+							en.apply_slow(0.80, 2.0)
+
+func _spawn_sap_puddle_fx(pos: Vector3) -> void:
+	if NodePool:
+		NodePool.spawn_puddle_fx(pos, Color(0.92, 0.65, 0.15, 0.65), 1.3, 2.5)
+		return
+		
+	var parent_node = get_parent()
+	if not parent_node:
+		return
+	var puddle = MeshInstance3D.new()
+	var cyl = CylinderMesh.new()
+	cyl.top_radius = 1.3
+	cyl.bottom_radius = 1.3
+	cyl.height = 0.04
+	puddle.mesh = cyl
+	var mat = StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.92, 0.65, 0.15, 0.65)
+	mat.roughness = 0.1
+	puddle.material_override = mat
+	parent_node.add_child(puddle)
+	puddle.global_position = Vector3(pos.x, 0.05, pos.z)
+	
+	var tree = get_tree()
+	if tree:
+		var tw = tree.create_tween()
+		tw.tween_interval(2.5)
+		tw.tween_property(mat, "albedo_color:a", 0.0, 0.5)
+		tw.tween_callback(puddle.queue_free)
 
 func take_damage(amount: float) -> void:
 	if is_broken:
@@ -313,18 +472,67 @@ func update_damage_state() -> void:
 			else:
 				mat.emission_enabled = false
 
-func collapse_tower() -> void:
-	if visuals_standing: visuals_standing.visible = false
-	if visuals_collapsed: visuals_collapsed.visible = true
+var collapse_count: int = 0
 
-func repair() -> bool:
-	if not is_broken and hp >= max_hp:
+func change_state(new_state: TowerState) -> void:
+	current_state = new_state
+	match current_state:
+		TowerState.COLLAPSED:
+			if visuals_standing: visuals_standing.visible = false
+			if visuals_collapsed: visuals_collapsed.visible = true
+			if has_node("CollisionShape3D"):
+				$CollisionShape3D.disabled = true
+			if GameManager.grid_manager and GameManager.grid_manager.has_method("on_tower_broken"):
+				GameManager.grid_manager.on_tower_broken(global_position)
+			if GameEvents:
+				GameEvents.tower_collapsed.emit(self)
+		TowerState.IDLE_SEARCHING, TowerState.ATTACKING:
+			if visuals_standing: visuals_standing.visible = true
+			if visuals_collapsed: visuals_collapsed.visible = false
+			if has_node("CollisionShape3D"):
+				$CollisionShape3D.disabled = false
+			if GameManager.grid_manager and GameManager.grid_manager.has_method("on_tower_restored"):
+				GameManager.grid_manager.on_tower_restored(global_position)
+
+func collapse_tower() -> void:
+	collapse_count += 1
+	change_state(TowerState.COLLAPSED)
+
+func repair(free_repair: bool = false) -> bool:
+	if not free_repair and not is_broken and hp >= max_hp:
+		if level >= 2:
+			GameManager.request_tower_specialization_dialog.emit(self)
+			return true
 		return try_upgrade()
 		
-	# Cost: 2 twigs
-	if GameManager.consume_resources(2, 0, 0):
-		hp = max_hp
+	# Caso 1: Reparo Preventivo (Torre em pé com dano parcial)
+	if not is_broken:
+		if free_repair or GameManager.consume_resources(2, 0, 0):
+			hp = max_hp
+			update_damage_state()
+			tower_damaged.emit(hp, max_hp)
+			GameManager.notify("Torre reparada preventivamente! (2 gravetos)", Tokens.VERDE_FOLHA)
+			return true
+		else:
+			GameManager.notify("Reparo preventivo requer 2 gravetos!", Tokens.PERIGO)
+			return false
+			
+	# Caso 2: Reerguer Torre Caída (Destruída)
+	# Custo: 4 Gravetos + 1 Engrenagem (+2 Gravetos por colapso sucessivo)
+	var rebuild_twigs = 4 + max(0, collapse_count - 1) * 2
+	var rebuild_gears = 1
+	
+	if free_repair or GameManager.consume_resources(rebuild_twigs, rebuild_gears, 0):
+		hp = 100.0
+		max_hp = 100.0
+		level = 1
+		specialization = Specialization.NONE
 		is_broken = false
+		
+		if has_node("CollisionShape3D"):
+			$CollisionShape3D.disabled = false
+		if GameManager.grid_manager and GameManager.grid_manager.has_method("on_tower_repaired"):
+			GameManager.grid_manager.on_tower_repaired(global_position)
 		
 		# Animate restoration of twigs from ground
 		if visuals_collapsed: visuals_collapsed.visible = false
@@ -334,26 +542,39 @@ func repair() -> bool:
 			var rebuild_tween = create_tween()
 			rebuild_tween.tween_property(visuals_standing, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 			
+		update_level_visuals()
+		update_poison_visual()
 		update_damage_state()
 		tower_damaged.emit(hp, max_hp)
-		GameManager.notify("Torre restaurada com gravetos!", Tokens.VERDE_FOLHA)
+		level_upgraded.emit(level)
+		GameManager.notify("Torre reerguida das ruínas! (Nv 1 restaurado)", Tokens.VERDE_FOLHA)
 		return true
 	else:
-		GameManager.notify("Você precisa de 2 gravetos para consertar a torre!", Tokens.PERIGO)
+		GameManager.notify("Reerguer torre caída requer %d gravetos e %d engrenagem!" % [rebuild_twigs, rebuild_gears], Tokens.PERIGO)
 		return false
 
-func try_upgrade() -> bool:
+func try_upgrade(target_spec: Specialization = Specialization.NONE) -> bool:
 	if level >= 3:
-		GameManager.notify("Torre já está no nível 3 (máximo)!", Tokens.CREME_PERGAMINHO)
+		# Se já for nível 3, permite alternar a especialização entre Canhão de Espinho e Catapulta de Seiva
+		toggle_specialization()
 		return false
 	
-	var cost_twigs = 4 if level == 1 else 6
-	var cost_gears = 2 if level == 1 else 4
+	# Curva Exponencial Suave v1.0:
+	# Nível 1 -> Nível 2: 6 Gravetos, 4 Engrenagens
+	# Nível 2 -> Nível 3: 12 Gravetos, 8 Engrenagens
+	var cost_twigs = 6 if level == 1 else 12
+	var cost_gears = 4 if level == 1 else 8
 	
 	if GameManager.consume_resources(cost_twigs, cost_gears, 0):
 		level += 1
-		max_hp += 45.0
+		max_hp += 50.0
 		hp = max_hp
+		if level == 3:
+			if target_spec != Specialization.NONE:
+				specialization = target_spec
+			else:
+				specialization = Specialization.THORN_CANNON # Padrão 3A Canhão Espinho
+				
 		update_level_visuals()
 		update_poison_visual()
 		level_upgraded.emit(level)
@@ -364,8 +585,23 @@ func try_upgrade() -> bool:
 			up_tween.tween_property(visuals_standing, "scale", Vector3(1.2, 1.2, 1.2), 0.12)
 			up_tween.tween_property(visuals_standing, "scale", Vector3.ONE, 0.15)
 			
-		GameManager.notify("Torre evoluída para Nível %d!" % level, Tokens.DOURADO_LUZ)
+		var spec_name = "Nível %d" % level
+		if level == 3:
+			spec_name = "Nv 3A: Canhão de Espinho (Alvo Único / Perfuração 50%)" if specialization == Specialization.THORN_CANNON else "Nv 3B: Catapulta de Seiva (Área 2.5m / Poça de Seiva)"
+		GameManager.notify("Torre evoluída para: %s!" % spec_name, Tokens.DOURADO_LUZ)
 		return true
 	else:
 		GameManager.notify("Evolução requer: %d gravetos e %d engrenagens." % [cost_twigs, cost_gears], Tokens.PERIGO)
 		return false
+
+func toggle_specialization() -> void:
+	if level < 3:
+		return
+	if specialization == Specialization.THORN_CANNON:
+		specialization = Specialization.SAP_CATAPULT
+	else:
+		specialization = Specialization.THORN_CANNON
+	update_level_visuals()
+	var spec_name = "Nv 3A: Canhão de Espinho" if specialization == Specialization.THORN_CANNON else "Nv 3B: Catapulta de Seiva"
+	GameManager.notify("Especialização alterada para: %s" % spec_name, Tokens.DOURADO_LUZ)
+

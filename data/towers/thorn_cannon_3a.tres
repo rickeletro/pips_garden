@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="TowerData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/tower_data.gd" id="1_tdata"]
+
+[resource]
+script = ExtResource("1_tdata")
+tower_name = "Canhão de Espinho (Nv 3A)"
+level = 3
+specialization = 1
+damage_per_shot = 110.0
+attack_interval = 2.0
+range_radius = 7.0
+shots_per_burst = 1
+armor_pierce = 0.5
+splash_radius = 0.0
+slow_percent = 0.0
+cost_twigs = 12
+cost_gears = 8
+preventive_repair_twigs = 2
+rebuild_twigs = 4
+rebuild_gears = 1

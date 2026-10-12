@@ -1,0 +1,97 @@
+[gd_scene format=3 uid="uid://b8d45ntdx3hm"]
+
+[ext_resource type="Script" path="res://scripts/boss_wasp_queen.gd" id="1_queen"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_body"]
+radius = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_QueenGold"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.95, 0.72, 0.12, 1)
+roughness = 0.3
+metallic = 0.35
+rim_enabled = true
+rim = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_QueenBlack"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.1, 0.1, 0.12, 1)
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_QueenWing"]
+transparency = 1
+albedo_color = Color(1, 0.95, 0.75, 0.6)
+roughness = 0.1
+emission_enabled = true
+emission = Color(1, 0.85, 0.3, 1)
+emission_energy_multiplier = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_Crown"]
+albedo_color = Color(1, 0.84, 0, 1)
+metallic = 0.8
+roughness = 0.2
+emission_enabled = true
+emission = Color(1, 0.8, 0.2, 1)
+emission_energy_multiplier = 1.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+material = SubResource("Mat_QueenBlack")
+radius = 0.38
+height = 0.55
+
+[sub_resource type="SphereMesh" id="SphereMesh_thorax"]
+material = SubResource("Mat_QueenGold")
+radius = 0.55
+height = 0.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_abdomen"]
+material = SubResource("Mat_QueenGold")
+radius = 0.58
+height = 1.6
+
+[sub_resource type="BoxMesh" id="BoxMesh_wing"]
+material = SubResource("Mat_QueenWing")
+size = Vector3(0.06, 0.04, 1.8)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_crown"]
+material = SubResource("Mat_Crown")
+top_radius = 0.25
+bottom_radius = 0.15
+height = 0.2
+
+[node name="BossWaspQueen" type="CharacterBody3D" groups=["enemies"]]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_queen")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+shape = SubResource("SphereShape3D_body")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Head" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0.7)
+mesh = SubResource("SphereMesh_head")
+
+[node name="Crown" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, 0.65)
+mesh = SubResource("CylinderMesh_crown")
+
+[node name="Thorax" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0.1)
+mesh = SubResource("SphereMesh_thorax")
+
+[node name="Abdomen" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 0.15, -0.9)
+mesh = SubResource("CapsuleMesh_abdomen")
+
+[node name="WingLeft" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 0.45, 0.65, 0)
+mesh = SubResource("BoxMesh_wing")
+
+[node name="WingRight" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, -0.45, 0.65, 0)
+mesh = SubResource("BoxMesh_wing")

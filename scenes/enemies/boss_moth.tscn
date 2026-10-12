@@ -1,0 +1,150 @@
+[gd_scene format=3 uid="uid://cb7726nscw3ix"]
+
+[ext_resource type="Script" path="res://scripts/boss_moth.gd" id="1_moth"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_moth"]
+radius = 1.15
+
+[sub_resource type="StandardMaterial3D" id="Mat_MothBodyWhite"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.96, 0.96, 0.98, 1)
+roughness = 0.6
+rim_enabled = true
+rim = 0.5
+
+[sub_resource type="SphereMesh" id="SphereMesh_thorax"]
+material = SubResource("Mat_MothBodyWhite")
+radius = 0.45
+height = 0.75
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+material = SubResource("Mat_MothBodyWhite")
+radius = 0.35
+height = 0.55
+
+[sub_resource type="StandardMaterial3D" id="Mat_AbdomenStripes"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.68, 0.70, 0.74, 1)
+roughness = 0.5
+rim_enabled = true
+rim = 0.4
+
+[sub_resource type="SphereMesh" id="SphereMesh_abdomen"]
+material = SubResource("Mat_AbdomenStripes")
+radius = 0.42
+height = 1.25
+
+[sub_resource type="StandardMaterial3D" id="Mat_AntennaPlume"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.98, 0.98, 1, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_antenna"]
+material = SubResource("Mat_AntennaPlume")
+size = Vector3(0.12, 0.75, 0.04)
+
+[sub_resource type="StandardMaterial3D" id="Mat_MothWing"]
+transparency = 1
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.96, 0.97, 1, 0.88)
+roughness = 0.25
+emission_enabled = true
+emission = Color(0.85, 0.92, 1, 1)
+emission_energy_multiplier = 0.4
+rim_enabled = true
+rim = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_forewing"]
+material = SubResource("Mat_MothWing")
+size = Vector3(1.65, 0.03, 0.95)
+
+[sub_resource type="BoxMesh" id="BoxMesh_hindwing"]
+material = SubResource("Mat_MothWing")
+size = Vector3(1.15, 0.03, 0.75)
+
+[sub_resource type="StandardMaterial3D" id="Mat_BlackEye"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.06, 0.06, 0.08, 1)
+roughness = 0.05
+
+[sub_resource type="SphereMesh" id="SphereMesh_eye"]
+material = SubResource("Mat_BlackEye")
+radius = 0.12
+height = 0.22
+
+[node name="BossMoth" type="CharacterBody3D" groups=["enemies"]]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_moth")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+shape = SubResource("SphereShape3D_moth")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Thorax" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("SphereMesh_thorax")
+
+[node name="Head" type="Node3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0.42)
+
+[node name="HeadMesh" type="MeshInstance3D" parent="Visuals/Head"]
+mesh = SubResource("SphereMesh_head")
+
+[node name="EyeLeft" type="MeshInstance3D" parent="Visuals/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.22, 0.08, 0.14)
+mesh = SubResource("SphereMesh_eye")
+
+[node name="EyeRight" type="MeshInstance3D" parent="Visuals/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, 0.08, 0.14)
+mesh = SubResource("SphereMesh_eye")
+
+[node name="AntennaLeft" type="Node3D" parent="Visuals/Head"]
+transform = Transform3D(0.866025, 0.25, 0.433013, 0, 0.866025, -0.5, -0.5, 0.433013, 0.75, -0.16, 0.28, 0.15)
+
+[node name="Mesh" type="MeshInstance3D" parent="Visuals/Head/AntennaLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+mesh = SubResource("BoxMesh_antenna")
+
+[node name="AntennaRight" type="Node3D" parent="Visuals/Head"]
+transform = Transform3D(0.866025, -0.25, -0.433013, 0, 0.866025, -0.5, 0.5, 0.433013, 0.75, 0.16, 0.28, 0.15)
+
+[node name="Mesh" type="MeshInstance3D" parent="Visuals/Head/AntennaRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+mesh = SubResource("BoxMesh_antenna")
+
+[node name="Abdomen" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, -0.22, -0.55)
+mesh = SubResource("SphereMesh_abdomen")
+
+[node name="Wings" type="Node3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+
+[node name="WingLeft" type="Node3D" parent="Visuals/Wings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35, 0, 0)
+
+[node name="Forewing" type="MeshInstance3D" parent="Visuals/Wings/WingLeft"]
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.85, 0, 0.15)
+mesh = SubResource("BoxMesh_forewing")
+
+[node name="Hindwing" type="MeshInstance3D" parent="Visuals/Wings/WingLeft"]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, -0.65, -0.02, -0.45)
+mesh = SubResource("BoxMesh_hindwing")
+
+[node name="WingRight" type="Node3D" parent="Visuals/Wings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0, 0)
+
+[node name="Forewing" type="MeshInstance3D" parent="Visuals/Wings/WingRight"]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.85, 0, 0.15)
+mesh = SubResource("BoxMesh_forewing")
+
+[node name="Hindwing" type="MeshInstance3D" parent="Visuals/Wings/WingRight"]
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, 0.65, -0.02, -0.45)
+mesh = SubResource("BoxMesh_hindwing")

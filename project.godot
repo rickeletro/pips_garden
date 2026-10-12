@@ -18,11 +18,10 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+GameEvents="*res://scripts/game_events.gd"
+NodePool="*res://scripts/node_pool.gd"
 GameManager="*res://scripts/game_manager.gd"
-
-[gui]
-
-theme/custom="res://ui/theme/jardim.tres"
+SoundManager="*res://scripts/sound_manager.gd"
 
 [display]
 
@@ -32,6 +31,10 @@ window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[gui]
+
+theme/custom="res://ui/theme/jardim.tres"
 
 [input]
 
@@ -107,5 +110,4 @@ restart_game={
 
 [rendering]
 
-anti_aliasing/quality/msaa_3d=2
 anti_aliasing/quality/screen_space_aa=1

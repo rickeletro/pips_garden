@@ -1,0 +1,188 @@
+[gd_scene format=3 uid="uid://c8n4nak2v7x5w"]
+
+[ext_resource type="Script" path="res://scripts/boss_snail.gd" id="1_snail"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_snail"]
+radius = 1.35
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_SnailFoot"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.88, 0.92, 0.82, 1)
+roughness = 0.25
+rim_enabled = true
+rim = 0.35
+
+[sub_resource type="SphereMesh" id="SphereMesh_foot"]
+material = SubResource("Mat_SnailFoot")
+radius = 0.85
+height = 2.2
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+material = SubResource("Mat_SnailFoot")
+radius = 0.65
+height = 1.1
+
+[sub_resource type="StandardMaterial3D" id="Mat_Eyestalk"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.82, 0.88, 0.78, 1)
+roughness = 0.3
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_eyestalk"]
+material = SubResource("Mat_Eyestalk")
+top_radius = 0.09
+bottom_radius = 0.14
+height = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_Eyeball"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.98, 0.98, 0.96, 1)
+roughness = 0.05
+
+[sub_resource type="SphereMesh" id="SphereMesh_eyeball"]
+material = SubResource("Mat_Eyeball")
+radius = 0.16
+height = 0.32
+
+[sub_resource type="StandardMaterial3D" id="Mat_Pupil"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.08, 0.08, 0.1, 1)
+roughness = 0.05
+
+[sub_resource type="SphereMesh" id="SphereMesh_pupil"]
+material = SubResource("Mat_Pupil")
+radius = 0.08
+height = 0.16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_lower_tentacle"]
+material = SubResource("Mat_Eyestalk")
+top_radius = 0.04
+bottom_radius = 0.09
+height = 0.45
+
+[sub_resource type="StandardMaterial3D" id="Mat_ShellPrimary"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.88, 0.58, 0.25, 1)
+roughness = 0.4
+
+[sub_resource type="SphereMesh" id="SphereMesh_shell_main"]
+material = SubResource("Mat_ShellPrimary")
+radius = 1.15
+height = 1.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_ShellBand1"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.25, 0.65, 0.55, 1)
+roughness = 0.35
+
+[sub_resource type="SphereMesh" id="SphereMesh_shell_band1"]
+material = SubResource("Mat_ShellBand1")
+radius = 0.95
+height = 1.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_ShellBand2"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.85, 0.32, 0.22, 1)
+roughness = 0.35
+
+[sub_resource type="SphereMesh" id="SphereMesh_shell_band2"]
+material = SubResource("Mat_ShellBand2")
+radius = 0.72
+height = 1.15
+
+[sub_resource type="StandardMaterial3D" id="Mat_ShellSpiralApex"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_color = Color(0.95, 0.82, 0.25, 1)
+roughness = 0.25
+
+[sub_resource type="SphereMesh" id="SphereMesh_shell_apex"]
+material = SubResource("Mat_ShellSpiralApex")
+radius = 0.45
+height = 0.75
+
+[node name="BossSnail" type="CharacterBody3D" groups=["enemies"]]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_snail")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CylinderShape3D_snail")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="BodyFoot" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1.15, 0, 0, 0, 0.45, 0, 0, 0, 1.4, 0, 0.32, 0.1)
+mesh = SubResource("SphereMesh_foot")
+
+[node name="Head" type="Node3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 1.1)
+
+[node name="HeadMesh" type="MeshInstance3D" parent="Visuals/Head"]
+transform = Transform3D(1, 0, 0, 0, 0.9, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("SphereMesh_head")
+
+[node name="EyestalkLeft" type="Node3D" parent="Visuals/Head"]
+transform = Transform3D(0.965926, 0.12941, 0.224144, 0, 0.866025, -0.5, -0.258819, 0.482963, 0.836516, -0.32, 0.42, 0.22)
+
+[node name="StalkMesh" type="MeshInstance3D" parent="Visuals/Head/EyestalkLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+mesh = SubResource("CylinderMesh_eyestalk")
+
+[node name="Eyeball" type="MeshInstance3D" parent="Visuals/Head/EyestalkLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88, 0)
+mesh = SubResource("SphereMesh_eyeball")
+
+[node name="Pupil" type="MeshInstance3D" parent="Visuals/Head/EyestalkLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88, 0.12)
+mesh = SubResource("SphereMesh_pupil")
+
+[node name="EyestalkRight" type="Node3D" parent="Visuals/Head"]
+transform = Transform3D(0.965926, -0.12941, -0.224144, 0, 0.866025, -0.5, 0.258819, 0.482963, 0.836516, 0.32, 0.42, 0.22)
+
+[node name="StalkMesh" type="MeshInstance3D" parent="Visuals/Head/EyestalkRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+mesh = SubResource("CylinderMesh_eyestalk")
+
+[node name="Eyeball" type="MeshInstance3D" parent="Visuals/Head/EyestalkRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88, 0)
+mesh = SubResource("SphereMesh_eyeball")
+
+[node name="Pupil" type="MeshInstance3D" parent="Visuals/Head/EyestalkRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88, 0.12)
+mesh = SubResource("SphereMesh_pupil")
+
+[node name="TentacleLeft" type="MeshInstance3D" parent="Visuals/Head"]
+transform = Transform3D(0.965926, 0.258819, 0, -0.224144, 0.836516, -0.5, -0.12941, 0.482963, 0.866025, -0.28, -0.15, 0.52)
+mesh = SubResource("CylinderMesh_lower_tentacle")
+
+[node name="TentacleRight" type="MeshInstance3D" parent="Visuals/Head"]
+transform = Transform3D(0.965926, -0.258819, 0, 0.224144, 0.836516, -0.5, 0.12941, 0.482963, 0.866025, 0.28, -0.15, 0.52)
+mesh = SubResource("CylinderMesh_lower_tentacle")
+
+[node name="Shell" type="Node3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 1.25, -0.35)
+
+[node name="ShellMain" type="MeshInstance3D" parent="Visuals/Shell"]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 0.95, 0, 0, 0)
+mesh = SubResource("SphereMesh_shell_main")
+
+[node name="ShellBandEmerald" type="MeshInstance3D" parent="Visuals/Shell"]
+transform = Transform3D(0.95, 0, 0, 0, 0.95, 0, 0, 0, 0.85, 0.25, 0.1, -0.25)
+mesh = SubResource("SphereMesh_shell_band1")
+
+[node name="ShellBandTerracotta" type="MeshInstance3D" parent="Visuals/Shell"]
+transform = Transform3D(0.85, 0, 0, 0, 0.85, 0, 0, 0, 0.8, 0.45, 0.2, -0.45)
+mesh = SubResource("SphereMesh_shell_band2")
+
+[node name="ShellApexGold" type="MeshInstance3D" parent="Visuals/Shell"]
+transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 0.65, 0.28, -0.62)
+mesh = SubResource("SphereMesh_shell_apex")

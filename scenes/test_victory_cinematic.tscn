@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bv8k2yaq1l4mp"]
+
+[ext_resource type="Script" path="res://scripts/test_victory_cinematic.gd" id="1_test_vic"]
+
+[node name="TestVictoryCinematic" type="Node3D"]
+script = ExtResource("1_test_vic")

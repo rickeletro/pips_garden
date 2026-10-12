@@ -12,6 +12,11 @@
 [ext_resource type="PackedScene" uid="uid://b5m7n3j8k2v9p" path="res://scenes/enemies/wasp.tscn" id="10_wasp"]
 [ext_resource type="PackedScene" uid="uid://cm3p8y7u1x4q2" path="res://scenes/pickup.tscn" id="11_pickup"]
 [ext_resource type="PackedScene" uid="uid://b1m7q9v4c3x8e" path="res://scenes/hud.tscn" id="12_hud"]
+[ext_resource type="PackedScene" uid="uid://d7m2n9k4v5x1q" path="res://scenes/enemies/beetle.tscn" id="13_beetle"]
+[ext_resource type="PackedScene" uid="uid://e4n7m2k9v1x8p" path="res://scenes/enemies/firefly.tscn" id="14_firefly"]
+[ext_resource type="Script" path="res://scripts/day_night_cycle.gd" id="15_daynight"]
+[ext_resource type="PackedScene" uid="uid://c8n4m9k2v7x5w" path="res://scenes/enemies/boss_snail.tscn" id="16_boss_snail"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/boss_moth.tscn" id="17_boss_moth"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.47, 0.72, 0.9, 1)
@@ -37,7 +42,7 @@ fog_light_color = Color(0.98, 0.93, 0.82, 1)
 fog_density = 0.004
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
-size = Vector3(105, 1, 105)
+size = Vector3(380, 1, 380)
 
 [sub_resource type="StandardMaterial3D" id="Mat_GardenSoil"]
 diffuse_mode = 2
@@ -47,7 +52,13 @@ roughness = 0.9
 
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
 material = SubResource("Mat_GardenSoil")
-size = Vector3(105, 1, 105)
+size = Vector3(380, 1, 380)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_NS"]
+size = Vector3(104, 12, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_EW"]
+size = Vector3(2, 12, 104)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
@@ -75,6 +86,26 @@ shape = SubResource("BoxShape3D_ground")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 mesh = SubResource("BoxMesh_ground")
 
+[node name="GardenBoundaries" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="WallNorth" type="CollisionShape3D" parent="GardenBoundaries"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -49.5)
+shape = SubResource("BoxShape3D_wall_NS")
+
+[node name="WallSouth" type="CollisionShape3D" parent="GardenBoundaries"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 49.5)
+shape = SubResource("BoxShape3D_wall_NS")
+
+[node name="WallWest" type="CollisionShape3D" parent="GardenBoundaries"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49.5, 6, 0)
+shape = SubResource("BoxShape3D_wall_EW")
+
+[node name="WallEast" type="CollisionShape3D" parent="GardenBoundaries"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 49.5, 6, 0)
+shape = SubResource("BoxShape3D_wall_EW")
+
 [node name="GridManager" type="Node3D" parent="." groups=["grid_manager"]]
 script = ExtResource("3_grid")
 tower_scene = ExtResource("4_tower_scn")
@@ -97,6 +128,16 @@ script = ExtResource("7_spawner")
 aphid_scene = ExtResource("8_aphid")
 caterpillar_scene = ExtResource("9_cat")
 wasp_scene = ExtResource("10_wasp")
+beetle_scene = ExtResource("13_beetle")
+firefly_scene = ExtResource("14_firefly")
+boss_snail_scene = ExtResource("16_boss_snail")
+boss_moth_scene = ExtResource("17_boss_moth")
 pickup_scene = ExtResource("11_pickup")
 
+[node name="DayNightCycle" type="Node" parent="." node_paths=PackedStringArray("sun_light", "world_environment")]
+script = ExtResource("15_daynight")
+sun_light = NodePath("../SunLight")
+world_environment = NodePath("../WorldEnvironment")
+
 [node name="GameHUD" parent="." instance=ExtResource("12_hud")]
+

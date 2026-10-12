@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1_edata"]
+
+[resource]
+script = ExtResource("1_edata")
+enemy_name = "Lagarta Comilona"
+is_boss = false
+icon = "🐛"
+max_hp = 60.0
+base_speed = 1.9
+attack_damage = 9.0
+attack_interval = 1.2
+xp_reward = 20
+is_flying = false
+armor_rating = 0.0
+drop_chance_total = 0.22
+fixed_drop_item = ""
