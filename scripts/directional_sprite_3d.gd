@@ -17,10 +17,22 @@ const DIRECTIONS: Array[String] = [
 	"south-west"
 ]
 
-@export var sprite_pixel_size: float = 0.032
+@export var sprite_pixel_size: float = 0.032:
+	set(v):
+		sprite_pixel_size = v
+		if sprite:
+			sprite.pixel_size = v
 @export var show_shadow: bool = true
-@export var shadow_scale: Vector3 = Vector3(1.8, 1.8, 1.8)
-@export var sprite_offset_y: float = 1.0
+@export var shadow_scale: Vector3 = Vector3(1.8, 1.8, 1.8):
+	set(v):
+		shadow_scale = v
+		if shadow_sprite:
+			shadow_sprite.scale = v
+@export var sprite_offset_y: float = 1.0:
+	set(v):
+		sprite_offset_y = v
+		if sprite:
+			sprite.position.y = v
 
 var sprite: Sprite3D
 var shadow_sprite: Sprite3D

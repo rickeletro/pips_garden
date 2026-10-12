@@ -17,6 +17,8 @@
 [ext_resource type="Script" path="res://scripts/day_night_cycle.gd" id="15_daynight"]
 [ext_resource type="PackedScene" uid="uid://c8n4m9k2v7x5w" path="res://scenes/enemies/boss_snail.tscn" id="16_boss_snail"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/boss_moth.tscn" id="17_boss_moth"]
+[ext_resource type="Terrain3DMaterial" path="res://data/terrain/terrain_material.tres" id="18_terrain_mat"]
+[ext_resource type="Terrain3DAssets" path="res://data/terrain/terrain_assets.tres" id="19_terrain_assets"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.47, 0.72, 0.9, 1)
@@ -42,7 +44,7 @@ fog_light_color = Color(0.98, 0.93, 0.82, 1)
 fog_density = 0.004
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
-size = Vector3(380, 1, 380)
+size = Vector3(380, 2, 380)
 
 [sub_resource type="StandardMaterial3D" id="Mat_GardenSoil"]
 diffuse_mode = 2
@@ -52,7 +54,7 @@ roughness = 0.9
 
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
 material = SubResource("Mat_GardenSoil")
-size = Vector3(380, 1, 380)
+size = Vector3(380, 2, 380)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_NS"]
 size = Vector3(104, 12, 2)
@@ -76,15 +78,12 @@ directional_shadow_split_2 = 0.35
 directional_shadow_blend_splits = true
 
 [node name="Ground" type="StaticBody3D" parent="."]
+collision_layer = 1
 collision_mask = 7
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 shape = SubResource("BoxShape3D_ground")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-mesh = SubResource("BoxMesh_ground")
 
 [node name="GardenBoundaries" type="StaticBody3D" parent="."]
 collision_layer = 1
@@ -117,11 +116,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.5)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.573576, 0.819152, 0, -0.819152, 0.573576, 0, 14.5, 10.5)
+transform = Transform3D(0.707107, -0.435779, 0.557208, 0, 0.788011, 0.615662, -0.707107, -0.435779, 0.557208, 8.915, 10.5, 12.415)
 current = true
-fov = 55.0
+fov = 32.0
 script = ExtResource("2_cam")
 target_path = NodePath("../Heroine")
+
+[node name="Terrain3D" type="Terrain3D" parent="."]
+data_directory = "res://data/terrain"
+material = ExtResource("18_terrain_mat")
+assets = ExtResource("19_terrain_assets")
+collision_layer = 1
+collision_mask = 7
 
 [node name="SpawnerManager" type="Node3D" parent="."]
 script = ExtResource("7_spawner")

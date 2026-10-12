@@ -64,6 +64,8 @@ func _ready() -> void:
 		
 	init_references()
 	setup_3d_boss_health_bar()
+	floor_snap_length = 0.35
+	floor_max_angle = deg_to_rad(55.0)
 
 func _setup_25d_enemy_visuals() -> void:
 	var enemy_folder = ""
@@ -334,17 +336,19 @@ var stuck_timer: float = 0.0
 func process_ground_movement(delta: float) -> void:
 	if path_waypoints.is_empty() or current_waypoint_idx >= path_waypoints.size():
 		if target_flower and is_instance_valid(target_flower):
-			move_towards_point(target_flower.global_position, delta)
+			var flower_pos = target_flower.global_position
+			flower_pos.y = 0.0
+			move_towards_point(flower_pos, delta)
 		return
 	
 	var target_wp = path_waypoints[current_waypoint_idx]
-	target_wp.y = global_position.y
+	target_wp.y = 0.0
 	
 	if global_position.distance_to(target_wp) < 1.3:
 		current_waypoint_idx += 1
 		if current_waypoint_idx < path_waypoints.size():
 			target_wp = path_waypoints[current_waypoint_idx]
-			target_wp.y = global_position.y
+			target_wp.y = 0.0
 			
 	# Stuck detection: se bloqueado por colisão ou relevo, avança waypoint ou recalcula
 	if global_position.distance_squared_to(last_pos) < 0.02:
@@ -374,8 +378,23 @@ func move_towards_point(target_pos: Vector3, delta: float) -> void:
 		dir.y = 0.0
 		dir = dir.normalized()
 		
-	velocity = dir * current_speed
+	velocity.x = dir.x * current_speed
+	velocity.z = dir.z * current_speed
+	if not is_flying:
+		if not is_on_floor():
+			velocity.y -= 19.6 * delta
+		else:
+			velocity.y = -0.5
+	else:
+		velocity.y = dir.y * current_speed
 	move_and_slide()
+	
+	# Garante que inimigos terrestres NUNCA fiquem abaixo do piso (y >= 0.0)
+	if not is_flying:
+		if global_position.y < 0.0:
+			global_position.y = 0.0
+			if velocity.y < 0.0:
+				velocity.y = 0.0
 	
 	if dir.length_squared() > 0.01:
 		if visual_root:

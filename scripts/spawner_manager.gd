@@ -249,6 +249,8 @@ func spawn_single_enemy(type: String) -> void:
 		spawn_pos.y = 1.8
 		if type == "wasp":
 			SoundManager.play_bee_buzz(-16.0)
+	else:
+		spawn_pos.y = 0.08
 	
 	var en_node: Node3D = null
 	match type:
@@ -281,7 +283,7 @@ func spawn_boss_snail() -> void:
 		return
 		
 	var sp_cell = spawners[0]
-	var spawn_pos = grid_manager.grid_to_world(sp_cell, 0.0)
+	var spawn_pos = grid_manager.grid_to_world(sp_cell, 0.1)
 	
 	var boss_node: Node3D = null
 	if boss_snail_scene:
@@ -331,7 +333,7 @@ func spawn_boss_mantis() -> void:
 		return
 		
 	var sp_cell = spawners[randi() % spawners.size()]
-	var spawn_pos = grid_manager.grid_to_world(sp_cell, 0.0)
+	var spawn_pos = grid_manager.grid_to_world(sp_cell, 0.1)
 	
 	var mantis_node: Node3D = null
 	if boss_mantis_scene:
@@ -357,7 +359,7 @@ func spawn_boss_spider() -> void:
 		return
 		
 	var sp_cell = spawners[randi() % spawners.size()]
-	var spawn_pos = grid_manager.grid_to_world(sp_cell, 0.0)
+	var spawn_pos = grid_manager.grid_to_world(sp_cell, 0.1)
 	
 	var spider_node: Node3D = null
 	if boss_spider_scene:
@@ -407,7 +409,7 @@ func spawn_boss_scorpion() -> void:
 		return
 		
 	var sp_cell = spawners[randi() % spawners.size()]
-	var spawn_pos = grid_manager.grid_to_world(sp_cell, 0.0)
+	var spawn_pos = grid_manager.grid_to_world(sp_cell, 0.1)
 	
 	var scorpion_node: Node3D = null
 	if boss_scorpion_scene:

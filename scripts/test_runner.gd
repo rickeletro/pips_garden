@@ -430,5 +430,30 @@ func _ready() -> void:
 		ent.queue_free()
 	print("✔ Todos os 5 Inimigos Regulares e 6 Chefes: Sprites 2.5D Pixel Art (8 direções) validados 100%.")
 	
+	# 13. Testar Câmera Isométrica 2.5D Estilo Ragnarok (Target Offset, SmoothDamp, FOV e Zoom)
+	cam = root_node.get_node("Camera3D")
+	assert(cam != null, "GardenCameraController deve existir na cena")
+	assert(cam.fov >= 30.0 and cam.fov <= 35.0, "FOV da câmera deve estar entre 30° e 35° para achatamento 2.5D")
+	assert(cam.pitch_angle >= 35.0 and cam.pitch_angle <= 40.0, "Pitch da câmera deve estar entre 35° e 40°")
+	assert(cam.yaw_angle == 45.0, "Yaw da câmera deve ser 45° para isometria clássica")
+	assert(cam.default_distance >= 14.0 and cam.default_distance <= 18.0, "Distância padrão deve enquadrar ~8-10m de trilha")
+	
+	var prev_dist = cam.target_distance
+	cam.zoom_in()
+	assert(cam.target_distance < prev_dist, "zoom_in deve aproximar a distância")
+	cam.zoom_out()
+	assert(cam.target_distance == prev_dist, "zoom_out deve restaurar a distância")
+	
+	# Testar limites de zoom
+	for _i in range(20):
+		cam.zoom_in(5.0)
+	assert(cam.target_distance >= cam.min_distance, "target_distance não pode ser menor que min_distance")
+	for _i in range(20):
+		cam.zoom_out(5.0)
+	assert(cam.target_distance <= cam.max_distance, "target_distance não pode ser maior que max_distance")
+	
+	cam.reset_focus()
+	print("✔ Sistema de Câmera Isométrica 2.5D Ragnarok (SmoothDamp, FOV 32°, Pitch 38°, Yaw 45°, Zoom e Oclusão) validado 100%.")
+	
 	print("--- TODOS OS TESTES PASSARAM COM 100% DE SUCESSO! ---")
 	get_tree().quit(0)

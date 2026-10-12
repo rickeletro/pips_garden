@@ -92,8 +92,9 @@ var sprite_25d: DirectionalSprite3D = null
 
 func _ready() -> void:
 	GameManager.heroine = self
-	axis_lock_linear_y = true
-	global_position.y = 0.0
+	axis_lock_linear_y = false
+	floor_snap_length = 0.35
+	floor_max_angle = deg_to_rad(55.0)
 	if attack_area:
 		attack_area.monitoring = false
 	if slash_fx:
@@ -290,13 +291,23 @@ func _process_locomotion(delta: float) -> void:
 		if sprite_25d and current_state != State.ATTACK:
 			sprite_25d.play("idle", true, 6.0)
 		
+	if not is_on_floor():
+		velocity.y -= 19.6 * delta
+	else:
+		velocity.y = -0.5
+		
 	animate_locomotion(delta)
 	move_and_slide()
 
 func _process_dash(delta: float) -> void:
 	dash_direction.y = 0.0
-	velocity = dash_direction.normalized() * dash_speed
-	velocity.y = 0.0
+	var h_vel = dash_direction.normalized() * dash_speed
+	velocity.x = h_vel.x
+	velocity.z = h_vel.z
+	if not is_on_floor():
+		velocity.y -= 19.6 * delta
+	else:
+		velocity.y = -0.5
 	move_and_slide()
 	check_dash_hits()
 	
@@ -306,8 +317,11 @@ func _process_dash(delta: float) -> void:
 
 func _process_attack_state(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, move_speed * 8.0 * delta)
-	velocity.y = 0.0
 	velocity.z = move_toward(velocity.z, 0.0, move_speed * 8.0 * delta)
+	if not is_on_floor():
+		velocity.y -= 19.6 * delta
+	else:
+		velocity.y = -0.5
 	move_and_slide()
 	
 	attack_anim_timer -= delta
@@ -316,14 +330,19 @@ func _process_attack_state(delta: float) -> void:
 
 func _process_stationary_action(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, move_speed * 15.0 * delta)
-	velocity.y = 0.0
 	velocity.z = move_toward(velocity.z, 0.0, move_speed * 15.0 * delta)
+	if not is_on_floor():
+		velocity.y -= 19.6 * delta
+	else:
+		velocity.y = -0.5
 	move_and_slide()
 
 func _clamp_world_bounds() -> void:
-	global_position.y = 0.0
 	global_position.x = clampf(global_position.x, -48.0, 48.0)
 	global_position.z = clampf(global_position.z, -48.0, 48.0)
+	if global_position.y < -5.0:
+		global_position.y = 0.0
+		velocity.y = 0.0
 
 func handle_timers(delta: float) -> void:
 	if dash_cd_timer > 0.0:
