@@ -75,3 +75,10 @@ Este documento define os princípios obrigatórios para desenvolvimento, design 
   - Ao fazer alterações no código ou balanceamento, SEMPRE executar a suíte de testes automatizados via Godot headless:
     `/Applications/Godot.app/Contents/MacOS/Godot --headless --path . scenes/test_runner.tscn`
   - Manter as asserções de `scripts/test_runner.gd` sincronizadas com as regras atuais do jogo.
+
+---
+
+## 5. Fluxo de Trabalho Git e GitHub (Skill `git-workflow`)
+- **Branches por Tarefa**: Toda nova feature ou correção deve utilizar uma branch dedicada (`feature/*`, `fix/*`, `balance/*`, etc.) criada via `./.agents/skills/git-workflow/scripts/git_task.sh start <tipo> <nome>`.
+- **Quality Gate Obrigatório**: Commits e publicações remotas devem passar 100% pelos testes do Godot antes de subir para o GitHub (`git_task.sh commit` e `git_task.sh finish`).
+- **Sincronização Contínua**: A branch `main` permanece sempre estável e pronta para build, sincronizada com o repositório remoto `origin` (`https://github.com/rickeletro/pips_garden.git`).
