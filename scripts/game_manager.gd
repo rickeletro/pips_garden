@@ -36,6 +36,8 @@ enum WaveState { PREPARATION, WAVE_ACTIVE, VICTORY, DEFEAT }
 var grid_manager: Node3D = null
 var flower: Node3D = null
 var heroine: CharacterBody3D = null
+var hud: Node = null
+var camera: GardenCameraController = null
 
 # Inventário & Colecionáveis
 var twigs: int = 10
@@ -102,21 +104,39 @@ func set_player_control_enabled(enabled: bool) -> void:
 	if heroine and is_instance_valid(heroine) and heroine.has_method("set_control_enabled"):
 		heroine.set_control_enabled(enabled)
 
-func start_game_from_intro() -> void:
+func start_game_from_intro(with_zoom_sequence: bool = false) -> void:
 	is_in_intro = false
-	countdown_active = true
-	set_player_control_enabled(true)
-	
 	SoundManager.play_day_music(2.2, -6.0)
-		
-	var tree = get_tree()
-	if tree:
-		var cam = tree.root.get_camera_3d()
+	
+	var cam: GardenCameraController = camera
+	if not cam:
+		var tree = get_tree()
+		if tree:
+			var vp_cam = tree.root.get_viewport().get_camera_3d()
+			if vp_cam is GardenCameraController:
+				cam = vp_cam
+			else:
+				cam = tree.get_first_node_in_group("camera") as GardenCameraController
+				
+	if with_zoom_sequence and cam and cam.has_method("zoom_to_gameplay"):
+		set_player_control_enabled(false)
+		countdown_active = false
+		cam.zoom_to_gameplay(2.4, func():
+			countdown_active = true
+			set_player_control_enabled(true)
+			game_started.emit()
+			if hud and "tutorial_manager" in hud and hud.tutorial_manager:
+				hud.tutorial_manager.start_tutorial()
+			else:
+				notify("🌸 Bem-vindo ao Jardim da Pip! Plante grama e prepare suas defesas!", Color(1.0, 0.92, 0.6))
+		)
+	else:
+		countdown_active = true
+		set_player_control_enabled(true)
 		if cam and cam.has_method("zoom_to_gameplay"):
-			cam.zoom_to_gameplay(2.0)
-			
-	game_started.emit()
-	notify("🌸 Bem-vindo ao Jardim da Pip! Plante grama e prepare suas defesas!", Color(1.0, 0.92, 0.6))
+			cam.zoom_to_gameplay(0.1)
+		game_started.emit()
+		notify("🌸 Bem-vindo ao Jardim da Pip! Plante grama e prepare suas defesas!", Color(1.0, 0.92, 0.6))
 
 func _process(delta: float) -> void:
 	if is_in_intro:

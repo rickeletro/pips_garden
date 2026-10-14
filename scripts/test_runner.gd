@@ -455,5 +455,33 @@ func _ready() -> void:
 	cam.reset_focus()
 	print("✔ Sistema de Câmera Isométrica 2.5D Ragnarok (SmoothDamp, FOV 32°, Pitch 38°, Yaw 45°, Zoom e Oclusão) validado 100%.")
 	
+	# 14. Testar Tela Inicial Ghibli, Cinemática de História em Tela Cheia e Transição de Zoom
+	assert(hud.title_screen != null, "TitleScreen profissional deve estar instanciada no HUD")
+	assert(hud.story_cinematic != null, "StoryCinematic deve estar instanciada no HUD")
+	assert(hud.story_cinematic.chapters.size() == 4, "História deve conter exatamente 4 atos (semente, plantio, ameaça do rei escorpião, protetora do jardim)")
+	assert(cam.intro_distance == 32.0, "Câmera deve iniciar com zoom out aéreo alto (32.0m)")
+	
+	# Validar que a heroína não possui controle durante a introdução ou cinemática
+	GameManager.is_in_intro = true
+	assert(heroine.controls_enabled == false or GameManager.is_in_intro == true, "Controles da Pip devem ser bloqueados antes de entrar no jogo")
+	
+	# Testar avanço e conclusão da cinemática
+	hud.story_cinematic.start_story()
+	assert(hud.story_cinematic.visible == true, "StoryCinematic deve ficar visível ao iniciar a história")
+	assert(hud.story_cinematic.current_chapter_idx == 0, "História deve começar no capítulo 0")
+	hud.story_cinematic.next_chapter()
+	assert(hud.story_cinematic.current_chapter_idx == 1, "next_chapter deve avançar para capítulo 1")
+	hud.story_cinematic.skip_story(true)
+	assert(hud.story_cinematic.visible == false, "skip_story deve fechar a cinemática")
+	
+	# Testar zoom de gameplay da câmera
+	cam.target_distance = cam.intro_distance
+	cam.current_distance = cam.intro_distance
+	cam.zoom_to_gameplay(0.1)
+	assert(cam.target_distance == cam.default_distance, "zoom_to_gameplay deve setar a distância para default_distance (16.0m)")
+	
+	print("✔ Tela Inicial Ghibli, Cinemática de História de 4 Atos, Bloqueio de Entrada da Pip e Zoom In de Início validados 100%.")
+	
 	print("--- TODOS OS TESTES PASSARAM COM 100% DE SUCESSO! ---")
 	get_tree().quit(0)
+

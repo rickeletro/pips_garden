@@ -53,6 +53,8 @@ const TopPeriodBadgeClass = preload("res://scripts/ui/top_period_badge.gd")
 const BossHUDBarClass = preload("res://scripts/ui/boss_hud_bar.gd")
 const TowerSpecDialogClass = preload("res://scripts/ui/tower_spec_dialog.gd")
 const CreditsSequenceClass = preload("res://scripts/ui/credits_sequence.gd")
+const TitleScreenClass = preload("res://scripts/ui/title_screen.gd")
+const StoryCinematicClass = preload("res://scripts/ui/story_cinematic.gd")
 
 var banner_timer: float = 0.0
 var tutorial_manager: Node = null
@@ -65,6 +67,8 @@ var top_period_badge: Node = null
 var boss_hud_bar: Node = null
 var spec_dialog: Node = null
 var credits_sequence: Node = null
+var title_screen: Control = null
+var story_cinematic: CanvasLayer = null
 
 # Propriedades de compatibilidade
 var spec_modal: Control:
@@ -74,10 +78,14 @@ var ending_sequence_active: bool:
 	get: return credits_sequence.ending_sequence_active if credits_sequence else false
 
 func _ready() -> void:
+	add_to_group("hud")
+	GameManager.hud = self
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	game_over_panel.visible = false
 	victory_panel.visible = false
 	banner_label.visible = false
+	
+	_setup_title_and_story()
 	
 	if GameManager.is_in_intro:
 		margin_container.visible = false
@@ -399,25 +407,75 @@ func show_notification(text: String, color: Color = Tokens.DOURADO_LUZ) -> void:
 		var tween = tree.create_tween()
 		tween.tween_property(banner_label, "scale", Vector2.ONE, 0.2)
 
-func _on_enter_pressed() -> void:
-	SoundManager.play_sparkle(-2.0)
+func _setup_title_and_story() -> void:
+	# 1. Instancia StoryCinematic em tela cheia
+	if story_cinematic == null:
+		story_cinematic = StoryCinematicClass.new()
+		add_child(story_cinematic)
+		story_cinematic.story_completed.connect(_on_story_completed)
 		
+	# 2. Instancia a nova TitleScreen profissional dentro de intro_panel
+	if intro_panel and title_screen == null:
+		var old_ivy = intro_panel.get_node_or_null("IvyBorder")
+		if old_ivy: old_ivy.visible = false
+		var old_center = intro_panel.get_node_or_null("CenterBox")
+		if old_center: old_center.visible = false
+		
+		title_screen = TitleScreenClass.new()
+		intro_panel.add_child(title_screen)
+		title_screen.start_adventure_pressed.connect(_on_start_adventure)
+		title_screen.skip_to_game_pressed.connect(_on_skip_to_game)
+		title_screen.credits_pressed.connect(open_credits)
+
+func _on_start_adventure() -> void:
+	SoundManager.play_sparkle(-2.0)
 	var tree = get_tree()
 	if tree and intro_panel:
 		var tween = tree.create_tween()
-		tween.tween_property(intro_panel, "modulate:a", 0.0, 0.5)
+		tween.tween_property(intro_panel, "modulate:a", 0.0, 0.4)
 		tween.tween_callback(func():
 			intro_panel.visible = false
-			margin_container.visible = true
-			margin_container.modulate.a = 0.0
-			var t2 = tree.create_tween()
-			t2.tween_property(margin_container, "modulate:a", 1.0, 0.4)
-			GameManager.start_game_from_intro()
+			if story_cinematic:
+				story_cinematic.start_story()
+			else:
+				_on_story_completed()
 		)
 	else:
 		if intro_panel: intro_panel.visible = false
-		margin_container.visible = true
-		GameManager.start_game_from_intro()
+		if story_cinematic:
+			story_cinematic.start_story()
+		else:
+			_on_story_completed()
+
+func _on_skip_to_game() -> void:
+	SoundManager.play_pop(-4.0)
+	var tree = get_tree()
+	if tree and intro_panel:
+		var tween = tree.create_tween()
+		tween.tween_property(intro_panel, "modulate:a", 0.0, 0.4)
+		tween.tween_callback(func():
+			intro_panel.visible = false
+			_finish_intro_and_enter_game()
+		)
+	else:
+		if intro_panel: intro_panel.visible = false
+		_finish_intro_and_enter_game()
+
+func _on_story_completed() -> void:
+	_finish_intro_and_enter_game()
+
+func _finish_intro_and_enter_game() -> void:
+	margin_container.visible = true
+	margin_container.modulate.a = 0.0
+	var tree = get_tree()
+	if tree:
+		var t2 = tree.create_tween()
+		t2.tween_property(margin_container, "modulate:a", 1.0, 0.5)
+	# Inicia o jogo ativando a sequência de aproximação de câmera (zoom in do alto até o chão)
+	GameManager.start_game_from_intro(true)
+
+func _on_enter_pressed() -> void:
+	_on_start_adventure()
 
 func _on_restart_pressed() -> void:
 	if game_over_panel:
