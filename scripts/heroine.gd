@@ -92,6 +92,7 @@ var sprite_25d: DirectionalSprite3D = null
 
 func _ready() -> void:
 	GameManager.heroine = self
+	controls_enabled = not GameManager.is_in_intro and not GameManager.is_in_cutscene
 	axis_lock_linear_y = false
 	floor_snap_length = 0.35
 	floor_max_angle = deg_to_rad(55.0)
@@ -256,8 +257,15 @@ func _physics_process(delta: float) -> void:
 	_clamp_world_bounds()
 
 func _process_locomotion(delta: float) -> void:
-	if not controls_enabled:
-		velocity = Vector3.ZERO
+	if not controls_enabled or GameManager.is_in_intro or GameManager.is_in_cutscene:
+		velocity.x = 0.0
+		velocity.z = 0.0
+		if not is_on_floor():
+			velocity.y -= 19.6 * delta
+		else:
+			velocity.y = -0.5
+		if sprite_25d and current_state != State.ATTACK:
+			sprite_25d.play("idle", true, 6.0)
 		animate_locomotion(delta)
 		move_and_slide()
 		return

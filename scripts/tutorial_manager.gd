@@ -191,9 +191,20 @@ func _show_step(index: int) -> void:
 			target_node = GameManager.flower
 			
 		if target_node:
-			var cam = tree.root.get_camera_3d() as GardenCameraController
+			var cam = _get_camera()
 			if cam:
 				cam.focus_target(target_node, step_data["zoom"], 3.5)
+
+func _get_camera() -> GardenCameraController:
+	if GameManager.camera:
+		return GameManager.camera
+	var tree = get_tree()
+	if tree:
+		var raw_cam = tree.root.get_viewport().get_camera_3d()
+		if raw_cam is GardenCameraController:
+			return raw_cam
+		return tree.get_first_node_in_group("camera") as GardenCameraController
+	return null
 
 func _on_next_pressed() -> void:
 	current_step += 1
@@ -213,11 +224,9 @@ func finish_tutorial() -> void:
 		tw.tween_callback(func(): dialog_container.visible = false)
 		
 	# Restaura a câmera ao ombro da Pip
-	var tree = get_tree()
-	if tree:
-		var cam = tree.root.get_camera_3d() as GardenCameraController
-		if cam:
-			cam.zoom_to_gameplay(1.8)
+	var cam = _get_camera()
+	if cam:
+		cam.zoom_to_gameplay(1.8)
 			
 	# Restaura áudio e controles
 	SoundManager.apply_tutorial_audio_filter(false)

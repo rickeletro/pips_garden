@@ -33,10 +33,10 @@ class_name GardenCameraController
 # ------------------------------------------------------------------------------
 # 3. DISTÂNCIA & ZOOM DINÂMICO
 # ------------------------------------------------------------------------------
-@export_group("Distance & Zoom")
 @export var default_distance: float = 16.0 ## Distância padrão (~14 a 18 unidades, enquadra 8-10m de trilha)
 @export var min_distance: float = 10.0 ## Zoom máximo aproximado
-@export var max_distance: float = 25.0 ## Zoom máximo afastado
+@export var max_distance: float = 36.0 ## Zoom máximo afastado (permite visão panorâmica)
+@export var intro_distance: float = 32.0 ## Distância inicial panorâmica da introdução
 @export var zoom_step: float = 1.5 ## Passo de alteração do zoom por clique de scroll
 @export var zoom_smooth_speed: float = 9.0 ## Velocidade de interpolação do zoom
 @export var enable_zoom_input: bool = true ## Permite zoom dinâmico pelo jogador
@@ -98,6 +98,8 @@ var base_offset: Vector3:
 # ==============================================================================
 
 func _ready() -> void:
+	add_to_group("camera")
+	GameManager.camera = self
 	_resolve_target()
 	
 	# Configura modo de projeção e FOV estilo Ragnarok Mobile
@@ -106,9 +108,9 @@ func _ready() -> void:
 	
 	# Calibra distâncias iniciais
 	if GameManager.is_in_intro:
-		target_zoom_mult = 1.5
-		target_distance = clampf(default_distance * 1.5, min_distance, max_distance)
-		current_distance = target_distance
+		target_zoom_mult = intro_distance / default_distance
+		target_distance = intro_distance
+		current_distance = intro_distance
 	else:
 		target_zoom_mult = 1.0
 		target_distance = default_distance
@@ -380,20 +382,28 @@ func reset_focus(zoom_ratio: float = 1.0, speed: float = 4.5) -> void:
 	target_distance = clampf(default_distance * zoom_ratio, min_distance, max_distance)
 	smooth_time = clampf(1.0 / maxf(0.5, speed), 0.08, 0.35)
 
-func zoom_to_gameplay(duration: float = 2.0) -> void:
+func zoom_to_gameplay(duration: float = 2.4, on_complete: Callable = Callable()) -> void:
 	is_cinematic_focus = false
 	_resolve_default_target()
 	target_node = default_target_node
 	target_zoom_mult = 1.0
 	target_distance = default_distance
-	smooth_time = 0.28
+	smooth_time = 0.35
 	
 	var tree = get_tree()
-	if tree:
-		var t = tree.create_timer(duration)
-		t.timeout.connect(func():
+	if tree and duration > 0.0:
+		var tw = tree.create_tween()
+		tw.tween_property(self, "current_distance", default_distance, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tw.tween_callback(func():
 			smooth_time = 0.18
+			if on_complete.is_valid():
+				on_complete.call()
 		)
+	else:
+		current_distance = default_distance
+		smooth_time = 0.18
+		if on_complete.is_valid():
+			on_complete.call()
 
 func start_credits_slow_zoom_out(duration: float = 20.0) -> void:
 	is_cinematic_focus = true
