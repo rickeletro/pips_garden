@@ -25,6 +25,30 @@ const MAX_SFX_PLAYERS = 12
 var current_music_mode: String = "INTRO" # "INTRO", "DAY", "NIGHT", "BOSS", "GNOME"
 var music_tween: Tween = null
 
+var music_enabled: bool = true:
+	set(val):
+		music_enabled = val
+		if music_player:
+			if not music_enabled:
+				music_player.volume_db = -80.0
+			else:
+				music_player.volume_db = -4.0
+
+var sfx_enabled: bool = true:
+	set(val):
+		sfx_enabled = val
+		for p in sfx_players:
+			if is_instance_valid(p):
+				p.volume_db = -80.0 if not sfx_enabled else 0.0
+
+func toggle_music() -> bool:
+	music_enabled = not music_enabled
+	return music_enabled
+
+func toggle_sfx() -> bool:
+	sfx_enabled = not sfx_enabled
+	return sfx_enabled
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_load_resources()
@@ -131,6 +155,9 @@ func _switch_music_stream(new_stream: AudioStream, fade_duration: float, target_
 	if not new_stream or not music_player:
 		return
 		
+	if not music_enabled:
+		target_vol = -80.0
+
 	if music_tween and music_tween.is_valid():
 		music_tween.kill()
 		
@@ -262,6 +289,16 @@ func play_rabbit_squeak(volume_db: float = -2.0, pitch_var: float = 0.1) -> void
 		p.play()
 	elif sfx_sparkle:
 		play_sparkle(volume_db, 0.25)
+
+func play_pop(volume_db: float = -4.0, pitch_var: float = 0.15) -> void:
+	if sfx_leaf:
+		var p = _get_available_sfx_player()
+		p.stream = sfx_leaf
+		p.volume_db = volume_db
+		p.pitch_scale = randf_range(1.2 - pitch_var, 1.2 + pitch_var)
+		p.play()
+	elif sfx_sparkle:
+		play_sparkle(volume_db, pitch_var)
 
 # --- FILTRO DE ÁUDIO PARA TUTORIAL ---
 var tutorial_lp_filter: AudioEffectLowPassFilter = null
