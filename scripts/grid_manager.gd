@@ -34,6 +34,8 @@ const WEIGHT_GRASS: float = 1.0 # Grama viçosa plantada por Pip (preferência m
 # Packed scenes
 @export var tower_scene: PackedScene
 
+const GardenAmbientParticlesScript = preload("res://scripts/environment/garden_ambient_particles.gd")
+
 # Modelos GLTF e Caches de Malhas do Cenário (Grass.glb, Flowers.glb, Rocks.glb, Bushes.glb, Flower Bushes.glb, Trees.glb)
 var grass_meshes: Array[Mesh] = []
 var grass_material: Material = null
@@ -45,7 +47,7 @@ var tree_meshes: Array[Mesh] = []
 # MultiMeshInstance3D para a Grama GLTF com Vento Zelda
 var grass_multimesh: MultiMeshInstance3D = null
 var current_grass_count: int = 0
-const MAX_GRASS_BLADES: int = 10000
+const MAX_GRASS_BLADES: int = 12000
 
 func _ready() -> void:
 	GameManager.grid_manager = self
@@ -53,10 +55,14 @@ func _ready() -> void:
 	generate_winding_paths()
 	init_grid()
 	init_watercolor_grass_multimesh()
+	init_wildflower_multimesh()
+	init_bush_multimesh()
+	init_pebbles_multimesh()
 	spawn_distant_horizon_forest()
 	spawn_path_decorations()
 	spawn_ambient_garden_flowers()
 	spawn_interactive_dew_drops(8)
+	init_ambient_particles()
 	GameManager.wave_state_changed.connect(_on_wave_state_changed)
 
 func load_gltf_scenery_models() -> void:
@@ -220,6 +226,49 @@ func init_grid() -> void:
 	for spawner in spawner_cells:
 		grid_data[spawner] = TileType.SPAWNER
 
+# Cria malha de tufo botânico procedural afunilado com 3 lâminas cruzadas em estrela (anchored at Y=0.0)
+static func create_botanical_grass_tuft_mesh() -> Mesh:
+	var st = SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	
+	for b in range(3):
+		var angle = float(b) * (PI / 3.0)
+		var dir = Vector3(cos(angle), 0, sin(angle))
+		var norm = Vector3(-sin(angle), 0, cos(angle))
+		var w_base = 0.075
+		var w_mid = 0.045
+		var h = 0.95
+		
+		var v0 = -norm * w_base
+		var v1 = norm * w_base
+		var v2 = norm * w_mid + Vector3(0, h * 0.5, 0) + dir * 0.04
+		var v3 = -norm * w_mid + Vector3(0, h * 0.5, 0) + dir * 0.04
+		var v4 = Vector3(0, h, 0) + dir * 0.10
+		
+		st.set_normal(norm)
+		st.set_uv(Vector2(0, 0))
+		st.add_vertex(v0)
+		st.set_uv(Vector2(1, 0))
+		st.add_vertex(v1)
+		st.set_uv(Vector2(1, 0.5))
+		st.add_vertex(v2)
+		
+		st.set_uv(Vector2(0, 0))
+		st.add_vertex(v0)
+		st.set_uv(Vector2(1, 0.5))
+		st.add_vertex(v2)
+		st.set_uv(Vector2(0, 0.5))
+		st.add_vertex(v3)
+		
+		st.set_uv(Vector2(0, 0.5))
+		st.add_vertex(v3)
+		st.set_uv(Vector2(1, 0.5))
+		st.add_vertex(v2)
+		st.set_uv(Vector2(0.5, 1.0))
+		st.add_vertex(v4)
+		
+	return st.commit()
+
 # Inicializa o MultiMeshInstance3D com os tufos de grama aquarela e Shader de Vento Zelda TotK
 func init_watercolor_grass_multimesh() -> void:
 	grass_multimesh = MultiMeshInstance3D.new()
@@ -229,10 +278,7 @@ func init_watercolor_grass_multimesh() -> void:
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_colors = true
 	mm.instance_count = MAX_GRASS_BLADES
-	
-	var blade_mesh = BoxMesh.new()
-	blade_mesh.size = Vector3(0.18, 0.95, 0.04)
-	mm.mesh = blade_mesh
+	mm.mesh = create_botanical_grass_tuft_mesh()
 		
 	var wind_mat = load("res://shaders/zelda_watercolor_grass.tres")
 	if wind_mat:
@@ -242,15 +288,15 @@ func init_watercolor_grass_multimesh() -> void:
 	grass_multimesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(grass_multimesh)
 	
-	# Povoar grama ambiente espalhada pelo campo do jardim (~2200 tufos altos)
-	spawn_ambient_meadow_grass(2200)
+	# Povoar pradaria viçosa espalhada pelo campo do jardim (~3800 tufos densos)
+	spawn_ambient_meadow_grass(3800)
 
 func spawn_ambient_meadow_grass(count: int) -> void:
 	var mm = grass_multimesh.multimesh
-	for i in range(count):
-		if current_grass_count >= MAX_GRASS_BLADES:
-			break
-			
+	var placed = 0
+	var attempts = 0
+	while placed < count and attempts < count * 2 and current_grass_count < MAX_GRASS_BLADES:
+		attempts += 1
 		var rx = (randf() - 0.5) * (HALF_EXTENT * 2.0 * CELL_SIZE * 0.95)
 		var rz = (randf() - 0.5) * (HALF_EXTENT * 2.0 * CELL_SIZE * 0.95)
 		
@@ -263,19 +309,137 @@ func spawn_ambient_meadow_grass(count: int) -> void:
 		var rot_y = randf() * TAU
 		t = t.rotated(Vector3.UP, rot_y)
 		
-		# Escala para a grama ficar ereta e mais alta que a Pip (~0.85m a 1.25m)
-		var s_height = randf_range(1.0, 1.45)
+		# Altura e largura variada da grama (0.85m a 1.35m)
+		var s_height = randf_range(0.85, 1.35)
 		var s_width = randf_range(0.9, 1.3)
 		t = t.scaled(Vector3(s_width, s_height, s_width))
-		t.origin = Vector3(rx, s_height * 0.45, rz)
+		t.origin = Vector3(rx, 0.0, rz)
 		
 		mm.set_instance_transform(current_grass_count, t)
-		var col_var = Color(0.9 + randf() * 0.1, 0.95 + randf() * 0.05, 0.9 + randf() * 0.1, 1.0)
+		var col_var = Color(randf_range(0.92, 1.05), randf_range(0.95, 1.05), randf_range(0.92, 1.02), 1.0)
 		mm.set_instance_color(current_grass_count, col_var)
 		
 		current_grass_count += 1
+		placed += 1
 		
 	mm.visible_instance_count = current_grass_count
+
+# Instancia flores silvestres espalhadas pelo gramado em 1 único Draw Call
+func init_wildflower_multimesh() -> void:
+	if flower_meshes.is_empty():
+		return
+		
+	var flower_mm_node = MultiMeshInstance3D.new()
+	flower_mm_node.name = "WildflowersMultiMesh"
+	
+	var mm = MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = flower_meshes[0]
+	var count = 320
+	mm.instance_count = count
+	flower_mm_node.multimesh = mm
+	flower_mm_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(flower_mm_node)
+	
+	var placed = 0
+	var attempts = 0
+	while placed < count and attempts < 1500:
+		attempts += 1
+		var angle = randf() * TAU
+		var dist = randf_range(3.5, HALF_EXTENT * CELL_SIZE * 0.88)
+		var rx = cos(angle) * dist
+		var rz = sin(angle) * dist
+		
+		var cell = world_to_grid(Vector3(rx, 0, rz))
+		if path_cells.has(cell) or cell == flower_cell:
+			continue
+			
+		var t = Transform3D()
+		t = t.rotated(Vector3.UP, randf() * TAU)
+		t = t.rotated_local(Vector3.RIGHT, deg_to_rad(-90))
+		var s = randf_range(80.0, 125.0)
+		t = t.scaled_local(Vector3(s, s, s))
+		t.origin = Vector3(rx, 0.0, rz)
+		
+		mm.set_instance_transform(placed, t)
+		placed += 1
+		
+	mm.visible_instance_count = placed
+
+# Instancia arbustos e moitas floridas contornando o jardim em 1 Draw Call
+func init_bush_multimesh() -> void:
+	if bush_meshes.is_empty():
+		return
+		
+	var bush_mm_node = MultiMeshInstance3D.new()
+	bush_mm_node.name = "BushesMultiMesh"
+	
+	var mm = MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = bush_meshes[0]
+	var count = 90
+	mm.instance_count = count
+	bush_mm_node.multimesh = mm
+	bush_mm_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(bush_mm_node)
+	
+	for i in range(count):
+		var angle = (float(i) / float(count)) * TAU + randf_range(-0.15, 0.15)
+		var dist = randf_range(22.0, HALF_EXTENT * CELL_SIZE * 0.95)
+		var pos = Vector3(cos(angle) * dist, 0.0, sin(angle) * dist)
+		
+		var t = Transform3D()
+		t = t.rotated(Vector3.UP, randf() * TAU)
+		t = t.rotated_local(Vector3.RIGHT, deg_to_rad(-90))
+		var s = randf_range(90.0, 135.0)
+		t = t.scaled_local(Vector3(s, s, s))
+		t.origin = pos
+		mm.set_instance_transform(i, t)
+
+# Instancia pedrinhas e seixos de jardim ao longo das trilhas em 1 Draw Call
+func init_pebbles_multimesh() -> void:
+	if rock_meshes.is_empty():
+		return
+		
+	var rock_mm_node = MultiMeshInstance3D.new()
+	rock_mm_node.name = "PebblesMultiMesh"
+	
+	var mm = MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = rock_meshes[1] if rock_meshes.size() > 1 else rock_meshes[0]
+	var count = 160
+	mm.instance_count = count
+	rock_mm_node.multimesh = mm
+	rock_mm_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(rock_mm_node)
+	
+	var path_keys = path_cells.keys()
+	var path_count = path_keys.size()
+	
+	for i in range(count):
+		var pos = Vector3.ZERO
+		if i < 90 and path_count > 0:
+			var c = path_keys[i % path_count]
+			var offset_ang = randf() * TAU
+			var offset_dist = randf_range(CELL_SIZE * 0.80, CELL_SIZE * 1.35)
+			pos = grid_to_world(c, -0.01) + Vector3(cos(offset_ang) * offset_dist, 0.0, sin(offset_ang) * offset_dist)
+		else:
+			var angle = randf() * TAU
+			var dist = randf_range(8.0, HALF_EXTENT * CELL_SIZE * 0.9)
+			pos = Vector3(cos(angle) * dist, -0.01, sin(angle) * dist)
+			
+		var t = Transform3D()
+		t = t.rotated(Vector3.UP, randf() * TAU)
+		t = t.rotated_local(Vector3.RIGHT, deg_to_rad(-90))
+		var s = randf_range(16.0, 32.0)
+		t = t.scaled_local(Vector3(s, s * 0.75, s))
+		t.origin = pos
+		mm.set_instance_transform(i, t)
+
+# Inicializa o sistema de partículas ambientais Ghibli
+func init_ambient_particles() -> void:
+	var particles = GardenAmbientParticlesScript.new()
+	add_child(particles)
 
 # Cria floresta colossal ao horizonte em 1 único Draw Call via MultiMesh (Zero Lag!)
 func spawn_distant_horizon_forest() -> void:
@@ -377,13 +541,13 @@ func add_dense_grass_to_multimesh(cell: Vector2i, count: int) -> void:
 		var offset_z = (randf() - 0.5) * (CELL_SIZE * 0.85)
 		var t = Transform3D()
 		t = t.rotated(Vector3.UP, randf() * TAU)
-		var s_height = randf_range(1.1, 1.5)
-		var s_width = randf_range(1.0, 1.4)
+		var s_height = randf_range(1.05, 1.45)
+		var s_width = randf_range(1.0, 1.35)
 		t = t.scaled(Vector3(s_width, s_height, s_width))
-		t.origin = center + Vector3(offset_x, s_height * 0.45, offset_z)
+		t.origin = center + Vector3(offset_x, 0.0, offset_z)
 		
 		mm.set_instance_transform(current_grass_count, t)
-		mm.set_instance_color(current_grass_count, Color(1.0, 1.0, 0.92, 1.0))
+		mm.set_instance_color(current_grass_count, Color(1.05, 1.08, 0.95, 1.0))
 		current_grass_count += 1
 		
 	mm.visible_instance_count = current_grass_count
@@ -512,16 +676,16 @@ func spawn_path_decorations() -> void:
 	trail_mm.instance_count = path_count
 	
 	var disc_mesh = CylinderMesh.new()
-	disc_mesh.top_radius = CELL_SIZE * 0.58
-	disc_mesh.bottom_radius = CELL_SIZE * 0.62
+	disc_mesh.top_radius = CELL_SIZE * 0.72
+	disc_mesh.bottom_radius = CELL_SIZE * 0.76
 	disc_mesh.height = 0.012
-	disc_mesh.radial_segments = 14
+	disc_mesh.radial_segments = 16
 	
 	var dirt_mat = StandardMaterial3D.new()
 	dirt_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
 	dirt_mat.specular_mode = BaseMaterial3D.SPECULAR_TOON
-	dirt_mat.albedo_color = Color(0.54, 0.44, 0.32) # Terra batida pisada natural
-	dirt_mat.roughness = 0.95
+	dirt_mat.albedo_color = Color(0.48, 0.38, 0.26) # Terra batida pisada natural
+	dirt_mat.roughness = 0.94
 	trail_mm_node.material_override = dirt_mat
 	
 	trail_mm.mesh = disc_mesh
@@ -535,12 +699,12 @@ func spawn_path_decorations() -> void:
 		
 		var t_trail = Transform3D()
 		t_trail = t_trail.rotated(Vector3.UP, randf() * TAU)
-		var s_var = randf_range(0.96, 1.08)
+		var s_var = randf_range(0.98, 1.10)
 		t_trail = t_trail.scaled(Vector3(s_var, 1.0, s_var))
-		t_trail.origin = pos + Vector3(randf_range(-0.08, 0.08), 0.0, randf_range(-0.08, 0.08))
+		t_trail.origin = pos + Vector3(randf_range(-0.05, 0.05), 0.0, randf_range(-0.05, 0.05))
 		trail_mm.set_instance_transform(i, t_trail)
 		
-		var col_tint = Color(1.0 + randf_range(-0.04, 0.04), 1.0 + randf_range(-0.04, 0.04), 1.0 + randf_range(-0.04, 0.04), 1.0)
+		var col_tint = Color(1.0 + randf_range(-0.03, 0.03), 1.0 + randf_range(-0.03, 0.03), 1.0 + randf_range(-0.03, 0.03), 1.0)
 		trail_mm.set_instance_color(i, col_tint)
 
 # Enche as bordas do jardim com as flores .tscn e rochedos 3D, mantendo o centro com a Flor Central e Dentes-de-Leão

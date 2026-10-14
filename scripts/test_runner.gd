@@ -529,6 +529,42 @@ func _ready() -> void:
 	
 	print("✔ Tela Inicial Minimalista Ghibli, Menu de Áudio (Música/SFX), Mute de SFX/Música e Imagem de Background validados 100%.")
 	
+	# 19. Validar Cenário Ghibli, MultiMeshes e Partículas Ambientais
+	assert(grid.grass_multimesh != null, "GrassMultiMesh deve existir")
+	assert(grid.grass_multimesh.multimesh.visible_instance_count >= 3800, "Deve haver pelo menos 3800 tufos de grama instanciados")
+	
+	var wildflowers = grid.get_node_or_null("WildflowersMultiMesh")
+	assert(wildflowers != null, "WildflowersMultiMesh deve existir para flores silvestres")
+	assert(wildflowers.multimesh.visible_instance_count >= 200, "Deve haver flores silvestres espalhadas pelo jardim")
+	
+	var bushes = grid.get_node_or_null("BushesMultiMesh")
+	assert(bushes != null, "BushesMultiMesh deve existir para contornar o jardim com folhagens")
+	
+	var pebbles = grid.get_node_or_null("PebblesMultiMesh")
+	assert(pebbles != null, "PebblesMultiMesh deve existir para pedrinhas e seixos da trilha")
+	
+	var foot_trail = grid.get_node_or_null("FootTrailMultiMesh")
+	assert(foot_trail != null, "FootTrailMultiMesh deve existir para caminho contínuo de terra batida")
+	
+	var particles = grid.get_node_or_null("GardenAmbientParticles")
+	assert(particles != null, "GardenAmbientParticles deve existir")
+	assert(particles.pollen_particles != null, "PollenMotes deve existir para esporos/pólen de dia")
+	assert(particles.dandelion_fluff != null, "DandelionFluff deve existir para plumas ao vento")
+	assert(particles.firefly_particles != null, "NightFireflies deve existir para vagalumes noturnos")
+	
+	# Testar alternância dia/noite das partículas
+	GameManager.current_period = "DAY"
+	particles.update_particle_states()
+	assert(particles.pollen_particles.emitting == true, "Pólen deve emitir durante o dia")
+	assert(particles.firefly_particles.emitting == false, "Vagalumes não devem emitir de dia")
+	
+	GameManager.current_period = "NIGHT"
+	particles.update_particle_states()
+	assert(particles.pollen_particles.emitting == false, "Pólen não deve emitir à noite")
+	assert(particles.firefly_particles.emitting == true, "Vagalumes devem emitir à noite")
+	
+	print("✔ Cenário Ghibli com MultiMesh (3800+ Gramas, Flores Silvestres, Arbustos, Pedrinhas), Trilha Contínua e Partículas Ambientais (Pólen/Vagalumes) validados 100%.")
+	
 	print("--- TODOS OS TESTES PASSARAM COM 100% DE SUCESSO! ---")
 	get_tree().quit(0)
 
