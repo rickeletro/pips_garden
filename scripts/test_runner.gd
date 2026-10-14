@@ -507,7 +507,27 @@ func _ready() -> void:
 	assert(hud.title_screen.main_menu_vbox.visible == true, "Menu principal deve reaparecer ao voltar")
 	assert(hud.title_screen.options_menu_vbox.visible == false, "Submenu de opções deve fechar ao voltar")
 	
-	print("✔ Tela Inicial Minimalista Ghibli, Menu de Áudio (Música/SFX), Cinemática de 4 Atos e Câmera validados 100%.")
+	# Validar Imagem de Background presente na IntroPanel e TitleScreen
+	assert(hud.title_screen.bg_texture_rect != null and hud.title_screen.bg_texture_rect.texture != null, "TitleScreen deve possuir textura de background carregada")
+	var intro_bg = hud.intro_panel.get_node_or_null("BackgroundArt")
+	assert(intro_bg != null and intro_bg.texture != null, "IntroPanel deve possuir BackgroundArt nativo com textura")
+	
+	# Validar Silenciamento Real de SFX quando desabilitado (Golpes, Itens, Disparos)
+	SoundManager.sfx_enabled = false
+	SoundManager.play_sparkle()
+	SoundManager.play_hit_flesh()
+	SoundManager.play_leaf_pickup()
+	SoundManager.play_wind_dash()
+	for p in SoundManager.sfx_players:
+		assert(p.playing == false, "Nenhum player de SFX pode estar tocando quando sfx_enabled for falso")
+	SoundManager.sfx_enabled = true
+	
+	# Validar Silenciamento Real de Música quando desabilitada
+	SoundManager.music_enabled = false
+	assert(SoundManager.music_player.playing == false, "Música deve parar imediatamente quando desabilitada")
+	SoundManager.music_enabled = true
+	
+	print("✔ Tela Inicial Minimalista Ghibli, Menu de Áudio (Música/SFX), Mute de SFX/Música e Imagem de Background validados 100%.")
 	
 	print("--- TODOS OS TESTES PASSARAM COM 100% DE SUCESSO! ---")
 	get_tree().quit(0)

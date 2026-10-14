@@ -423,6 +423,9 @@ func _setup_title_and_story() -> void:
 		
 		title_screen = TitleScreenClass.new()
 		intro_panel.add_child(title_screen)
+		title_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		title_screen.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		title_screen.grow_vertical = Control.GROW_DIRECTION_BOTH
 		title_screen.start_adventure_pressed.connect(_on_start_adventure)
 		title_screen.skip_to_game_pressed.connect(_on_skip_to_game)
 		title_screen.credits_pressed.connect(open_credits)

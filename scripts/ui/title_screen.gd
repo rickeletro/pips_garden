@@ -81,7 +81,9 @@ class BotanicalParticlesLayer extends Control:
 				draw_circle(ray_end, 0.85 * scale_m, col_tuft)
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	grow_horizontal = Control.GROW_DIRECTION_BOTH
+	grow_vertical = Control.GROW_DIRECTION_BOTH
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build_ui()
 	_start_ambient_animations()
@@ -90,7 +92,9 @@ func _build_ui() -> void:
 	# 1. Imagem de Fundo em Tela Cheia (Pip na Folha de Dente-de-Leão)
 	bg_texture_rect = TextureRect.new()
 	bg_texture_rect.name = "BackgroundArt"
-	bg_texture_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg_texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg_texture_rect.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	bg_texture_rect.grow_vertical = Control.GROW_DIRECTION_BOTH
 	bg_texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	bg_texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	bg_texture_rect.pivot_offset = Vector2(640, 360)
@@ -103,7 +107,9 @@ func _build_ui() -> void:
 	# 2. Vinheta Suave para Profundidade e Contraste Natural
 	bg_vignette = ColorRect.new()
 	bg_vignette.name = "Vignette"
-	bg_vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg_vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg_vignette.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	bg_vignette.grow_vertical = Control.GROW_DIRECTION_BOTH
 	bg_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bg_vignette.color = Color(0.02, 0.05, 0.02, 0.18)
 	add_child(bg_vignette)
