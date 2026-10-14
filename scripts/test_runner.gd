@@ -352,7 +352,15 @@ func _ready() -> void:
 	heroine.play_collect_hop()
 	heroine.take_damage(5.0)
 	heroine.start_dash()
-	print("✔ Pip: proporções de miniatura, cabelo ruivo, agulha, combo e dash validados 100%.")
+	
+	# Testar Knockout e Restauração de Controles (Não ficar paralisada após respawn)
+	heroine.trigger_knockout()
+	assert(heroine.current_state == heroine.State.KNOCKED_OUT, "Pip deve entrar em KNOCKED_OUT ao sofrer nocaute")
+	assert(heroine.controls_enabled == false, "Controles devem ficar desativados durante nocaute")
+	heroine.change_state(heroine.State.IDLE)
+	assert(heroine.controls_enabled == true, "Controles DEVEM ser restaurados ao voltar para IDLE")
+	assert(heroine.can_act() == true, "Pip deve poder agir normalmente após respawnar")
+	print("✔ Pip: proporções de miniatura, cabelo ruivo, agulha, combo, dash e restauração de controle após nocaute validados 100%.")
 	
 	# 9. Testar Requisitos do Cenário e Câmera
 	assert(grid.HALF_EXTENT >= 24, "Jardim deve ser 10x maior que o inicial (~100m x 100m)")

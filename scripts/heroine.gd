@@ -178,6 +178,7 @@ func _enter_state(state: State) -> void:
 	match state:
 		State.IDLE:
 			velocity = Vector3.ZERO
+			controls_enabled = true
 		State.MOVE:
 			pass
 		State.DASH:
@@ -238,7 +239,7 @@ func _exit_state(state: State) -> void:
 		State.RECOIL:
 			pass
 		State.KNOCKED_OUT:
-			pass
+			controls_enabled = true
 
 func _prevent_boss_overlap() -> void:
 	var tree = get_tree()
@@ -256,7 +257,6 @@ func _prevent_boss_overlap() -> void:
 				if push_dir.length_squared() < 0.01:
 					push_dir = get_forward_vector()
 				global_position = en.global_position + push_dir * (min_dist + 0.2)
-			controls_enabled = true
 
 # ==============================================================================
 # FSM MAIN UPDATE
@@ -829,6 +829,7 @@ func trigger_knockout() -> void:
 				
 			var t2 = tree.create_timer(0.4)
 			t2.timeout.connect(func():
+				controls_enabled = true
 				change_state(State.IDLE)
 				var t3 = tree.create_timer(1.5)
 				t3.timeout.connect(func():
