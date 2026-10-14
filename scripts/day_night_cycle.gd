@@ -133,23 +133,24 @@ func update_lighting(prog: float) -> void:
 			cur_sky_top = SKY_DAY.lerp(SKY_AFTERNOON, t)
 			cur_horizon = HORIZON_DAY.lerp(HORIZON_AFTERNOON, t)
 			cur_ambient = AMBIENT_DAY
-			cur_fog = Color(0.98, 0.93, 0.82).lerp(Color(0.95, 0.85, 0.72), t)
+			cur_fog = Color(0.98, 0.94, 0.86).lerp(Color(0.96, 0.88, 0.75), t)
 		elif prog < 0.8:
 			var t = (prog - 0.4) / 0.4
 			cur_sky_top = SKY_AFTERNOON.lerp(SKY_SUNSET, t)
 			cur_horizon = HORIZON_AFTERNOON.lerp(HORIZON_SUNSET, t)
 			cur_ambient = AMBIENT_DAY.lerp(AMBIENT_SUNSET, t)
-			cur_fog = Color(0.95, 0.85, 0.72).lerp(Color(0.85, 0.55, 0.4), t)
+			cur_fog = Color(0.96, 0.88, 0.75).lerp(Color(0.88, 0.58, 0.42), t)
 		else:
 			var t = (prog - 0.8) / 0.2
 			cur_sky_top = SKY_SUNSET.lerp(SKY_NIGHT, t)
 			cur_horizon = HORIZON_SUNSET.lerp(HORIZON_NIGHT, t)
 			cur_ambient = AMBIENT_SUNSET.lerp(AMBIENT_NIGHT, t)
-			cur_fog = Color(0.85, 0.55, 0.4).lerp(Color(0.12, 0.18, 0.32), t)
+			cur_fog = Color(0.88, 0.58, 0.42).lerp(Color(0.14, 0.20, 0.36), t)
 			
 		env.ambient_light_color = cur_ambient
 		env.ambient_light_sky_contribution = lerp(0.75, 0.60, prog)
 		env.fog_light_color = cur_fog
+		env.fog_density = lerp(0.0022, 0.0028, prog)
 		
 		if sky_mat:
 			sky_mat.sky_top_color = cur_sky_top
