@@ -124,6 +124,8 @@ func _ready() -> void:
 		var init_focus = target_node.global_position + Vector3(0.0, target_offset_y, 0.0)
 		global_position = init_focus + _calculate_offset_vector(current_distance)
 
+var is_zooming_intro: bool = false
+
 func _process(delta: float) -> void:
 	if delta <= 0.0:
 		return
@@ -132,8 +134,11 @@ func _process(delta: float) -> void:
 	if not target_node or not is_instance_valid(target_node):
 		return
 		
-	# 1. Atualiza Zoom Dinâmico Suave
-	current_distance = lerp(current_distance, target_distance, clampf(delta * zoom_smooth_speed, 0.0, 1.0))
+	# 1. Atualiza Zoom Dinâmico Suave (não conflita com a transição cinematográfica de entrada)
+	if is_zooming_intro:
+		target_distance = current_distance
+	else:
+		current_distance = lerp(current_distance, target_distance, clampf(delta * zoom_smooth_speed, 0.0, 1.0))
 	
 	# 2. Calcula Ponto Focal com Look-Ahead Suave
 	var base_focus = target_node.global_position + Vector3(0.0, target_offset_y, 0.0)
@@ -382,25 +387,41 @@ func reset_focus(zoom_ratio: float = 1.0, speed: float = 4.5) -> void:
 	target_distance = clampf(default_distance * zoom_ratio, min_distance, max_distance)
 	smooth_time = clampf(1.0 / maxf(0.5, speed), 0.08, 0.35)
 
-func zoom_to_gameplay(duration: float = 2.4, on_complete: Callable = Callable()) -> void:
+func zoom_to_gameplay(duration: float = 3.6, on_complete: Callable = Callable()) -> void:
 	is_cinematic_focus = false
 	_resolve_default_target()
 	target_node = default_target_node
 	target_zoom_mult = 1.0
-	target_distance = default_distance
-	smooth_time = 0.35
 	
-	var tree = get_tree()
-	if tree and duration > 0.0:
-		var tw = tree.create_tween()
-		tw.tween_property(self, "current_distance", default_distance, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		tw.tween_callback(func():
+	if duration > 0.0:
+		is_zooming_intro = true
+		current_distance = intro_distance # Inicia bem alto (~32m a 34m)
+		target_distance = default_distance
+		smooth_time = 0.35
+		
+		var tree = get_tree()
+		if tree:
+			var tw = tree.create_tween()
+			tw.tween_property(self, "current_distance", default_distance, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+			tw.tween_callback(func():
+				is_zooming_intro = false
+				current_distance = default_distance
+				target_distance = default_distance
+				smooth_time = 0.18
+				if on_complete.is_valid():
+					on_complete.call()
+			)
+		else:
+			is_zooming_intro = false
+			current_distance = default_distance
+			target_distance = default_distance
 			smooth_time = 0.18
 			if on_complete.is_valid():
 				on_complete.call()
-		)
 	else:
+		is_zooming_intro = false
 		current_distance = default_distance
+		target_distance = default_distance
 		smooth_time = 0.18
 		if on_complete.is_valid():
 			on_complete.call()

@@ -30,6 +30,8 @@ func _ready() -> void:
 	super._ready()
 	global_position.y = 0.0
 	last_slime_pos = global_position
+	# Não colide rigidamente com o player para evitar travamento em dash
+	collision_mask = 1
 	
 	# Registra o chefe no GameManager para exibir a barra de vida régia no topo do HUD
 	GameManager.register_active_boss(self, "🐌 CARAMUJO ANCIÃO DO ORVALHO", max_hp)
@@ -40,6 +42,8 @@ func _ready() -> void:
 	GameManager.notify("⚠️ CHEFE: Caramujo Ancião do Orvalho apareceu!", Color(1.0, 0.4, 0.2))
 
 func _physics_process(delta: float) -> void:
+	if _death_handled:
+		return
 	super(delta)
 	
 	if player_slam_cd > 0.0:
@@ -148,6 +152,83 @@ func spawn_slime_patch() -> void:
 		tween.tween_property(mat, "albedo_color:a", 0.0, 2.0)
 		tween.tween_callback(patch.queue_free)
 
+var _death_handled: bool = false
+var is_enraged: bool = false
+
+func take_damage(amount: float, knockback: Vector3 = Vector3.ZERO, is_dot: bool = false, armor_pierce: float = 0.0) -> void:
+	if _death_handled:
+		return
+	super.take_damage(amount, knockback, is_dot, armor_pierce)
+	GameManager.update_active_boss_hp(hp, max_hp, "🐌 CARAMUJO ANCIÃO DO ORVALHO")
+	
+	if not is_enraged and hp <= (max_hp * 0.5):
+		trigger_enrage()
+
+func trigger_enrage() -> void:
+	is_enraged = true
+	base_speed = 1.10
+	current_speed = 1.10
+	attack_interval = 1.0
+	attack_damage = 32.0
+	
+	SoundManager.play_sparkle(1.2, 0.4)
+	SoundManager.play_fairy_dust(0.0)
+	GameManager.notify("⚠️ O Caramujo Ancião enfureceu-se! Sua concha reluz e seu rastro é mais perigoso!", Color(1.0, 0.5, 0.2))
+	
+	# Onda de choque de gosma ao redor
+	var parent_node = get_parent()
+	if parent_node:
+		for i in range(8):
+			var angle = (float(i) / 8.0) * TAU
+			var offset = Vector3(cos(angle) * 2.8, 0.0, sin(angle) * 2.8)
+			var patch_pos = global_position + offset
+			spawn_extra_slime(parent_node, patch_pos)
+
+func spawn_extra_slime(parent_node: Node, at_pos: Vector3) -> void:
+	var patch = Area3D.new()
+	patch.name = "SlimePuddleBurst"
+	patch.collision_layer = 0
+	patch.collision_mask = 2
+	
+	var col = CollisionShape3D.new()
+	var cyl = CylinderShape3D.new()
+	cyl.radius = 1.0
+	cyl.height = 0.3
+	col.shape = cyl
+	col.position.y = 0.15
+	patch.add_child(col)
+	
+	var mesh_inst = MeshInstance3D.new()
+	var disc = CylinderMesh.new()
+	disc.top_radius = 0.9
+	disc.bottom_radius = 1.0
+	disc.height = 0.03
+	mesh_inst.mesh = disc
+	
+	var mat = StandardMaterial3D.new()
+	mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.4, 0.95, 0.6, 0.65)
+	mat.emission_enabled = true
+	mat.emission = Color(0.3, 0.9, 0.5, 1.0)
+	mesh_inst.material_override = mat
+	patch.add_child(mesh_inst)
+	
+	parent_node.add_child(patch)
+	patch.global_position = at_pos
+	
+	patch.body_entered.connect(func(body: Node3D):
+		if body.is_in_group("player") and body.has_method("apply_slime_slow"):
+			body.apply_slime_slow(2.5)
+	)
+	
+	var tree = get_tree()
+	if tree:
+		var tw = tree.create_tween()
+		tw.tween_interval(8.0)
+		tw.tween_property(mat, "albedo_color:a", 0.0, 1.5)
+		tw.tween_callback(patch.queue_free)
+
 func check_player_in_front(delta: float) -> void:
 	if player_slam_cd > 0.0 or is_slamming:
 		return
@@ -167,25 +248,45 @@ func check_player_in_front(delta: float) -> void:
 
 func execute_frontal_slam(player: Node3D) -> void:
 	is_slamming = true
-	player_slam_cd = 2.6
+	player_slam_cd = 2.4 if is_enraged else 3.0
+	
+	# Telégrafo de preparação (0.45s) com brilho nos olhos e aviso sonoro
+	SoundManager.play_sparkle(-1.5, 0.2)
+	
+	var telegraph_marker = MeshInstance3D.new()
+	var ring = TorusMesh.new()
+	ring.inner_radius = 1.2
+	ring.outer_radius = 1.8
+	telegraph_marker.mesh = ring
+	var t_mat = StandardMaterial3D.new()
+	t_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	t_mat.albedo_color = Color(1.0, 0.3, 0.2, 0.5)
+	telegraph_marker.material_override = t_mat
+	add_child(telegraph_marker)
+	telegraph_marker.position = Vector3(0.0, 0.05, -1.8)
+	
+	var tw_telegraph = create_tween()
+	tw_telegraph.tween_property(t_mat, "albedo_color:a", 0.85, 0.4)
+	tw_telegraph.tween_callback(telegraph_marker.queue_free)
 	
 	# Recuo e investida pesada para frente
 	var tween = create_tween()
-	tween.tween_property(visual_root, "position:z", 0.45, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(visual_root, "position:z", -0.75, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	tween.tween_property(visual_root, "position:z", 0.55, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(visual_root, "position:z", -0.95, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 	tween.tween_callback(func():
 		if player and is_instance_valid(player):
 			var cur_dist = global_position.distance_to(player.global_position)
-			if cur_dist <= 3.6:
-				GameManager.damage_pip(16.0)
+			if cur_dist <= 3.8:
+				var dmg = 20.0 if is_enraged else 15.0
+				GameManager.damage_pip(dmg)
 				if player.has_method("apply_slime_slow"):
 					player.apply_slime_slow(2.5)
 				# Knockback
 				var push_dir = (player.global_position - global_position).normalized()
-				player.velocity = push_dir * 10.0 + Vector3.UP * 3.0
+				player.velocity = push_dir * 11.0 + Vector3.UP * 3.5
 				GameManager.notify("💥 O Caramujo Ancião desferiu uma cabeçada!", Color(1.0, 0.4, 0.3))
 	)
-	tween.tween_property(visual_root, "position:z", 0.0, 0.35)
+	tween.tween_property(visual_root, "position:z", 0.0, 0.40)
 	tween.tween_callback(func():
 		is_slamming = false
 	)
@@ -243,10 +344,25 @@ func spawn_local_boss_loot() -> void:
 	pickup.global_position = Vector3(global_position.x, 0.25, global_position.z)
 
 func die() -> void:
+	if _death_handled:
+		return
+	_death_handled = true
+	is_dead = true
+	
+	# Desativa colisão física imediatamente para que Pip não colida nem fique presa
+	collision_layer = 0
+	collision_mask = 0
+	var col = find_child("CollisionShape3D", true, false)
+	if col and col is CollisionShape3D:
+		col.disabled = true
+		
+	velocity = Vector3.ZERO
+	GameManager.unregister_active_boss(self)
+	
 	# Vitória sobre o Chefe!
 	GameManager.notify("🏆 CARAMUJO ANCIÃO DERROTADO! Ele deixou cair uma Lágrima de Fada!", Color(0.3, 1.0, 0.5))
 	
-	# Drop concentrado apenas próximo ao corpo do chefe
+	# Drop concentrado apenas próximo ao corpo do chefe (Lágrima de Fada exclusiva)
 	spawn_local_boss_loot()
 	
 	# Efeito de retração triunfante para dentro da concha
@@ -254,9 +370,17 @@ func die() -> void:
 		var tween = create_tween()
 		tween.tween_property(visual_root, "scale", Vector3(0.05, 0.05, 0.05), 0.8).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 		tween.tween_callback(func():
-			super.die()
-			GameManager.on_boss_defeated()
+			GameManager.on_boss_defeated("SNAIL")
+			if GameEvents:
+				GameEvents.enemy_defeated.emit(self, xp_reward)
+			GameManager.add_xp(xp_reward)
+			GameManager.register_enemy_killed(self)
+			queue_free()
 		)
 	else:
-		super.die()
-		GameManager.on_boss_defeated()
+		GameManager.on_boss_defeated("SNAIL")
+		if GameEvents:
+			GameEvents.enemy_defeated.emit(self, xp_reward)
+		GameManager.add_xp(xp_reward)
+		GameManager.register_enemy_killed(self)
+		queue_free()

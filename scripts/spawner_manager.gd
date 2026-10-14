@@ -16,59 +16,49 @@ class_name SpawnerManager
 
 var grid_manager: GridManager = null
 
-# 7 Ondas do Dia 1 (Pós-onda 3: Boss Caramujo Ancião)
+# 5 Ondas do Dia 1 (Onda 5 clímax desafiador -> Boss Caramujo Ancião)
 var day1_wave_configs = [
-	{ "aphids": 6, "cats": 0, "wasps": 0, "beetles": 0, "fireflies": 0, "interval": 2.6 },
-	{ "aphids": 8, "cats": 1, "wasps": 0, "beetles": 0, "fireflies": 0, "interval": 2.3 },
-	{ "aphids": 9, "cats": 1, "wasps": 1, "beetles": 0, "fireflies": 0, "interval": 2.1 },
-	{ "aphids": 12, "cats": 2, "wasps": 2, "beetles": 0, "fireflies": 0, "interval": 1.8 },
-	{ "aphids": 14, "cats": 3, "wasps": 3, "beetles": 0, "fireflies": 0, "interval": 1.5 },
-	{ "aphids": 16, "cats": 4, "wasps": 4, "beetles": 0, "fireflies": 0, "interval": 1.3 },
-	{ "aphids": 18, "cats": 4, "wasps": 5, "beetles": 0, "fireflies": 0, "interval": 1.1 }
+	{ "aphids": 6, "cats": 0, "wasps": 0, "beetles": 0, "fireflies": 0, "interval": 2.5 },
+	{ "aphids": 10, "cats": 1, "wasps": 0, "beetles": 0, "fireflies": 0, "interval": 2.2 },
+	{ "aphids": 14, "cats": 2, "wasps": 2, "beetles": 0, "fireflies": 0, "interval": 1.9 },
+	{ "aphids": 18, "cats": 3, "wasps": 3, "beetles": 0, "fireflies": 0, "interval": 1.5 },
+	{ "aphids": 26, "cats": 5, "wasps": 6, "beetles": 1, "fireflies": 0, "interval": 1.0 }
 ]
 
-# 7 Ondas da Noite 1 (Pós-onda 3: Boss Mariposa Rainha)
+# 5 Ondas da Noite 1 (Onda 5 clímax noturno)
 var night1_wave_configs = [
-	{ "aphids": 0, "cats": 0, "wasps": 0, "beetles": 2, "fireflies": 6, "interval": 2.2 },
-	{ "aphids": 0, "cats": 0, "wasps": 0, "beetles": 4, "fireflies": 8, "interval": 2.0 },
-	{ "aphids": 6, "cats": 0, "wasps": 0, "beetles": 5, "fireflies": 10, "interval": 1.8 },
-	{ "aphids": 10, "cats": 0, "wasps": 0, "beetles": 6, "fireflies": 12, "interval": 1.5 },
-	{ "aphids": 0, "cats": 4, "wasps": 0, "beetles": 8, "fireflies": 14, "interval": 1.3 },
-	{ "aphids": 0, "cats": 6, "wasps": 0, "beetles": 10, "fireflies": 16, "interval": 1.1 },
-	{ "aphids": 0, "cats": 8, "wasps": 0, "beetles": 12, "fireflies": 20, "interval": 0.8 }
+	{ "aphids": 0, "cats": 0, "wasps": 0, "beetles": 3, "fireflies": 8, "interval": 2.2 },
+	{ "aphids": 0, "cats": 1, "wasps": 0, "beetles": 5, "fireflies": 10, "interval": 1.9 },
+	{ "aphids": 6, "cats": 2, "wasps": 0, "beetles": 7, "fireflies": 14, "interval": 1.6 },
+	{ "aphids": 10, "cats": 4, "wasps": 0, "beetles": 9, "fireflies": 18, "interval": 1.3 },
+	{ "aphids": 14, "cats": 6, "wasps": 0, "beetles": 14, "fireflies": 26, "interval": 0.85 }
 ]
 
-# 7 Ondas do Dia 2 (Pós-onda 3: Boss Louva-a-Deus Imperial)
+# 5 Ondas do Dia 2 (Onda 5 clímax diurno)
 var day2_wave_configs = [
 	{ "aphids": 16, "cats": 4, "wasps": 4, "beetles": 0, "fireflies": 0, "interval": 1.4 },
 	{ "aphids": 20, "cats": 6, "wasps": 6, "beetles": 0, "fireflies": 0, "interval": 1.2 },
-	{ "aphids": 24, "cats": 8, "wasps": 8, "beetles": 0, "fireflies": 0, "interval": 1.0 },
-	{ "aphids": 30, "cats": 10, "wasps": 12, "beetles": 0, "fireflies": 0, "interval": 0.8 },
-	{ "aphids": 36, "cats": 14, "wasps": 16, "beetles": 0, "fireflies": 0, "interval": 0.65 },
-	{ "aphids": 42, "cats": 18, "wasps": 20, "beetles": 0, "fireflies": 0, "interval": 0.50 },
-	{ "aphids": 50, "cats": 22, "wasps": 24, "beetles": 0, "fireflies": 0, "interval": 0.40 }
+	{ "aphids": 26, "cats": 8, "wasps": 8, "beetles": 1, "fireflies": 0, "interval": 1.0 },
+	{ "aphids": 32, "cats": 10, "wasps": 12, "beetles": 2, "fireflies": 0, "interval": 0.8 },
+	{ "aphids": 42, "cats": 15, "wasps": 18, "beetles": 4, "fireflies": 0, "interval": 0.55 }
 ]
 
-# 7 Ondas da Noite 2 (Pós-onda 3: Boss Aranha-Tecelã Sombria)
+# 5 Ondas da Noite 2 (Onda 5 clímax intenso -> Chefe Mariposa da Lua Cheia!)
 var night2_wave_configs = [
-	{ "aphids": 0, "cats": 2, "wasps": 0, "beetles": 6, "fireflies": 10, "interval": 1.4 },
-	{ "aphids": 0, "cats": 4, "wasps": 0, "beetles": 8, "fireflies": 14, "interval": 1.2 },
-	{ "aphids": 8, "cats": 6, "wasps": 0, "beetles": 10, "fireflies": 16, "interval": 1.0 },
-	{ "aphids": 12, "cats": 8, "wasps": 0, "beetles": 14, "fireflies": 20, "interval": 0.8 },
-	{ "aphids": 16, "cats": 10, "wasps": 0, "beetles": 18, "fireflies": 24, "interval": 0.65 },
-	{ "aphids": 20, "cats": 12, "wasps": 0, "beetles": 22, "fireflies": 28, "interval": 0.50 },
-	{ "aphids": 26, "cats": 16, "wasps": 0, "beetles": 26, "fireflies": 32, "interval": 0.40 }
+	{ "aphids": 0, "cats": 2, "wasps": 0, "beetles": 6, "fireflies": 12, "interval": 1.4 },
+	{ "aphids": 4, "cats": 4, "wasps": 0, "beetles": 8, "fireflies": 16, "interval": 1.2 },
+	{ "aphids": 8, "cats": 6, "wasps": 0, "beetles": 12, "fireflies": 20, "interval": 0.95 },
+	{ "aphids": 14, "cats": 8, "wasps": 0, "beetles": 16, "fireflies": 24, "interval": 0.75 },
+	{ "aphids": 20, "cats": 12, "wasps": 0, "beetles": 22, "fireflies": 32, "interval": 0.45 }
 ]
 
-# 7 Ondas do Dia 3 (Pós-onda 3: Boss Vespa Imperatriz)
+# 5 Ondas do Dia 3
 var day3_wave_configs = [
 	{ "aphids": 18, "cats": 6, "wasps": 8, "beetles": 0, "fireflies": 0, "interval": 1.1 },
-	{ "aphids": 24, "cats": 8, "wasps": 12, "beetles": 0, "fireflies": 0, "interval": 0.9 },
-	{ "aphids": 30, "cats": 10, "wasps": 16, "beetles": 0, "fireflies": 0, "interval": 0.75 },
-	{ "aphids": 36, "cats": 12, "wasps": 20, "beetles": 0, "fireflies": 0, "interval": 0.60 },
-	{ "aphids": 42, "cats": 14, "wasps": 24, "beetles": 0, "fireflies": 0, "interval": 0.50 },
-	{ "aphids": 48, "cats": 16, "wasps": 28, "beetles": 0, "fireflies": 0, "interval": 0.42 },
-	{ "aphids": 55, "cats": 20, "wasps": 32, "beetles": 0, "fireflies": 0, "interval": 0.35 }
+	{ "aphids": 26, "cats": 8, "wasps": 12, "beetles": 1, "fireflies": 0, "interval": 0.9 },
+	{ "aphids": 34, "cats": 10, "wasps": 16, "beetles": 2, "fireflies": 0, "interval": 0.75 },
+	{ "aphids": 42, "cats": 14, "wasps": 22, "beetles": 3, "fireflies": 0, "interval": 0.55 },
+	{ "aphids": 55, "cats": 18, "wasps": 28, "beetles": 5, "fireflies": 0, "interval": 0.40 }
 ]
 
 # 3 Ondas Densas da Noite 3 (Pré-Chefe Final Escorpião)

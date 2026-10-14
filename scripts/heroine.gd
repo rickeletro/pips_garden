@@ -185,6 +185,8 @@ func _enter_state(state: State) -> void:
 			dash_timer = dash_duration
 			dash_cd_timer = dash_cooldown
 			dash_hit_targets.clear()
+			# Desativa colisão física com corpos de Inimigos (Layer 4 = bit 3) para atravessar livremente no dash
+			set_collision_mask_value(3, false)
 			if attack_area:
 				attack_area.set_deferred("monitoring", true)
 			animation_triggered.emit("dash")
@@ -220,8 +222,11 @@ func _exit_state(state: State) -> void:
 	match state:
 		State.DASH:
 			is_invulnerable = false
+			# Reativa colisão física com corpos de Inimigos
+			set_collision_mask_value(3, true)
 			if attack_area:
 				attack_area.set_deferred("monitoring", false)
+			_prevent_boss_overlap()
 		State.ATTACK:
 			if attack_area:
 				attack_area.monitoring = false
@@ -233,6 +238,24 @@ func _exit_state(state: State) -> void:
 		State.RECOIL:
 			pass
 		State.KNOCKED_OUT:
+			pass
+
+func _prevent_boss_overlap() -> void:
+	var tree = get_tree()
+	if not tree:
+		return
+	var enemies = tree.get_nodes_in_group("enemies")
+	for en in enemies:
+		if is_instance_valid(en) and not en.get("is_dead") and not en.get("_death_handled"):
+			var offset = global_position - en.global_position
+			offset.y = 0.0
+			var dist = offset.length()
+			var min_dist = 2.0 if en.name.begins_with("BossSnail") or en is BossSnail else 1.2
+			if dist < min_dist:
+				var push_dir = dash_direction.normalized() if dash_direction.length_squared() > 0.01 else offset.normalized()
+				if push_dir.length_squared() < 0.01:
+					push_dir = get_forward_vector()
+				global_position = en.global_position + push_dir * (min_dist + 0.2)
 			controls_enabled = true
 
 # ==============================================================================
@@ -541,6 +564,18 @@ func apply_melee_hits(base_dmg: float, attack_radius: float, step: int) -> void:
 		if is_instance_valid(dew) and global_position.distance_to(dew.global_position) <= (attack_radius + 1.8):
 			if dew.has_method("on_attack_hit"):
 				dew.on_attack_hit(global_position)
+
+	var gnomes = tree.get_nodes_in_group("gnome")
+	for gnome in gnomes:
+		if is_instance_valid(gnome) and not hit_targets.has(gnome):
+			var g_pos = gnome.global_position
+			var dist = Vector2(g_pos.x - global_position.x, g_pos.z - global_position.z).length()
+			if dist <= (attack_radius + 1.0):
+				hit_targets.append(gnome)
+				if gnome.has_method("take_damage"):
+					var knock_dir = forward * 2.0
+					gnome.take_damage(base_dmg, knock_dir)
+				spawn_combo_hit_spark(g_pos + Vector3(0, 0.35, 0), step)
 
 func execute_crimson_finisher_dash() -> void:
 	set_needle_crimson_glow(true)
