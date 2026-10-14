@@ -30,16 +30,22 @@ var music_enabled: bool = true:
 		music_enabled = val
 		if music_player:
 			if not music_enabled:
-				music_player.volume_db = -80.0
+				music_player.stop()
 			else:
-				music_player.volume_db = -4.0
+				if music_player.stream:
+					music_player.volume_db = -4.0
+					music_player.play()
 
 var sfx_enabled: bool = true:
 	set(val):
 		sfx_enabled = val
 		for p in sfx_players:
 			if is_instance_valid(p):
-				p.volume_db = -80.0 if not sfx_enabled else 0.0
+				if not sfx_enabled:
+					p.stop()
+					p.volume_db = -80.0
+				else:
+					p.volume_db = 0.0
 
 func toggle_music() -> bool:
 	music_enabled = not music_enabled
@@ -195,6 +201,8 @@ func _on_music_finished() -> void:
 # --- SFX GERAIS ---
 
 func play_sparkle(volume_db: float = -4.0, pitch_var: float = 0.15) -> void:
+	if not sfx_enabled:
+		return
 	if sfx_sparkle:
 		var p = _get_available_sfx_player()
 		p.stream = sfx_sparkle
@@ -203,6 +211,8 @@ func play_sparkle(volume_db: float = -4.0, pitch_var: float = 0.15) -> void:
 		p.play()
 
 func play_bee_buzz(volume_db: float = -14.0) -> void:
+	if not sfx_enabled:
+		return
 	if sfx_buzz:
 		var p = _get_available_sfx_player()
 		p.stream = sfx_buzz
@@ -215,6 +225,8 @@ var consecutive_pickup_idx: int = 0
 const PENTATONIC_PITCHES = [1.0, 1.122, 1.260, 1.498, 1.682] # Dó, Ré, Mi, Sol, Lá
 
 func play_leaf_pickup(volume_db: float = -3.0, _pitch_var: float = 0.12) -> void:
+	if not sfx_enabled:
+		return
 	var current_time = Time.get_ticks_msec() * 0.001
 	if current_time - last_pickup_time < 1.5:
 		consecutive_pickup_idx += 1
@@ -243,6 +255,8 @@ func play_leaf_pickup(volume_db: float = -3.0, _pitch_var: float = 0.12) -> void
 		play_sparkle(-2.0, 0.05)
 
 func play_hit_flesh(pitch_scale: float = 1.0, volume_db: float = -4.0) -> void:
+	if not sfx_enabled:
+		return
 	if sfx_sparkle:
 		var p = _get_available_sfx_player()
 		p.stream = sfx_sparkle
@@ -251,6 +265,8 @@ func play_hit_flesh(pitch_scale: float = 1.0, volume_db: float = -4.0) -> void:
 		p.play()
 
 func play_explosion(volume_db: float = -4.0) -> void:
+	if not sfx_enabled:
+		return
 	if sfx_fairy_dust:
 		var p = _get_available_sfx_player()
 		p.stream = sfx_fairy_dust
@@ -261,6 +277,8 @@ func play_explosion(volume_db: float = -4.0) -> void:
 		play_sparkle(volume_db, 0.2)
 
 func play_wind_dash(pitch_scale: float = 1.0, volume_db: float = -1.5) -> void:
+	if not sfx_enabled:
+		return
 	if sfx_wind_dash:
 		var p = _get_available_sfx_player()
 		p.stream = sfx_wind_dash
@@ -271,6 +289,8 @@ func play_wind_dash(pitch_scale: float = 1.0, volume_db: float = -1.5) -> void:
 		play_fairy_dust(volume_db)
 
 func play_fairy_dust(volume_db: float = -3.0) -> void:
+	if not sfx_enabled:
+		return
 	if sfx_fairy_dust:
 		var p = _get_available_sfx_player()
 		p.stream = sfx_fairy_dust
@@ -281,6 +301,8 @@ func play_fairy_dust(volume_db: float = -3.0) -> void:
 		play_sparkle(volume_db, 0.2)
 
 func play_rabbit_squeak(volume_db: float = -2.0, pitch_var: float = 0.1) -> void:
+	if not sfx_enabled:
+		return
 	if sfx_rabbit_squeak:
 		var p = _get_available_sfx_player()
 		p.stream = sfx_rabbit_squeak
@@ -291,6 +313,8 @@ func play_rabbit_squeak(volume_db: float = -2.0, pitch_var: float = 0.1) -> void
 		play_sparkle(volume_db, 0.25)
 
 func play_pop(volume_db: float = -4.0, pitch_var: float = 0.15) -> void:
+	if not sfx_enabled:
+		return
 	if sfx_leaf:
 		var p = _get_available_sfx_player()
 		p.stream = sfx_leaf

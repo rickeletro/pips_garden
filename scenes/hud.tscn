@@ -17,6 +17,7 @@
 [ext_resource type="FontFile" path="res://ui/fonts/Fondamento-Regular.ttf" id="14_font_title"]
 [ext_resource type="Script" path="res://scripts/ui/minimap_canvas.gd" id="15_minimap"]
 [ext_resource type="Script" path="res://scripts/ui/ivy_border.gd" id="16_ivy_border"]
+[ext_resource type="Texture2D" path="res://textures/cinematic/title_screen_art.jpg" id="18_title_art"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_flower_fill"]
 bg_color = Color(0.709804, 0.278431, 0.121569, 1)
@@ -615,6 +616,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="BackgroundArt" type="TextureRect" parent="IntroPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("18_title_art")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="IvyBorder" type="Control" parent="IntroPanel"]
 layout_mode = 1
