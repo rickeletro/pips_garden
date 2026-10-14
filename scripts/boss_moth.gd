@@ -40,6 +40,7 @@ var recent_targets: Array[Node3D] = []
 var attack_shot_done: bool = false
 var is_enraged: bool = false
 var patrol_duration: float = 0.0
+var minion_summon_timer: float = 0.0
 
 # Efeito visual de luz da lua acoplado à Mariposa
 var moth_light: OmniLight3D = null
@@ -127,6 +128,16 @@ func _physics_process(delta: float) -> void:
 	# Verificação de Enrage (< 50% HP)
 	if not is_enraged and hp < (max_hp * 0.5):
 		trigger_enrage()
+		
+	# Invocação periódica de vaga-lumes lunares na Fase 2
+	if is_enraged:
+		minion_summon_timer += delta
+		if minion_summon_timer >= 15.0:
+			minion_summon_timer = 0.0
+			var tree = get_tree()
+			if tree and tree.get_nodes_in_group("enemies").size() < 6:
+				spawn_lunar_minions(2)
+				GameManager.notify("✨ A Mariposa Rainha invocou vaga-lumes lunares!", Color(0.85, 0.65, 1.0))
 	
 	match current_phase:
 		FlightPhase.PATROL_HIGH:
@@ -171,13 +182,42 @@ func animate_wings(_delta: float) -> void:
 
 func trigger_enrage() -> void:
 	is_enraged = true
-	current_speed = base_speed * 1.25
+	current_speed = base_speed * 1.3
 	if moth_light:
 		moth_light.light_color = Color(0.7, 0.85, 1.0)
-		moth_light.light_energy = 3.5
+		moth_light.light_energy = 3.8
 		
 	SoundManager.play_fairy_dust(2.0)
 	GameManager.notify("🌕 FASE 2: A Mariposa canaliza a energia da Lua Cheia!", Color(0.8, 0.4, 1.0))
+	execute_wind_storm()
+	spawn_lunar_minions(2)
+
+func spawn_lunar_minions(count: int = 2) -> void:
+	var parent_node = get_parent()
+	if not parent_node:
+		return
+	var scn = load("res://scenes/enemies/firefly.tscn")
+	if not scn:
+		return
+	for i in range(count):
+		var minion = scn.instantiate()
+		parent_node.add_child(minion)
+		var angle = (float(i) / float(count)) * TAU
+		minion.global_position = global_position + Vector3(cos(angle) * 3.2, -0.6, sin(angle) * 3.2)
+		if minion.has_method("recalculate_path"):
+			minion.recalculate_path()
+
+func execute_wind_storm() -> void:
+	spawn_wind_gust_fx()
+	SoundManager.play_wind_dash(1.2, 0.4)
+	var player = GameManager.heroine
+	if player and is_instance_valid(player):
+		var dist = global_position.distance_to(player.global_position)
+		if dist <= 6.0:
+			var push_dir = (player.global_position - global_position).normalized()
+			push_dir.y = 0.2
+			player.velocity += push_dir * 8.5
+			GameManager.notify("💨 Rajada de vento estelar da Mariposa!", Color(0.75, 0.9, 1.0))
 
 func choose_target() -> Node3D:
 	return select_best_target()
@@ -376,13 +416,16 @@ func fire_lunar_barrage(target: Node3D) -> void:
 	var target_base_pos = target.global_position + Vector3(0, 0.35, 0)
 	var shoot_origin = global_position + Vector3(0, 0.1, 0.5)
 	
-	# Quantidade de projéteis (4 normais, 6 no Enrage)
-	var count = 6 if is_enraged else 4
+	# Quantidade de projéteis (5 normais, 8 no leque de Enrage)
+	var count = 8 if is_enraged else 5
 	for i in range(count):
-		var spread_angle = (i - (count - 1) * 0.5) * 0.18
+		var spread_angle = (i - (count - 1) * 0.5) * 0.22
 		var base_dir = (target_base_pos - shoot_origin).normalized()
 		var dir = base_dir.rotated(Vector3.UP, spread_angle)
 		spawn_lunar_bristle(parent_node, shoot_origin, dir)
+		
+	if is_enraged:
+		execute_wind_storm()
 
 func spawn_lunar_bristle(parent_node: Node, origin: Vector3, dir: Vector3) -> void:
 	var bristle = Area3D.new()

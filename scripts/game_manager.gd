@@ -83,7 +83,7 @@ var current_period: String = "DAY" # "DAY", "NIGHT", "BOSS_SNAIL", "BOSS_MOTH", 
 var current_day: int = 1
 var current_night: int = 1
 var current_wave: int = 0
-var max_waves: int = 7
+var max_waves: int = 5
 var wave_state: WaveState = WaveState.PREPARATION
 var enemies_alive: int = 0
 
@@ -153,7 +153,7 @@ func _process(delta: float) -> void:
 	# Sede da Flor Central (Consumo contínuo de hidratação)
 	if wave_state != WaveState.DEFEAT and wave_state != WaveState.VICTORY:
 		var prev_hydration_pct := int(flower_hydration)
-		flower_hydration = maxf(0.0, flower_hydration - delta * 0.45)
+		flower_hydration = maxf(0.0, flower_hydration - delta * 0.225)
 		if int(flower_hydration) != prev_hydration_pct:
 			flower_hydration_changed.emit(flower_hydration, MAX_FLOWER_HYDRATION)
 		if flower_hydration <= 0.0:
@@ -421,31 +421,30 @@ func register_enemy_killed(enemy: Node3D) -> void:
 	check_wave_cleared_status()
 
 func on_wave_cleared() -> void:
-	# Padrão Rítmico v1.0:
-	# Ao vencer a Onda 3 de qualquer período -> Entrada Imediata do Chefe correspondente
-	if current_wave == 3:
-		trigger_period_boss()
-		return
-		
 	if current_wave >= max_waves:
-		# Fim do ciclo de 7 ondas (ou 3 ondas na Noite 3)
-		advance_campaign_period()
+		# Ao vencer as 5 ondas do período, aciona o Chefe correspondente ou avança o período
+		trigger_period_boss_or_advance()
 	else:
 		setup_next_prep_wave()
 		if current_period == "DAY" and current_day == 1 and current_wave == 1:
 			trigger_tutorial_post_wave_1.emit()
 
-func trigger_period_boss() -> void:
+func trigger_period_boss_or_advance() -> void:
 	if current_period == "DAY":
 		match current_day:
 			1: start_boss_snail()
 			2: start_boss_mantis()
 			3: start_boss_wasp_queen()
+			_: advance_campaign_period()
 	elif current_period == "NIGHT":
 		match current_night:
-			1: start_boss_moth()
-			2: start_boss_spider()
-			3: start_boss_scorpion()
+			1: advance_campaign_period() # Noite 1 concluída -> Amanhecer do Dia 2
+			2: start_boss_moth()         # Noite 2 Clímax -> Mariposa da Lua Cheia
+			3: start_boss_scorpion()     # Noite 3 Clímax -> Escorpião
+			_: advance_campaign_period()
+
+func trigger_period_boss() -> void:
+	trigger_period_boss_or_advance()
 
 func start_boss_snail() -> void:
 	current_period = "BOSS_SNAIL"
@@ -538,7 +537,8 @@ func on_boss_defeated(boss_id: String = "") -> void:
 		current_day = 1
 	elif current_period == "BOSS_MOTH" or boss_id == "MOTH":
 		current_period = "NIGHT"
-		current_night = 1
+		current_night = 2
+		set_night_2_checkpoint()
 	elif current_period == "BOSS_MANTIS" or boss_id == "MANTIS":
 		current_period = "DAY"
 		current_day = 2
@@ -552,15 +552,8 @@ func on_boss_defeated(boss_id: String = "") -> void:
 	elif current_period.begins_with("BOSS"):
 		current_period = "DAY"
 		
-	# Restaura a música normal do período (Dia ou Noite)
-	if current_period == "DAY":
-		SoundManager.play_day_music(2.5, -6.0)
-	elif current_period == "NIGHT":
-		SoundManager.play_night_music(2.5, -5.0)
-			
-	# Continua para as ondas restantes (4 a 7):
-	current_wave = 3 # Ao preparar, a próxima onda iniciada será a Onda 4!
-	setup_next_prep_wave()
+	# Avança o período da campanha (transição dia/noite com HP curado e descanso)
+	advance_campaign_period()
 
 func on_moth_boss_defeated() -> void:
 	on_boss_defeated("MOTH")
@@ -591,7 +584,7 @@ func transition_to_night_1() -> void:
 	current_period = "NIGHT"
 	current_night = 1
 	current_wave = 0
-	max_waves = 7
+	max_waves = 5
 	
 	wave_state = WaveState.PREPARATION
 	wave_countdown = COUNTDOWN_PERIOD_PREP
@@ -606,7 +599,7 @@ func transition_to_day_2() -> void:
 	current_period = "DAY"
 	current_day = 2
 	current_wave = 0
-	max_waves = 7
+	max_waves = 5
 	
 	wave_state = WaveState.PREPARATION
 	wave_countdown = COUNTDOWN_PERIOD_PREP
@@ -623,7 +616,7 @@ func transition_to_night_2() -> void:
 	current_period = "NIGHT"
 	current_night = 2
 	current_wave = 0
-	max_waves = 7
+	max_waves = 5
 	
 	wave_state = WaveState.PREPARATION
 	wave_countdown = COUNTDOWN_PERIOD_PREP
@@ -632,13 +625,13 @@ func transition_to_night_2() -> void:
 	heal_pip(pip_max_hp)
 	SoundManager.play_night_music(3.5, -5.0)
 	wave_state_changed.emit("PREPARATION", current_wave)
-	notify("🌙 Noite 2 — A Teia Silenciosa se estende pelo jardim... (HP Restaurado)", Color(0.7, 0.8, 1.0))
+	notify("🌙 Noite 2 — A Lua Cheia ilumina o jardim... Prepare-se para a Mariposa Rainha! (HP Restaurado)", Color(0.7, 0.8, 1.0))
 
 func transition_to_day_3() -> void:
 	current_period = "DAY"
 	current_day = 3
 	current_wave = 0
-	max_waves = 7
+	max_waves = 5
 	
 	wave_state = WaveState.PREPARATION
 	wave_countdown = COUNTDOWN_PERIOD_PREP
@@ -696,7 +689,7 @@ func load_night_2_checkpoint() -> void:
 	current_period = "NIGHT"
 	current_night = 2
 	current_wave = 0
-	max_waves = 7
+	max_waves = 5
 	wave_countdown = COUNTDOWN_PERIOD_PREP
 	countdown_active = true
 	
@@ -763,7 +756,7 @@ func reset_game() -> void:
 	current_day = 1
 	current_night = 1
 	current_wave = 0
-	max_waves = 7
+	max_waves = 5
 	enemies_alive = 0
 	wave_state = WaveState.PREPARATION
 	wave_countdown = COUNTDOWN_DURATION

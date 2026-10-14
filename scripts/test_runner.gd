@@ -34,22 +34,22 @@ func _ready() -> void:
 	GameManager.start_game_from_intro()
 	assert(GameManager.countdown_active == true, "Countdown automático deve estar ativo na preparação")
 	assert(GameManager.wave_countdown <= 30.0 and GameManager.wave_countdown > 28.0, "Countdown inicial deve ser de 30 segundos")
-	assert(GameManager.max_waves == 7, "Número total de ondas deve ser 7 para progressão aprofundada")
+	assert(GameManager.max_waves == 5, "Número total de ondas deve ser 5 para o ciclo dinâmico")
 	print("✔ Sistema de countdown de 30 segundos entre ondas validado.")
 	
-	# 2. Testar Dificuldade Progressiva das Ondas de Dia e Noite
-	assert(spawner.day1_wave_configs.size() == 7, "Configuração do Dia 1 deve ter 7 ondas")
-	assert(spawner.night1_wave_configs.size() == 7, "Configuração da Noite 1 deve ter 7 ondas")
-	assert(spawner.day2_wave_configs.size() == 7, "Configuração do Dia 2 deve ter 7 ondas")
-	assert(spawner.night2_wave_configs.size() == 7, "Configuração da Noite 2 deve ter 7 ondas")
-	assert(spawner.day3_wave_configs.size() == 7, "Configuração do Dia 3 deve ter 7 ondas")
+	# 2. Testar Dificuldade Progressiva das Ondas de Dia e Noite (5 Ondas por período)
+	assert(spawner.day1_wave_configs.size() == 5, "Configuração do Dia 1 deve ter 5 ondas")
+	assert(spawner.night1_wave_configs.size() == 5, "Configuração da Noite 1 deve ter 5 ondas")
+	assert(spawner.day2_wave_configs.size() == 5, "Configuração do Dia 2 deve ter 5 ondas")
+	assert(spawner.night2_wave_configs.size() == 5, "Configuração da Noite 2 deve ter 5 ondas")
+	assert(spawner.day3_wave_configs.size() == 5, "Configuração do Dia 3 deve ter 5 ondas")
 	assert(spawner.night3_wave_configs.size() == 3, "Configuração da Noite 3 deve ter 3 ondas antes do Chefe Final")
 	
 	var total_w1 = spawner.day1_wave_configs[0]["aphids"] + spawner.day1_wave_configs[0]["cats"] + spawner.day1_wave_configs[0]["wasps"]
-	var total_w7 = spawner.day1_wave_configs[6]["aphids"] + spawner.day1_wave_configs[6]["cats"] + spawner.day1_wave_configs[6]["wasps"]
-	assert(total_w7 >= total_w1 * 4, "Onda 7 deve ter um volume muito maior de pragas que a Onda 1")
-	assert(spawner.day1_wave_configs[6]["interval"] < spawner.day1_wave_configs[0]["interval"], "Cadência de spawn deve acelerar progressivamente")
-	print("✔ Progressão de dificuldade das ondas (Dia 1, Dia 2, Noite 1, Noite 2) validada.")
+	var total_w5 = spawner.day1_wave_configs[4]["aphids"] + spawner.day1_wave_configs[4]["cats"] + spawner.day1_wave_configs[4]["wasps"]
+	assert(total_w5 >= total_w1 * 3, "Onda 5 clímax deve ter um volume muito maior de pragas que a Onda 1")
+	assert(spawner.day1_wave_configs[4]["interval"] < spawner.day1_wave_configs[0]["interval"], "Cadência de spawn deve acelerar progressivamente")
+	print("✔ Progressão de dificuldade das ondas (5 Ondas com Onda 5 Clímax) validada.")
 	
 	# 3. Testar Plantio de Grama e Efeito de Desaceleração
 	var grass_cell = Vector2i(0, 2)
@@ -182,7 +182,19 @@ func _ready() -> void:
 	var snail: BossSnail = snail_scn.instantiate()
 	root_node.add_child(snail)
 	assert(snail.max_hp >= 400.0, "HP do Caramujo deve ser balanceado para o 1º dia (>= 400 HP)")
-	snail.spawn_local_boss_loot()
+	assert(snail.collision_mask == 1, "Caramujo deve colidir apenas com o Terreno (mask 1) para não travar no dash da Pip")
+	assert(GameManager.active_boss == snail, "Caramujo deve registrar-se como active_boss")
+	
+	# Leva dano até fúria (50%)
+	snail.take_damage(250.0)
+	assert(snail.is_enraged == true, "Caramujo deve entrar em estado de fúria aos 50% de HP")
+	
+	# Finaliza a vida do Caramujo (HP <= 0)
+	snail.take_damage(250.0)
+	assert(snail._death_handled == true, "Caramujo deve ter morte processada com sucesso")
+	assert(GameManager.active_boss == null, "Caramujo deve ser desregistrado do HUD ao morrer")
+	assert(snail.find_child("CollisionShape3D", true, false).disabled == true, "Colisão deve ser desativada imediatamente ao morrer")
+	
 	var drops = root_node.get_tree().get_nodes_in_group("pickups")
 	for drop in drops:
 		if is_instance_valid(drop) and drop.get("item_type") != null:
@@ -391,17 +403,19 @@ func _ready() -> void:
 	gnome.collect_pickup(test_item)
 	assert(gnome.stolen_items.size() == 1, "Gnomo deve colocar item roubado no saco")
 	
-	# 1º Golpe no Gnomo
+	# 1º Golpe no Gnomo: deve soltar o último item que ele pegou!
 	gnome.take_damage(1.0)
 	assert(gnome.hits_taken == 1, "Gnomo deve registrar 1º golpe")
+	assert(gnome.stolen_items.is_empty(), "Gnomo deve ter dropado o último item roubado")
 	assert(gnome.current_speed > 7.0, "Gnomo deve acelerar a corrida após o 1º golpe")
 	
-	# 2º Golpe no Gnomo (Explosão de loot e fuga)
+	# 2º Golpe no Gnomo (sem itens restantes no saco -> fuga em pânico)
 	gnome.take_damage(1.0)
 	assert(gnome.hits_taken == 2, "Gnomo deve registrar 2º golpe")
 	assert(gnome.is_fleeing == true, "Gnomo deve entrar em estado de fuga em pânico")
-	gnome.queue_free()
-	print("✔ NPC Gnomo Ladrão: visual, velocidade, saco infinito, barulho de coelho, 2 golpes e fuga validados 100%.")
+	print("✔ NPC Gnomo Ladrão: visual, velocidade, saco, barulho de coelho, drop do último item e fuga validados 100%.")
+	
+
 	
 	# 12. Testar Visual 2.5D Isométrico de Todos os Inimigos e Chefes
 	var enemy_scenes = [

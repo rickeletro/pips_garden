@@ -345,7 +345,7 @@ func collect_pickup(pickup_node: Node3D) -> void:
 func on_attack_hit(_attacker_pos: Vector3) -> void:
 	take_damage(1.0)
 
-func take_damage(_amount: float, _knockback: Vector3 = Vector3.ZERO, _is_dot: bool = false, _armor_pierce: float = 0.0) -> void:
+func take_damage(_amount: float = 1.0, knockback: Vector3 = Vector3.ZERO, _is_dot: bool = false, _armor_pierce: float = 0.0) -> void:
 	if is_fleeing:
 		return
 		
@@ -354,37 +354,61 @@ func take_damage(_amount: float, _knockback: Vector3 = Vector3.ZERO, _is_dot: bo
 		
 	hits_taken += 1
 	
-	if hits_taken == 1:
-		# 1º GOLPE: Brilha, faz barulhinho de coelho, acelera e solta os últimos até 3 itens pegos
-		SoundManager.play_rabbit_squeak(0.0)
-		SoundManager.play_sparkle(1.5, 0.1)
+	# Som de coelhinho assustado e faísca
+	SoundManager.play_rabbit_squeak(minf(hits_taken * 0.8, 3.0))
+	SoundManager.play_sparkle(1.5, 0.1)
+	
+	# Brilho radiante e animação de sobressalto
+	_play_hit_flash_glow(Color(1.0, 0.9, 0.3))
+	
+	# Aplica leve repulsão de impacto
+	if knockback.length_squared() > 0.01:
+		velocity += knockback.normalized() * 3.5
+	
+	# Aumenta velocidade de corrida a cada golpe
+	current_speed = minf(base_speed + float(hits_taken) * 2.0, flee_speed)
+	
+	# Regra Obrigatória: O gnomo ladrão deve receber ataque e dropar o ÚLTIMO item que pegou!
+	if not stolen_items.is_empty():
+		var last_item = stolen_items.pop_back()
+		_drop_specific_item(last_item)
+		_update_sack_visual()
 		
-		# Brilho radiante
-		_play_hit_flash_glow(Color(1.0, 0.9, 0.3))
-		
-		# Aumenta velocidade
-		current_speed = 7.8
-		
-		# Solta os últimos até 3 itens pegos (se foi só 1 solta 1, se 2 solta 2, até 3)
-		var drop_count = mini(3, stolen_items.size())
-		if drop_count > 0:
-			_drop_items(drop_count)
-			GameManager.notify("🦹‍♂️ O Gnomo levou um golpe e soltou os últimos %d item(ns) roubado(s)!" % drop_count, Color(1.0, 0.85, 0.3))
-		else:
-			GameManager.notify("🦹‍♂️ O Gnomo se assustou e correu como um coelho! Acerte-o mais uma vez!", Color(1.0, 0.85, 0.3))
-		
-	elif hits_taken >= 2:
-		# 2º GOLPE: Solta TODO o restante do saco de itens em explosão e foge em disparada
-		SoundManager.play_rabbit_squeak(2.0)
-		SoundManager.play_fairy_dust(0.0)
-		
-		_play_hit_flash_glow(Color(0.4, 1.0, 0.7))
-		
-		# Explosão total de loot
-		_drop_all_stolen_items_with_bonus()
-		
+		var item_name_str = _format_item_name(last_item)
+		GameManager.notify("🦹‍♂️ O Gnomo levou um golpe e soltou o último item roubado (%s)!" % item_name_str, Color(1.0, 0.85, 0.3))
+	else:
+		GameManager.notify("🦹‍♂️ O Gnomo não tem mais itens no saco e fugiu em pânico!", Color(1.0, 0.7, 0.3))
 		start_flee(true)
-		GameManager.notify("🎉 O Gnomo soltou todo o saco de itens e fugiu em pânico do jardim!", Color(0.3, 1.0, 0.6))
+		return
+		
+	# Caso tenha acumulado 3 ou mais golpes, ele desiste e foge em disparada
+	if hits_taken >= 3:
+		start_flee(true)
+		GameManager.notify("🎉 O Gnomo levou vários golpes e fugiu em disparada do jardim!", Color(0.3, 1.0, 0.6))
+
+func _format_item_name(item_type: String) -> String:
+	match item_type:
+		"TWIG": return "Graveto"
+		"GEAR": return "Engrenagem"
+		"SEED": return "Semente"
+		"DEW_DROP", "DEWDROP": return "Gota de Orvalho"
+		"FAIRY_TEAR": return "Lágrima de Fada"
+		_: return "Recurso"
+
+func _drop_specific_item(item_type: String) -> void:
+	var parent_node = get_parent()
+	if not parent_node:
+		return
+	var drop_scn = load("res://scenes/pickup.tscn")
+	if not drop_scn:
+		return
+	_spawn_single_drop(parent_node, drop_scn, item_type)
+
+func _update_sack_visual() -> void:
+	if sack_node:
+		var target_scale = 1.0 + minf(float(stolen_items.size()) * 0.02, 0.4)
+		var tw = create_tween()
+		tw.tween_property(sack_node, "scale", Vector3(target_scale, target_scale, target_scale), 0.15)
 
 func _play_hit_flash_glow(color: Color) -> void:
 	if glow_light:
