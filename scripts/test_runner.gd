@@ -480,7 +480,34 @@ func _ready() -> void:
 	cam.zoom_to_gameplay(0.1)
 	assert(cam.target_distance == cam.default_distance, "zoom_to_gameplay deve setar a distância para default_distance (16.0m)")
 	
-	print("✔ Tela Inicial Ghibli, Cinemática de História de 4 Atos, Bloqueio de Entrada da Pip e Zoom In de Início validados 100%.")
+	# Validar Menu Inicial Minimalista e Opções de Som/SFX
+	assert(hud.title_screen.btn_start != null, "Botão Começar a Jogar deve existir")
+	assert(hud.title_screen.btn_menu != null, "Botão Menu deve existir")
+	
+	# Testar abertura do submenu de áudio
+	hud.title_screen._show_options_menu(true)
+	assert(hud.title_screen.options_menu_vbox.visible == true, "Submenu de opções deve abrir")
+	assert(hud.title_screen.main_menu_vbox.visible == false, "Menu principal deve ocultar ao abrir opções")
+	
+	# Testar toggle de música e SFX
+	var initial_music = SoundManager.music_enabled
+	hud.title_screen.btn_toggle_music.emit_signal("pressed")
+	assert(SoundManager.music_enabled == not initial_music, "Toggle de música deve alternar estado")
+	hud.title_screen.btn_toggle_music.emit_signal("pressed")
+	assert(SoundManager.music_enabled == initial_music, "Toggle de música deve restaurar estado")
+	
+	var initial_sfx = SoundManager.sfx_enabled
+	hud.title_screen.btn_toggle_sfx.emit_signal("pressed")
+	assert(SoundManager.sfx_enabled == not initial_sfx, "Toggle de SFX deve alternar estado")
+	hud.title_screen.btn_toggle_sfx.emit_signal("pressed")
+	assert(SoundManager.sfx_enabled == initial_sfx, "Toggle de SFX deve restaurar estado")
+	
+	# Testar botão Voltar
+	hud.title_screen.btn_back.emit_signal("pressed")
+	assert(hud.title_screen.main_menu_vbox.visible == true, "Menu principal deve reaparecer ao voltar")
+	assert(hud.title_screen.options_menu_vbox.visible == false, "Submenu de opções deve fechar ao voltar")
+	
+	print("✔ Tela Inicial Minimalista Ghibli, Menu de Áudio (Música/SFX), Cinemática de 4 Atos e Câmera validados 100%.")
 	
 	print("--- TODOS OS TESTES PASSARAM COM 100% DE SUCESSO! ---")
 	get_tree().quit(0)
